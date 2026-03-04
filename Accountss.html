@@ -279,6 +279,56 @@ body{
   margin-top:10px;
 }
 
+/* ===== ACHIEVEMENT PROGRESS BARS ===== */
+.achievement {
+  margin-bottom: 15px;
+}
+
+.achievement-progress {
+  margin-top: 8px;
+}
+
+.achievement-progress-bar {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.achievement-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 8px;
+  transition: width 0.5s ease-in-out;
+}
+
+.achievement-progress-fill.gold { background: linear-gradient(90deg, #f7c948, #f4b400); }
+.achievement-progress-fill.red { background: linear-gradient(90deg, #8b1e3f, #c0392b); }
+.achievement-progress-fill.blue { background: linear-gradient(90deg, #3c6e91, #5dade2); }
+
+.achievement-progress-text {
+  font-size: 11px;
+  color: #555;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.achievement h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.achievement p {
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.achievement-icon {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
 .progress{
   margin-top:20px;
 }
@@ -420,11 +470,41 @@ body{
 
         <div class="achievements">
           <h4 style="margin-top: 20px; margin-bottom: 10px;">🏆 Achievements</h4>
-          <div class="stats">
-            <div>🎯 Lucky Number: <strong id="achieve-lucky">0</strong></div>
-            <div>⭐ Average Mark: <strong id="achieve-mark">0.00</strong></div>
-            <div>🏆 Class Rank: <strong id="achieve-rank">0</strong></div>
-            <div>🌴 Tasks Completed: <strong id="achieve-tasks">0</strong></div>
+          
+          <div class="achievement">
+            <div class="achievement-icon gold">🏅</div>
+            <h4>DEDICATED LEARNER</h4>
+            <p>Unlocked after using the website for 14 consecutive days.</p>
+            <div class="achievement-progress">
+              <div class="achievement-progress-bar">
+                <div class="achievement-progress-fill gold" id="progress-consistency"></div>
+              </div>
+              <div class="achievement-progress-text" id="progress-consistency-text">0/14 days</div>
+            </div>
+          </div>
+
+          <div class="achievement">
+            <div class="achievement-icon red">📅</div>
+            <h4>STREAK MASTER</h4>
+            <p>Unlocked after 30-day streak.</p>
+            <div class="achievement-progress">
+              <div class="achievement-progress-bar">
+                <div class="achievement-progress-fill red" id="progress-streak-master"></div>
+              </div>
+              <div class="achievement-progress-text" id="progress-streak-master-text">0/30 days</div>
+            </div>
+          </div>
+
+          <div class="achievement">
+            <div class="achievement-icon blue">✅</div>
+            <h4>TASK ACHIEVER</h4>
+            <p>Unlocked after completing 20 assigned tasks.</p>
+            <div class="achievement-progress">
+              <div class="achievement-progress-bar">
+                <div class="achievement-progress-fill blue" id="progress-word-wizard"></div>
+              </div>
+              <div class="achievement-progress-text" id="progress-word-wizard-text">0/20 tasks</div>
+            </div>
           </div>
         </div>
       </div>
@@ -535,11 +615,41 @@ document.getElementById('menu-logout').addEventListener('click', function(e) {
             <p>Student</p>
             <div class="achievements">
               <h4 style="margin-top: 20px; margin-bottom: 10px;">🏆 Achievements</h4>
-              <div class="stats">
-                <div>🎯 Lucky Number: <strong id="achieve-lucky">0</strong></div>
-                <div>⭐ Average Mark: <strong id="achieve-mark">0.00</strong></div>
-                <div>🏆 Class Rank: <strong id="achieve-rank">0</strong></div>
-                <div>🌴 Tasks Completed: <strong id="achieve-tasks">0</strong></div>
+              
+              <div class="achievement">
+                <div class="achievement-icon gold">🏅</div>
+                <h4>DEDICATED LEARNER</h4>
+                <p>Unlocked after using the website for 14 consecutive days.</p>
+                <div class="achievement-progress">
+                  <div class="achievement-progress-bar">
+                    <div class="achievement-progress-fill gold" id="progress-consistency"></div>
+                  </div>
+                  <div class="achievement-progress-text" id="progress-consistency-text">0/14 days</div>
+                </div>
+              </div>
+
+              <div class="achievement">
+                <div class="achievement-icon red">📅</div>
+                <h4>STREAK MASTER</h4>
+                <p>Unlocked after 30-day streak.</p>
+                <div class="achievement-progress">
+                  <div class="achievement-progress-bar">
+                    <div class="achievement-progress-fill red" id="progress-streak-master"></div>
+                  </div>
+                  <div class="achievement-progress-text" id="progress-streak-master-text">0/30 days</div>
+                </div>
+              </div>
+
+              <div class="achievement">
+                <div class="achievement-icon blue">✅</div>
+                <h4>TASK ACHIEVER</h4>
+                <p>Unlocked after completing 20 assigned tasks.</p>
+                <div class="achievement-progress">
+                  <div class="achievement-progress-bar">
+                    <div class="achievement-progress-fill blue" id="progress-word-wizard"></div>
+                  </div>
+                  <div class="achievement-progress-text" id="progress-word-wizard-text">0/20 tasks</div>
+                </div>
               </div>
             </div>
           </div>
@@ -609,16 +719,22 @@ document.getElementById('menu-logout').addEventListener('click', function(e) {
   });
 
   function addTask() {
-    const subject = document.getElementById('task-subject').value.trim();
-    const time = document.getElementById('task-time').value.trim();
+    const subjectInput = document.getElementById('task-subject');
+    const timeInput = document.getElementById('task-time');
+    
+    if (!subjectInput || !timeInput) return;
+    
+    const subject = subjectInput.value.trim();
+    const time = timeInput.value.trim();
+    
     if (subject && time) {
       const tasks = getTasks();
       tasks.push({ subject, time, id: Date.now() });
       saveTasks(tasks);
       loadTasks();
-      updateAchievements();
-      document.getElementById('task-subject').value = '';
-      document.getElementById('task-time').value = '';
+      // Do NOT update achievements when adding a task - only when completing (deleting) it
+      subjectInput.value = '';
+      timeInput.value = '';
     }
   }
 
@@ -626,6 +742,7 @@ document.getElementById('menu-logout').addEventListener('click', function(e) {
     const tasks = getTasks().filter(task => task.id !== id);
     saveTasks(tasks);
     loadTasks();
+    // Update achievements when a task is completed (deleted)
     updateAchievements();
   }
 
@@ -646,10 +763,34 @@ document.getElementById('menu-logout').addEventListener('click', function(e) {
       const taskDiv = document.createElement('div');
       taskDiv.className = 'lesson';
       taskDiv.style.background = getRandomColor();
-      taskDiv.innerHTML = `
-        <span>${task.subject}</span>
-        <span>${task.time} <button onclick="deleteTask(${task.id})" style="margin-left: 10px; background: red; color: white; border: none; border-radius: 3px; cursor: pointer;">Delete</button></span>
-      `;
+      taskDiv.style.display = 'flex';
+      taskDiv.style.justifyContent = 'space-between';
+      taskDiv.style.alignItems = 'center';
+      taskDiv.style.padding = '14px';
+      taskDiv.style.borderRadius = '15px';
+      taskDiv.style.marginBottom = '10px';
+      
+      const taskInfo = document.createElement('span');
+      taskInfo.innerHTML = `<strong>${task.subject}</strong> - ${task.time}`;
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.style.marginLeft = '10px';
+      deleteBtn.style.background = 'red';
+      deleteBtn.style.color = 'white';
+      deleteBtn.style.border = 'none';
+      deleteBtn.style.borderRadius = '3px';
+      deleteBtn.style.padding = '5px 10px';
+      deleteBtn.style.cursor = 'pointer';
+      deleteBtn.onclick = function() {
+        deleteTask(task.id);
+      };
+      
+      const rightSpan = document.createElement('span');
+      rightSpan.appendChild(deleteBtn);
+      
+      taskDiv.appendChild(taskInfo);
+      taskDiv.appendChild(rightSpan);
       list.appendChild(taskDiv);
     });
   }
@@ -748,16 +889,33 @@ document.getElementById('menu-logout').addEventListener('click', function(e) {
       saveCalendarTasks(tasks);
       renderCalendar(currentDate);
       openTaskModal(selectedDate);
-      updateAchievements();
+      // Do NOT update achievements for calendar tasks - only timetable tasks count
     }
   }
 
   function getAchievements() {
-    return JSON.parse(localStorage.getItem('achievements') || '{"lucky":0,"mark":0,"rank":0,"tasks":0}');
+    const username = localStorage.getItem('username') || 'Student';
+    const achievementsKey = username ? `achievements_${username}` : 'achievements';
+    return JSON.parse(localStorage.getItem(achievementsKey) || '{"lucky":0,"mark":0,"rank":0,"tasks":0}');
   }
 
   function saveAchievements(achievements) {
-    localStorage.setItem('achievements', JSON.stringify(achievements));
+    const username = localStorage.getItem('username') || 'Student';
+    const achievementsKey = username ? `achievements_${username}` : 'achievements';
+    localStorage.setItem(achievementsKey, JSON.stringify(achievements));
+  }
+
+  /* ===== STREAK & WORDS DATA ===== */
+  function getStreak() {
+    const username = localStorage.getItem('username') || 'Student';
+    const streakKey = username ? `streak_${username}` : 'streak';
+    return Number(localStorage.getItem(streakKey)) || 0;
+  }
+
+  function getWordsLearned() {
+    const username = localStorage.getItem('username') || 'Student';
+    const wordsKey = username ? `words_${username}` : 'words';
+    return Number(localStorage.getItem(wordsKey)) || 0;
   }
 
   function loadAchievements() {
@@ -771,6 +929,52 @@ document.getElementById('menu-logout').addEventListener('click', function(e) {
     if (markEl) markEl.textContent = parseFloat(achievements.mark).toFixed(2);
     if (rankEl) rankEl.textContent = achievements.rank;
     if (tasksEl) tasksEl.textContent = achievements.tasks;
+
+    // Get streak and tasks data for progress bars
+    const streak = getStreak();
+    const tasksCompleted = achievements.tasks;
+
+    // Initialize progress bars at 0
+    if (document.getElementById('progress-consistency')) {
+      document.getElementById('progress-consistency').style.width = '0%';
+    }
+    if (document.getElementById('progress-streak-master')) {
+      document.getElementById('progress-streak-master').style.width = '0%';
+    }
+    if (document.getElementById('progress-word-wizard')) {
+      document.getElementById('progress-word-wizard').style.width = '0%';
+    }
+
+    // Animate progress bars with staggered delays
+    setTimeout(() => {
+      if (document.getElementById('progress-consistency')) {
+        const dedicatedLearnerProgress = Math.min((streak / 14) * 100, 100);
+        document.getElementById('progress-consistency').style.width = dedicatedLearnerProgress + '%';
+        if (document.getElementById('progress-consistency-text')) {
+          document.getElementById('progress-consistency-text').textContent = streak + '/14 days';
+        }
+      }
+    }, 100);
+
+    setTimeout(() => {
+      if (document.getElementById('progress-streak-master')) {
+        const streakMasterProgress = Math.min((streak / 30) * 100, 100);
+        document.getElementById('progress-streak-master').style.width = streakMasterProgress + '%';
+        if (document.getElementById('progress-streak-master-text')) {
+          document.getElementById('progress-streak-master-text').textContent = streak + '/30 days';
+        }
+      }
+    }, 300);
+
+    setTimeout(() => {
+      if (document.getElementById('progress-word-wizard')) {
+        const taskAchieverProgress = Math.min((tasksCompleted / 20) * 100, 100);
+        document.getElementById('progress-word-wizard').style.width = taskAchieverProgress + '%';
+        if (document.getElementById('progress-word-wizard-text')) {
+          document.getElementById('progress-word-wizard-text').textContent = tasksCompleted + '/20 tasks';
+        }
+      }
+    }, 500);
   }
 
   function updateAchievements() {
