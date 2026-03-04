@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Equivalence Unlock UI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family: "Comic Sans MS", Arial, sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f3f3f3;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.canvas{
+  width:1200px;
+  height:600px;
+  background: linear-gradient(135deg,#fff1b6,#ffe0a3);
+  border-radius:24px;
+  padding:30px;
+  position:relative;
+}
+
+/* TOP BAR */
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.user{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.avatar{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+}
+
+.user-info b{
+  font-size:20px;
+}
+
+.user-info small{
+  display:block;
+  font-size:14px;
+  opacity:.7;
+}
+
+.fire{
+  background:#ff914d;
+  color:#fff;
+  padding:10px 16px;
+  border-radius:30px;
+  font-weight:bold;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+/* MAIN CONTENT */
+.content{
+  display:flex;
+  gap:30px;
+  height:480px;
+}
+
+/* LEFT CARD */
+.recommend{
+  flex:1;
+  background:linear-gradient(160deg,#9bd4ff,#7b6cf6);
+  border-radius:30px;
+  padding:40px;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+.brain{
+  width:120px;
+  height:120px;
+  border-radius:24px;
+  background:rgba(255,255,255,.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:60px;
+  margin-bottom:30px;
+}
+
+.recommend h1{
+  font-size:40px;
+  margin:0;
+  letter-spacing:2px;
+  font-weight: bold;
+  font-family: "Arial Rounded MT Bold", Arial, sans-serif;
+}
+
+.recommend p{
+  margin-top:12px;
+  font-size:18px;
+  opacity:.9;
+}
+
+/* RIGHT PANEL */
+.right{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.title-pill{
+  background:linear-gradient(135deg,#6c63ff,#4d47c6);
+  color:#fff;
+  padding:20px;
+  border-radius:24px;
+  font-size:28px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+/* 🔒 LOCKED BOXES */
+.slot{
+  flex:1;
+  background:linear-gradient(135deg,#444,#222);
+  border-radius:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:54px;
+  color:#bbb;
+  box-shadow: inset 0 0 20px rgba(0,0,0,.5);
+  opacity:0.45;
+  cursor:not-allowed;
+  position:relative;
+  transition: all .3s ease;
+}
+
+/* LOCK ICON */
+.slot::after{
+  content:"🔒";
+  position:absolute;
+  bottom:18px;
+  right:22px;
+  font-size:28px;
+  opacity:.7;
+}
+
+/* HOVER EFFECT (LOCKED) */
+.slot:hover{
+  transform: scale(1.02);
+  opacity:0.6;
+}
+
+/* UNLOCKED STATE */
+.slot.unlocked{
+  opacity:1;
+  cursor:pointer;
+  background:linear-gradient(135deg,#6c63ff,#3f3bd9);
+  color:#fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.slot.unlocked::after{
+  content:"";
+}
+
+/* HOVER UNLOCKED */
+.slot.unlocked:hover{
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,.3);
+}
+</style>
+</head>
+
+<body>
+
+<div class="canvas">
+
+  <!-- TOP -->
+  <div class="top">
+    <div class="user">
+      <div class="avatar">👤</div>
+      <div class="user-info">
+        <b>ELIEZA</b>
+        <small>LEVEL 5</small>
+      </div>
+    </div>
+
+    <div class="fire">🔥 3</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- LEFT -->
+    <div class="recommend">
+      <div class="brain">🧠</div>
+      <h1>RECOMMEND</h1>
+      <p>Personalized to you</p>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+      
+
+      <button class="slot unlocked" style="display:flex; align-items:center; justify-content:space-between;"><b>EQUIVALENCE</b><img src="MINDSPARKLOGO.png" alt="Logo" style="width:30px; height:30px;"></button>
+      <div class="slot">?</div>
+      <div class="slot">?</div>
+      <div class="slot">?</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
+
+

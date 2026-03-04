@@ -1,0 +1,370 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hangman · no zoom background</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100vw; height: 100vh;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  /* image background – NO zoom, NO crop, shown at original size */
+  body {
+    background: url('bghangf.png') no-repeat center top;
+    background-size: auto;        /* keeps original dimensions, no zoom */
+    background-attachment: fixed;  /* stays fixed while scrolling (but we have no scroll) */
+  }
+
+  /* optional semi‑transparent overlay so UI pops (still present) */
+  .game-root {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column;
+    background-color: rgba(10, 30, 45, 0.25);
+    backdrop-filter: blur(2px);
+  }
+
+  /* --- BACK BUTTON (far left edge, smaller arrow) --- */
+  .back-arrow-circle {
+    position: absolute;
+    top: clamp(12px, 2.0vh, 28px);
+    left: 8px;                /* pinaka gilid */
+    width: clamp(38px, 4.5vw, 58px);
+    height: clamp(38px, 4.5vw, 58px);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(5px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 12px rgba(0,20,35,0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 50;
+    border: 2px solid rgba(255,255,255,0.8);
+    text-decoration: none;
+  }
+  .back-arrow-circle:hover {
+    background: #ffffff;
+    transform: scale(1.06) translateY(-2px);
+    box-shadow: 0 10px 18px rgba(0,30,45,0.4);
+  }
+  .back-arrow-circle:active {
+    transform: scale(0.96) translateY(0);
+  }
+  /* left arrow */
+  .arrow-left {
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-right: 12px solid #2c4a6e;
+    margin-right: -2px;
+  }
+
+  /* top bar: title top-left, buttons on the right */
+  .top-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: clamp(14px,2.4vh,34px) clamp(22px,3.8vw,75px) 0;
+    width: 100%;
+  }
+
+  .title {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(42px, 7vw, 88px);
+    color: #dce8f0;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: clamp(8px,1vw,16px);
+    padding-top: 6px;
+  }
+
+  .action-btn {
+    background: rgba(200,220,235,0.72);
+    backdrop-filter: blur(8px);
+    border: none; border-radius: clamp(10px,1.2vw,18px);
+    padding: clamp(8px,1vh,15px) clamp(16px,2.4vw,38px);
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(12px,1.25vw,21px);
+    font-weight: 800; color: #556b80; cursor: pointer;
+    letter-spacing: 2px; text-transform: uppercase;
+    transition: all 0.15s ease;
+  }
+  .action-btn:hover { background: rgba(230,243,252,0.9); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+  .action-btn:active { transform: translateY(0); }
+
+  .middle-row {
+    flex: 1; display: flex; align-items: center;
+    padding: 0 clamp(22px,3.8vw,75px);
+    gap: clamp(18px,3.5vw,70px); overflow: hidden;
+  }
+
+  .gallows-wrap { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .gallows-wrap svg { width: clamp(160px,20vw,320px); height: auto; }
+  .wrong-label { font-size: clamp(11px,1vw,19px); font-weight: 700; color: rgba(220,235,245,0.85); }
+
+  .keyboard-wrap {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: flex-end; gap: clamp(5px,0.7vh,11px);
+  }
+
+  .key-row { display: flex; gap: clamp(5px,0.55vw,9px); }
+
+  .key {
+    width: clamp(40px,5.2vw,78px); height: clamp(40px,5.2vw,78px);
+    background: rgba(218,234,245,0.85); backdrop-filter: blur(4px);
+    border: none; border-radius: clamp(6px,0.65vw,11px);
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(13px,1.55vw,27px); font-weight: 800; color: #3a5068;
+    cursor: pointer; transition: all 0.1s ease;
+    box-shadow: 0 3px 0 rgba(90,130,160,0.38);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .key:hover:not(:disabled) { background: rgba(240,250,255,0.95); transform: translateY(-2px); box-shadow: 0 5px 0 rgba(90,130,160,0.38); }
+  .key:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 rgba(90,130,160,0.38); }
+  .key:disabled { cursor: default; transform: none; box-shadow: none; }
+  .key.wrong  { background: rgba(195,80,80,0.52);  color:#fff; opacity:0.7; }
+  .key.correct{ background: rgba(80,175,120,0.55); color:#fff; }
+
+  .word-row {
+    padding: clamp(8px,1.2vh,20px) clamp(22px,3.8vw,75px) clamp(18px,2.8vh,44px);
+    display: flex; justify-content: center;
+  }
+  .word-display { display: flex; gap: clamp(8px,1.1vw,20px); align-items: flex-end; }
+
+  .letter-slot { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: clamp(34px,3.8vw,66px); }
+  .letter-shown {
+    font-size: clamp(26px,3.8vw,62px); font-weight: 800; color: #dce8f2;
+    height: clamp(34px,4.2vw,68px);
+    display: flex; align-items: center; justify-content: center;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.25s ease;
+  }
+  .letter-line { width: 100%; height: clamp(2px,0.28vh,4px); background: rgba(200,220,235,0.8); border-radius: 2px; }
+
+  .hint-toast {
+    position: fixed; top: clamp(8px,1.8vh,28px); left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: rgba(200,225,240,0.9); backdrop-filter: blur(10px);
+    border-radius: 12px; padding: clamp(7px,0.9vh,13px) clamp(18px,2.3vw,34px);
+    font-size: clamp(12px,1.15vw,19px); font-weight: 700; color: #3a5570;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s;
+    z-index: 200; white-space: nowrap;
+  }
+  .hint-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(30,55,75,0.55); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.4s;
+  }
+  .overlay.show { opacity: 1; pointer-events: all; }
+
+  .end-box {
+    background: rgba(200,225,240,0.93); border-radius: clamp(14px,1.8vw,26px);
+    padding: clamp(28px,3.8vh,65px) clamp(38px,5.5vw,85px);
+    text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .end-title { font-family: 'Caveat', cursive; font-size: clamp(36px,4.8vw,68px); color: #3a5068; margin-bottom: 10px; }
+  .end-word  { font-size: clamp(15px,1.9vw,28px); font-weight: 800; color: #4a6a88; margin-bottom: clamp(18px,2.8vh,38px); letter-spacing: 3px; }
+  .replay-btn {
+    background: #4a7a9b; color: #fff; border: none;
+    border-radius: clamp(9px,1.1vw,15px);
+    padding: clamp(11px,1.4vh,20px) clamp(28px,3.8vw,60px);
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(15px,1.7vw,26px); font-weight: 800; cursor: pointer;
+    letter-spacing: 2px; transition: all 0.2s;
+  }
+  .replay-btn:hover { background: #3a6a8b; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+</style>
+</head>
+<body>
+
+<!-- BACK BUTTON – pinaka gilid (left: 8px) -->
+<a href="Hangman%20Homepage.html" class="back-arrow-circle" title="Back to homepage">
+  <div class="arrow-left"></div>
+</a>
+
+<!-- GAME UI overlay -->
+<div class="game-root">
+  <div class="top-bar">
+    <div class="title">Hangman</div>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="revealLetter()">REVEAL</button>
+      <button class="action-btn" onclick="showHint()">HINT</button>
+    </div>
+  </div>
+
+  <div class="middle-row">
+    <!-- Gallows -->
+    <div class="gallows-wrap">
+      <svg viewBox="0 0 300 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="20"  y1="408" x2="280" y2="408" stroke="#3a5068" stroke-width="7" stroke-linecap="round"/>
+        <line x1="70"  y1="408" x2="70"  y2="20"  stroke="#3a5068" stroke-width="7" stroke-linecap="round"/>
+        <line x1="70"  y1="20"  x2="195" y2="20"  stroke="#3a5068" stroke-width="7" stroke-linecap="round"/>
+        <line x1="195" y1="20"  x2="195" y2="65"  stroke="#3a5068" stroke-width="7" stroke-linecap="round"/>
+        <line x1="70"  y1="70"  x2="120" y2="20"  stroke="#3a5068" stroke-width="5"  stroke-linecap="round"/>
+        <!-- Hangman parts (hidden initially) -->
+        <circle id="h-head" cx="195" cy="93"  r="28"  stroke="#3a5068" stroke-width="5.5" style="display:none"/>
+        <line   id="h-body" x1="195" y1="121" x2="195" y2="225" stroke="#3a5068" stroke-width="5.5" stroke-linecap="round" style="display:none"/>
+        <line   id="h-larm" x1="195" y1="150" x2="152" y2="195" stroke="#3a5068" stroke-width="5.5" stroke-linecap="round" style="display:none"/>
+        <line   id="h-rarm" x1="195" y1="150" x2="238" y2="195" stroke="#3a5068" stroke-width="5.5" stroke-linecap="round" style="display:none"/>
+        <line   id="h-lleg" x1="195" y1="225" x2="152" y2="290" stroke="#3a5068" stroke-width="5.5" stroke-linecap="round" style="display:none"/>
+        <line   id="h-rleg" x1="195" y1="225" x2="238" y2="290" stroke="#3a5068" stroke-width="5.5" stroke-linecap="round" style="display:none"/>
+      </svg>
+      <div class="wrong-label" id="wrong-label">0 / 6 wrong</div>
+    </div>
+
+    <!-- Keyboard -->
+    <div class="keyboard-wrap">
+      <div class="key-row" id="row1"></div>
+      <div class="key-row" id="row2"></div>
+      <div class="key-row" id="row3"></div>
+    </div>
+  </div>
+
+  <!-- Word display -->
+  <div class="word-row">
+    <div class="word-display" id="word-display"></div>
+  </div>
+</div>
+
+<!-- Hint toast -->
+<div class="hint-toast" id="hint-toast"></div>
+
+<!-- End overlay (win/lose) -->
+<div class="overlay" id="overlay">
+  <div class="end-box">
+    <div class="end-title" id="end-title"></div>
+    <div class="end-word"  id="end-word"></div>
+    <button class="replay-btn" onclick="newGame()">PLAY AGAIN</button>
+  </div>
+</div>
+
+<script>
+  const ROWS = ['ABCDEFGH','IJKLMNOPQR','STUVWXYZ'].map(s=>s.split(''));
+  const WORDS = [
+    {w:'PYTHON',  h:'A popular programming language'},
+    {w:'GALAXY',  h:'A large system of stars in space'},
+    {w:'BRIDGE',  h:'Structure spanning a river or gap'},
+    {w:'JUNGLE',  h:'Dense tropical forest'},
+    {w:'CASTLE',  h:'A large medieval fortification'},
+    {w:'SPHINX',  h:'Ancient Egyptian monument'},
+    {w:'VOYAGE',  h:'A long journey by sea'},
+    {w:'WIZARD',  h:'A person who practises magic'},
+    {w:'PRISM',   h:'Splits light into a spectrum'},
+    {w:'ANCHOR',  h:'Keeps a ship in place'},
+    {w:'LANTERN', h:'A portable light with a handle'},
+    {w:'COMPASS', h:'Used for navigation and direction'},
+    {w:'ECLIPSE', h:'When one celestial body blocks another'},
+    {w:'FOSSIL',  h:'Preserved remains of ancient life'},
+    {w:'GLACIER', h:'A slow-moving river of ice'},
+  ];
+  const PARTS = ['h-head','h-body','h-larm','h-rarm','h-lleg','h-rleg'];
+
+  let word='', hint='', guessed=new Set(), wrongs=0, over=false;
+
+  function newGame(){
+    const e = WORDS[Math.floor(Math.random()*WORDS.length)];
+    word=e.w; hint=e.h;
+    guessed.clear(); wrongs=0; over=false;
+    PARTS.forEach(id=>document.getElementById(id).style.display='none');
+    document.querySelectorAll('.key').forEach(k=>{ k.disabled=false; k.classList.remove('wrong','correct'); });
+    document.getElementById('overlay').classList.remove('show');
+    document.getElementById('hint-toast').classList.remove('show');
+    document.getElementById('wrong-label').textContent='0 / 6 wrong';
+    renderWord();
+  }
+
+  function renderWord(){
+    const c=document.getElementById('word-display');
+    c.innerHTML='';
+    word.split('').forEach(ch=>{
+      const slot=document.createElement('div'); slot.className='letter-slot';
+      const ltr=document.createElement('div');  ltr.className='letter-shown'; ltr.textContent=guessed.has(ch)?ch:'';
+      const line=document.createElement('div'); line.className='letter-line';
+      slot.append(ltr,line); c.appendChild(slot);
+    });
+  }
+
+  function buildKeyboard(){
+    ROWS.forEach((row,ri)=>{
+      const rowEl=document.getElementById('row'+(ri+1)); rowEl.innerHTML='';
+      row.forEach(letter=>{
+        const btn=document.createElement('button'); btn.className='key';
+        btn.textContent=letter; btn.dataset.letter=letter;
+        btn.onclick=()=>guess(letter,btn); rowEl.appendChild(btn);
+      });
+    });
+  }
+
+  function guess(l,btn){
+    if(over||guessed.has(l))return;
+    guessed.add(l); btn.disabled=true;
+    if(word.includes(l)){
+      btn.classList.add('correct');
+    } else {
+      btn.classList.add('wrong');
+      document.getElementById(PARTS[wrongs]).style.display='';
+      wrongs++;
+      document.getElementById('wrong-label').textContent=`${wrongs} / 6 wrong`;
+    }
+    renderWord(); check();
+  }
+
+  function check(){
+    const won=word.split('').every(ch=>guessed.has(ch));
+    if(won||wrongs>=6){
+      over=true;
+      setTimeout(()=>{
+        document.getElementById('end-title').textContent=won?'You Win! 🎉':'Game Over 💀';
+        document.getElementById('end-word').textContent='Word: '+word;
+        document.getElementById('overlay').classList.add('show');
+      },600);
+    }
+  }
+
+  function revealLetter(){
+    if(over)return;
+    const hidden=word.split('').filter(ch=>!guessed.has(ch));
+    if(!hidden.length)return;
+    const l=hidden[Math.floor(Math.random()*hidden.length)];
+    const btn=document.querySelector(`.key[data-letter="${l}"]:not(:disabled)`);
+    if(btn)guess(l,btn);
+  }
+
+  function showHint(){
+    const el=document.getElementById('hint-toast');
+    el.textContent='💡 '+hint; el.classList.add('show');
+    clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),3500);
+  }
+
+  document.addEventListener('keydown',e=>{
+    const l=e.key.toUpperCase();
+    if(/^[A-Z]$/.test(l)&&!over){
+      const btn=document.querySelector(`.key[data-letter="${l}"]:not(:disabled)`);
+      if(btn)guess(l,btn);
+    }
+  });
+
+  buildKeyboard();
+  newGame();
+</script>
+</body>
+</html>
+
+

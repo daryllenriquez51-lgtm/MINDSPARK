@@ -1,0 +1,376 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Auto Slice Puzzle</title>
+
+<style>
+body {
+  margin: 0;
+  background-image: url('MINDSPARK%20(4).jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+}
+
+.container {
+  display: flex;
+  padding: 20px;
+  justify-content: space-between;
+}
+
+#board {
+  width: 90vh;
+  height: 90vh;
+  border: 10px solid #d4a14f;
+  position: relative;
+  margin-right: -20px;
+}
+
+#background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+.slot {
+  position: absolute;
+  border: 1px dashed rgba(255,255,255,.5);
+}
+
+.piece {
+  position: absolute;
+  cursor: grab;
+  border-radius: 0px;
+  bottom: 85px;
+}
+
+.right {
+  width: 400px;
+  text-align: center;
+  position: relative;
+  left: -20px;
+}
+
+.score-circle {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #ffec9e, #f7b500);
+  border-radius: 50%;
+  margin: auto;
+  margin-left: -120px;
+  position: relative;
+}
+
+.score-circle h1 {
+  line-height: 300px;
+  font-size: 80px;
+  color: white;
+  margin: 0;
+  text-shadow: 2px 2px #c48b00;
+}
+
+.level-display {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  color: white;
+  font-weight: bold;
+  text-shadow: 1px 1px #c48b00;
+}
+
+.crown {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: gold;
+  padding: 6px 18px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+}
+
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);visibility:hidden;opacity:0;transition:opacity .18s ease, visibility .18s;}
+.overlay.show{visibility:visible;opacity:1;}
+.modal{padding:28px 34px;border-radius:12px;background:rgba(255,255,255,0.85);box-shadow:0 20px 40px rgba(0,0,0,0.45);text-align:center;max-width:520px;}
+.modal h2{font-family:'Arial';font-size:36px;margin-bottom:6px;color:#222;}
+.modal p{color:#333;margin-bottom:16px;}
+
+#tray {
+  margin-top: 20px;
+  margin-left:-330px;
+  width: 220px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  background: linear-gradient(#ffe39c, #f6b74c);
+  padding: 160px 250px;
+  border-radius: 28px;
+  overflow-x: auto;
+}
+
+/* Back button styles */
+.back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+  text-decoration: none;
+}
+
+.back-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.back-button:active {
+  transform: scale(0.95);
+}
+
+.back-button svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: #333;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- Back button -->
+<a href="Puzzle%20Homepage.html" class="back-button">
+  <svg viewBox="0 0 24 24">
+    <path d="M19 12H5M12 19l-7-7 7-7"/>
+  </svg>
+</a>
+
+<div class="container">
+<div id="board">
+  <div id="background"></div>
+  </div>
+
+  <div class="right">
+    <div class="score-circle">
+      <div class="crown">👑</div>
+      <div class="level-display" id="level">Level 1</div>
+      <h1 id="score">0</h1>
+    </div>
+    <div id="tray"></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modal-title">Good job!</h2>
+    <p id="modal-body">You completed the level!</p>
+    <button class="btn btn-green" id="next">Next</button>
+  </div>
+</div>
+
+<script>
+let rows = 3;
+let cols = 3;
+let level = 1;
+const traySize = 3;
+
+const board = document.getElementById("board");
+const tray = document.getElementById("tray");
+const scoreEl = document.getElementById("score");
+const levelEl = document.getElementById("level");
+
+let score = 0;
+let allPieces = [];
+let pieceIndex = 1;
+
+
+let img = new Image();
+img.crossOrigin = "anonymous";
+img.src = "https://images.unsplash.com/photo-1509042239860-f550ce710b93";
+
+img.onload = () => {
+  const background = document.getElementById("background");
+  background.style.backgroundImage = `url(${img.src})`;
+  const pieceW = board.clientWidth / cols;
+  const pieceH = board.clientHeight / rows;
+  createSlots(pieceW, pieceH);
+  sliceImage(pieceW, pieceH);
+};
+
+
+
+
+
+function clearBoard() {
+  while (board.firstChild) {
+    board.removeChild(board.firstChild);
+  }
+}
+
+function clearTray() {
+  while (tray.firstChild) {
+    tray.removeChild(tray.firstChild);
+  }
+}
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function createSlots(pieceW, pieceH) {
+  for (let i = 0; i < rows * cols; i++) {
+    const slot = document.createElement("div");
+    slot.className = "slot";
+    slot.dataset.index = i;
+    slot.style.width = pieceW + "px";
+    slot.style.height = pieceH + "px";
+    slot.style.left = (i % cols) * pieceW + "px";
+    slot.style.top = Math.floor(i / cols) * pieceH + "px";
+
+    slot.ondragover = e => e.preventDefault();
+    slot.ondrop = e => {
+      e.preventDefault();
+      const id = e.dataTransfer.getData("id");
+      const piece = document.getElementById(id);
+
+      if (piece.dataset.index === slot.dataset.index) {
+        // Remove from tray first
+        tray.removeChild(piece);
+
+        piece.style.left = slot.style.left;
+        piece.style.top = slot.style.top;
+        piece.style.position = "absolute";
+        piece.style.transform = "none";
+        board.appendChild(piece);
+        piece.draggable = false;
+        piece.onclick = () => {
+          // Remove from board
+          board.removeChild(piece);
+          // Add back to tray
+          tray.appendChild(piece);
+          // Make draggable again
+          piece.draggable = true;
+          // Decrement score
+          score -= 8;
+          scoreEl.textContent = score;
+        };
+        score += 8;
+        scoreEl.textContent = score;
+
+        // Check if puzzle is complete
+        if (score === rows * cols * 8) {
+          const overlay = document.getElementById('overlay');
+          overlay.classList.add('show');
+          setTimeout(() => {
+            overlay.classList.remove('show');
+            level++;
+            levelEl.textContent = `Level ${level}`;
+            score = 0;
+            scoreEl.textContent = score;
+            rows++;
+            cols++;
+            clearBoard();
+            clearTray();
+            const background = document.createElement("div");
+            background.id = "background";
+            background.style.position = "absolute";
+            background.style.top = "0";
+            background.style.left = "0";
+            background.style.width = "100%";
+            background.style.height = "100%";
+            background.style.backgroundSize = "cover";
+            background.style.backgroundRepeat = "no-repeat";
+            background.style.backgroundPosition = "center";
+            background.style.opacity = "0.3";
+            background.style.zIndex = "-1";
+            background.style.backgroundImage = `url(${img.src})`;
+            board.appendChild(background);
+            const pieceW = board.clientWidth / cols;
+            const pieceH = board.clientHeight / rows;
+            createSlots(pieceW, pieceH);
+            sliceImage(pieceW, pieceH);
+          }, 2000);
+        }
+      }
+    };
+
+    board.appendChild(slot);
+  }
+}
+
+function sliceImage(pieceW, pieceH) {
+  allPieces = [];
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const canvas = document.createElement("canvas");
+      canvas.width = pieceW;
+      canvas.height = pieceH;
+      const ctx = canvas.getContext("2d");
+
+      ctx.drawImage(
+        img,
+        x * img.width / cols,
+        y * img.height / rows,
+        img.width / cols,
+        img.height / rows,
+        0,
+        0,
+        pieceW,
+        pieceH
+      );
+
+      const piece = document.createElement("img");
+      piece.src = canvas.toDataURL();
+      piece.className = "piece";
+      piece.id = `piece-${y * cols + x}`;
+      piece.dataset.index = y * cols + x;
+      piece.draggable = true;
+
+      piece.ondragstart = e => {
+        e.dataTransfer.setData("id", piece.id);
+      };
+
+      allPieces.push(piece);
+    }
+  }
+  shuffle(allPieces);
+  allPieces.forEach(piece => tray.appendChild(piece));
+}
+
+
+</script>
+
+</body>
+</html>
+
+

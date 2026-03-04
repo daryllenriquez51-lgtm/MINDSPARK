@@ -1,0 +1,205 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Word Voyage — Story Mode</title>
+<style>
+:root{
+  --bg:#071025; --panel:#0b2340; --accent:#1e90ff; --muted:#7ea6d6;
+  --txt:#e6f0ff; --fade:#3a4a6f; --banner-bg:#1b3a6b; --error:#d9534f;
+}
+html,body{margin:0;padding:0;font-family:Inter,system-ui,'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--txt);}
+.stage{display:flex;flex-direction:column;align-items:center;padding:28px;min-height:100vh;position:relative;}
+#gameTitle {
+  color: var(--accent);
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.game-window{width:100%;max-width:700px;background:linear-gradient(180deg,var(--panel),#071a31);border-radius:12px;padding:20px;box-shadow:0 20px 60px rgba(2,6,23,0.6);position:relative;}
+.sentence-panel{margin-top:18px;background:linear-gradient(180deg,#0f3a6a,#06253f);padding:22px;border-radius:8px;box-shadow:inset 0 -6px 24px rgba(0,0,0,0.35);}
+.sentence{font-size:24px;line-height:1.5;font-weight:700;padding:4px;}
+.letter{color:var(--fade);}
+.letter.correct{color:var(--txt);}
+.letter.wrong{color:var(--error);}
+.typing-input{width:100%;padding:14px;border-radius:8px;font-size:20px;background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--txt);outline:none;margin-top:12px;}
+.controls{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
+.btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:10px 14px;border-radius:8px;cursor:pointer;}
+.btn.primary{background:var(--accent);border:none;color:#022;}
+/* Centered banner box with fade */
+.banner{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:var(--banner-bg);
+  color:#fff;
+  text-align:center;
+  padding:24px 32px;
+  font-size:20px;
+  border-radius:12px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.5);
+  opacity:0;
+  pointer-events:none;
+  max-width:90%;
+  transition:opacity 0.3s ease;
+}
+.banner.show{
+  opacity:1;
+  pointer-events:auto;
+}
+.banner button{
+  margin-top:16px;
+  padding:8px 18px;
+  border:none;
+  border-radius:6px;
+  background:var(--accent);
+  color:#022;
+  cursor:pointer;
+  font-weight:600;
+  transition:background 0.3s ease;
+}
+.banner button:hover{background:#0f78d1;}
+
+/* Exit X button fixed top-left */
+#exitBtn{
+  position: fixed; /* fixed to screen */
+  top: 20px; /* distance from top */
+  left: 20px; /* distance from left */
+  width:28px;
+  height:28px;
+  font-size:16px;
+  font-weight:bold;
+  border:none;
+  border-radius:50%;
+  background:#d9534f;
+  color:#fff;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:100; /* on top of everything */
+}
+#exitBtn:hover{background:#c9302c;}
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1 id="gameTitle">Word Voyage</h1>
+  <button id="exitBtn">×</button>
+  <div class="game-window">
+    <div class="sentence-panel">
+      <div class="sentence" id="sentenceDisplay"></div>
+      <input type="text" id="typingInput" class="typing-input" placeholder="Type here..." />
+    </div>
+    <div class="controls">
+      <button id="doneBtn" class="btn primary">Done</button>
+      <button id="restartBtn" class="btn">Restart</button>
+    </div>
+  </div>
+</div>
+
+<div class="banner" id="banner"></div>
+
+<script>
+const story = [
+  "Once upon a time, a curious fox explored the forest.",
+  "It discovered a sparkling stream that flowed through the trees.",
+  "Along the bank, the fox met a wise old turtle.",
+  "Together, they found hidden treasures and learned valuable lessons.",
+  "The fox returned home, excited to share its adventures."
+];
+
+let state = {si:0};
+
+const sentenceDisplay = document.getElementById('sentenceDisplay');
+const typingInput = document.getElementById('typingInput');
+const banner = document.getElementById('banner');
+const doneBtn = document.getElementById('doneBtn');
+const restartBtn = document.getElementById('restartBtn');
+const exitBtn = document.getElementById('exitBtn');
+
+function renderSentence(){
+  if(state.si >= story.length){
+    showBanner("🎉 Congratulations! You completed the story!","Homepage",goHomepage);
+    return;
+  }
+  const sentence = story[state.si];
+  sentenceDisplay.innerHTML = '';
+  sentence.split('').forEach(ch=>{
+    const span = document.createElement('span');
+    span.textContent = ch;
+    span.className = 'letter';
+    sentenceDisplay.appendChild(span);
+  });
+  typingInput.value = '';
+  typingInput.focus();
+}
+
+/* Update colors as user types */
+typingInput.addEventListener('input',()=>{
+  const letters = sentenceDisplay.querySelectorAll('.letter');
+  const input = typingInput.value;
+  letters.forEach((span,i)=>{
+    if(input[i] === undefined){
+      span.classList.remove('correct','wrong');
+    } else if(input[i] === span.textContent){
+      span.classList.add('correct');
+      span.classList.remove('wrong');
+    } else {
+      span.classList.add('wrong');
+      span.classList.remove('correct');
+    }
+  });
+});
+
+/* Check sentence */
+function checkSentence(){
+  const typed = typingInput.value.trim();
+  if(typed === story[state.si]){
+    showBanner("✅ Correct!","Next",()=>{
+      state.si++;
+      renderSentence();
+    });
+  } else {
+    showBanner("❌ There are errors in your typing.","Done",()=>{typingInput.focus();});
+  }
+}
+
+/* Show banner with fade */
+function showBanner(msg,btnText,onClick){
+  banner.style.opacity = '0';
+  banner.classList.add('show');
+  banner.innerHTML = `${msg}<button>${btnText}</button>`;
+  setTimeout(()=>{banner.style.opacity='1';},10);
+  banner.querySelector('button').onclick = ()=>{
+    banner.style.opacity='0';
+    setTimeout(()=>{
+      banner.classList.remove('show');
+      onClick();
+    },300);
+  }
+}
+
+/* Go to homepage */
+function goHomepage(){
+  window.location.href = "/"; // Replace with actual homepage URL
+}
+
+doneBtn.addEventListener('click',checkSentence);
+restartBtn.addEventListener('click',()=>{state.si=0;renderSentence();});
+exitBtn.addEventListener('click',goHomepage);
+
+// Initialize
+renderSentence();
+
+// Enter key triggers Done
+typingInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){checkSentence();}
+});
+</script>
+</body>
+</html>

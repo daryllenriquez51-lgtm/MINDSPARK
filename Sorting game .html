@@ -1,0 +1,675 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Element Sorting · GIF星系</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            /* GIF background – smooth loop, works like a charm */
+            background: url('sortgif.gif') center/cover fixed no-repeat;
+            /* fallback deep color while loading */
+            background-color: #1a0b2e;
+        }
+
+        /* dark overlay for readability – exactly like before, but over gif */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.25);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Back button - white circle in the corner */
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.2s ease;
+            color: #1a0b2e;
+            font-size: 32px;
+            font-weight: bold;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            line-height: 1;
+        }
+
+        .back-button:hover {
+            background: white;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .back-button:active {
+            transform: scale(0.95);
+        }
+
+        .game-container {
+            max-width: 1000px;
+            width: 100%;
+            background: transparent;
+            border-radius: 40px;
+            padding: 30px;
+            position: relative;
+            z-index: 2;  /* above overlay */
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-header h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .level-badge {
+            background: rgba(20, 20, 40, 0.4);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 1.1em;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .score-board {
+            background: rgba(20, 20, 40, 0.4);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .categories-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category {
+            background: rgba(10, 10, 20, 0.35);
+            backdrop-filter: blur(14px);
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease, background 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .category:hover {
+            transform: translateY(-5px);
+            background: rgba(30, 30, 50, 0.45);
+        }
+
+        .category.accepting {
+            border-color: rgba(76, 175, 80, 0.9);
+            background: rgba(46, 125, 50, 0.3);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 1.3em;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .category-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .category-items {
+            min-height: 100px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .items-container {
+            background: rgba(10, 10, 20, 0.35);
+            backdrop-filter: blur(14px);
+            border-radius: 30px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .items-container h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 3px black;
+        }
+
+        .items-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .item-card {
+            background: rgba(30, 30, 50, 0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+            border: 2px solid transparent;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .item-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7);
+            background: rgba(60, 60, 90, 0.6);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .item-card.selected {
+            border-color: #ffb74d;
+            background: rgba(255, 183, 77, 0.25);
+            box-shadow: 0 0 18px #ffa726;
+        }
+
+        .item-card.sorted {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            background: rgba(30, 30, 40, 0.5);
+        }
+
+        .item-icon {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            filter: drop-shadow(2px 4px 4px black);
+        }
+
+        .item-name {
+            font-size: 1em;
+            color: white;
+            font-weight: 500;
+            text-shadow: 0 2px 4px black;
+        }
+
+        /* no category badges – pure sorting */
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ba86fe, #6e4aff, #3b9eff);
+            background-size: 200% 100%;
+            backdrop-filter: blur(3px);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+            box-shadow: 0 0 15px #a05eff;
+        }
+
+        .level-complete {
+            text-align: center;
+            padding: 20px;
+            background: rgba(20, 10, 40, 0.5);
+            backdrop-filter: blur(24px);
+            border-radius: 30px;
+            color: white;
+            margin: 20px 0;
+            animation: pulse 1.5s ease infinite;
+            border: 1px solid rgba(255, 215, 255, 0.4);
+            box-shadow: 0 10px 40px rgba(156, 39, 176, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .level-complete h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 12px violet;
+        }
+
+        .level-complete p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            border-radius: 30px;
+            margin-top: 20px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            text-shadow: 0 2px 5px black;
+            font-size: 1.1rem;
+        }
+
+        .message.success {
+            background: rgba(46, 125, 50, 0.3);
+            border-color: #4caf50;
+        }
+
+        .message.error {
+            background: rgba(198, 40, 40, 0.35);
+            border-color: #f44336;
+        }
+
+        .message.info {
+            background: rgba(25, 118, 210, 0.3);
+            border-color: #42a5f5;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* subtle scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        .category[data-color] {
+            background: transparent; 
+        }
+
+        /* Mobile responsiveness for back button */
+        @media (max-width: 768px) {
+            .back-button {
+                top: 15px;
+                left: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- White circle back button in the corner - goes to Recommend.html -->
+    <a class="back-button" href="Recommend.html" onclick="goToRecommend(event)" aria-label="Go back">&larr;</a>
+    
+    <!-- GIF BACKGROUND via CSS – smooth, endless, like a moving cosmic painting -->
+
+    <div class="game-container">
+        <div class="game-header">
+            <h1>SORTING GAME</h1>
+            <div class="level-badge" id="levelDisplay">Level 1</div>
+        </div>
+
+        <div class="score-board" id="scoreBoard">
+            Score: 0 / 12
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+
+        <div class="categories-container" id="categories">
+            <!-- Categories will be populated by JavaScript -->
+        </div>
+
+        <div class="items-container">
+            <h3>📦 ITEMS TO SORT — no labels, pure instinct</h3>
+            <div class="items-grid" id="itemsGrid">
+                <!-- Items will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div id="levelCompleteMessage" class="level-complete" style="display: none;">
+            <h2>✨ LEVEL COMPLETE ✨</h2>
+            <p>Warping to next dimension...</p>
+        </div>
+
+        <div id="messageContainer" class="message" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Game levels data (unchanged, keeps the fun)
+        const levels = [
+            {
+                number: 1,
+                name: "Basic Sort",
+                categories: [
+                    { id: 'fruits', name: 'Fruits', icon: '🍎', color: 'rgba(255, 107, 107, 0.8)', items: [] },
+                    { id: 'animals', name: 'Animals', icon: '🐼', color: 'rgba(78, 205, 196, 0.8)', items: [] }
+                ],
+                items: [
+                    { id: 1, name: 'Apple', icon: '🍎', category: 'fruits' },
+                    { id: 2, name: 'Banana', icon: '🍌', category: 'fruits' },
+                    { id: 3, name: 'Dog', icon: '🐕', category: 'animals' },
+                    { id: 4, name: 'Cat', icon: '🐈', category: 'animals' }
+                ]
+            },
+            {
+                number: 2,
+                name: "Color Fun",
+                categories: [
+                    { id: 'fruits', name: 'Fruits', icon: '🍎', color: 'rgba(255, 107, 107, 0.8)', items: [] },
+                    { id: 'colors', name: 'Colors', icon: '🎨', color: 'rgba(255, 217, 61, 0.8)', items: [] }
+                ],
+                items: [
+                    { id: 5, name: 'Apple', icon: '🍎', category: 'fruits' },
+                    { id: 6, name: 'Orange', icon: '🍊', category: 'fruits' },
+                    { id: 7, name: 'Red', icon: '🔴', category: 'colors' },
+                    { id: 8, name: 'Blue', icon: '🔵', category: 'colors' },
+                    { id: 9, name: 'Green', icon: '🟢', category: 'colors' }
+                ]
+            },
+            {
+                number: 3,
+                name: "Sports Mix",
+                categories: [
+                    { id: 'animals', name: 'Animals', icon: '🐼', color: 'rgba(78, 205, 196, 0.8)', items: [] },
+                    { id: 'sports', name: 'Sports', icon: '⚽', color: 'rgba(108, 92, 231, 0.8)', items: [] }
+                ],
+                items: [
+                    { id: 10, name: 'Dog', icon: '🐕', category: 'animals' },
+                    { id: 11, name: 'Cat', icon: '🐈', category: 'animals' },
+                    { id: 12, name: 'Elephant', icon: '🐘', category: 'animals' },
+                    { id: 13, name: 'Football', icon: '⚽', category: 'sports' },
+                    { id: 14, name: 'Basketball', icon: '🏀', category: 'sports' }
+                ]
+            },
+            {
+                number: 4,
+                name: "Ultimate Challenge",
+                categories: [
+                    { id: 'fruits', name: 'Fruits', icon: '🍎', color: 'rgba(255, 107, 107, 0.8)', items: [] },
+                    { id: 'animals', name: 'Animals', icon: '🐼', color: 'rgba(78, 205, 196, 0.8)', items: [] },
+                    { id: 'colors', name: 'Colors', icon: '🎨', color: 'rgba(255, 217, 61, 0.8)', items: [] },
+                    { id: 'sports', name: 'Sports', icon: '⚽', color: 'rgba(108, 92, 231, 0.8)', items: [] }
+                ],
+                items: [
+                    { id: 15, name: 'Apple', icon: '🍎', category: 'fruits' },
+                    { id: 16, name: 'Banana', icon: '🍌', category: 'fruits' },
+                    { id: 17, name: 'Orange', icon: '🍊', category: 'fruits' },
+                    { id: 18, name: 'Dog', icon: '🐕', category: 'animals' },
+                    { id: 19, name: 'Cat', icon: '🐈', category: 'animals' },
+                    { id: 20, name: 'Elephant', icon: '🐘', category: 'animals' },
+                    { id: 21, name: 'Red', icon: '🔴', category: 'colors' },
+                    { id: 22, name: 'Blue', icon: '🔵', category: 'colors' },
+                    { id: 23, name: 'Green', icon: '🟢', category: 'colors' },
+                    { id: 24, name: 'Football', icon: '⚽', category: 'sports' },
+                    { id: 25, name: 'Basketball', icon: '🏀', category: 'sports' },
+                    { id: 26, name: 'Tennis', icon: '🎾', category: 'sports' }
+                ]
+            }
+        ];
+
+        // Game state
+        let currentLevel = 0;
+        let categories = [];
+        let currentItems = [];
+        let selectedItemId = null;
+        let score = 0;
+        let totalItems = 0;
+
+        // BACK BUTTON FUNCTIONALITY - goes directly to Recommend.html
+        window.goToRecommend = function(event) {
+            // Simple scale animation for feedback
+            const backBtn = document.querySelector('.back-button');
+            backBtn.style.transform = 'scale(0.9)';
+            
+            setTimeout(() => {
+                backBtn.style.transform = '';
+                // DIRECT NAVIGATION TO RECOMMEND.HTML                if (event) event.preventDefault();
+                window.location.href = 'Recommend.html';
+            }, 100);
+        };
+
+        function initGame() {
+            loadLevel(0);
+        }
+
+        function loadLevel(levelIndex) {
+            if (levelIndex >= levels.length) {
+                showFinalCompletion();
+                return;
+            }
+
+            const level = levels[levelIndex];
+            currentLevel = levelIndex;
+            
+            categories = level.categories.map(cat => ({
+                ...cat,
+                items: []
+            }));
+            
+            currentItems = level.items.map(item => ({
+                ...item,
+                id: `${levelIndex}-${item.id}`
+            }));
+            
+            selectedItemId = null;
+            score = 0;
+            totalItems = currentItems.length;
+            
+            updateUI();
+            document.getElementById('levelDisplay').textContent = `Level ${level.number}: ${level.name}`;
+            showMessage(`Level ${level.number}: ${level.name}`, 'info');
+        }
+
+        function showFinalCompletion() {
+            const container = document.querySelector('.game-container');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 50px; background: rgba(15, 10, 30, 0.5); backdrop-filter: blur(30px); border-radius: 50px; border: 1px solid rgba(255,255,255,0.3);">
+                    <h1 style="font-size: 5em; margin-bottom: 20px; text-shadow: 0 0 25px gold;">🏆</h1>
+                    <h2 style="color: white; margin-bottom: 20px; font-size: 2.7em; text-shadow: 0 0 15px #c084fc;">gif galaxy mastered</h2>
+                    <p style="color: white; font-size: 1.3em; margin-bottom: 30px; opacity: 0.9;">You've sorted all dimensions.</p>
+                    <button onclick="location.reload()" style="padding: 16px 48px; font-size: 1.2em; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.4); color: white; border-radius: 60px; cursor: pointer; transition: all 0.2s; font-weight: 600; letter-spacing: 1px;">play again</button>
+                </div>
+            `;
+        }
+
+        function updateUI() {
+            renderCategories();
+            renderItems();
+            updateScore();
+        }
+
+        function renderCategories() {
+            const categoriesContainer = document.getElementById('categories');
+            categoriesContainer.innerHTML = categories.map(category => `
+                <div class="category" id="category-${category.id}" onclick="selectCategory('${category.id}')">
+                    <div class="category-header">
+                        <div class="category-icon" style="background: ${category.color}40; color: white;">
+                            ${category.icon}
+                        </div>
+                        <div class="category-title">${category.name}</div>
+                    </div>
+                    <div class="category-items" id="category-items-${category.id}">
+                        ${category.items.map(item => `
+                            <div class="item-card sorted" style="background: ${category.color}30; backdrop-filter: blur(6px);">
+                                <div class="item-icon">${item.icon}</div>
+                                <div class="item-name">${item.name}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderItems() {
+            const itemsGrid = document.getElementById('itemsGrid');
+            itemsGrid.innerHTML = currentItems.map(item => {
+                return `
+                    <div class="item-card ${selectedItemId === item.id ? 'selected' : ''}" 
+                         onclick="selectItem('${item.id}')">
+                        <div class="item-icon">${item.icon}</div>
+                        <div class="item-name">${item.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.selectItem = function(itemId) {
+            const item = currentItems.find(i => i.id === itemId);
+            if (!item) {
+                showMessage('already sorted', 'error');
+                return;
+            }
+            selectedItemId = itemId;
+            updateUI();
+        };
+
+        window.selectCategory = function(categoryId) {
+            if (!selectedItemId) {
+                showMessage('select an item first', 'error');
+                return;
+            }
+
+            const item = currentItems.find(i => i.id === selectedItemId);
+            if (!item) {
+                showMessage('item gone?', 'error');
+                return;
+            }
+
+            if (item.category === categoryId) {
+                const category = categories.find(c => c.id === categoryId);
+                category.items.push(item);
+                currentItems = currentItems.filter(i => i.id !== selectedItemId);
+                score++;
+                updateUI();
+                showMessage('✓ correct', 'success');
+                
+                if (currentItems.length === 0) {
+                    showLevelComplete();
+                }
+            } else {
+                showMessage('✗ wrong category', 'error');
+            }
+            selectedItemId = null;
+        };
+
+        function showLevelComplete() {
+            const levelCompleteMsg = document.getElementById('levelCompleteMessage');
+            levelCompleteMsg.style.display = 'block';
+            
+            setTimeout(() => {
+                levelCompleteMsg.style.display = 'none';
+                if (currentLevel + 1 < levels.length) {
+                    loadLevel(currentLevel + 1);
+                } else if (currentLevel + 1 === levels.length) {
+                    showFinalCompletion();
+                }
+            }, 2000);
+        }
+
+        function updateScore() {
+            document.getElementById('scoreBoard').textContent = `Score: ${score} / ${totalItems}`;
+            document.getElementById('progressBar').style.width = `${(score / totalItems) * 100}%`;
+        }
+
+        function showMessage(text, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.style.display = 'block';
+            messageContainer.className = `message ${type}`;
+            messageContainer.textContent = text;
+            setTimeout(() => {
+                messageContainer.style.display = 'none';
+            }, 2000);
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
+
+

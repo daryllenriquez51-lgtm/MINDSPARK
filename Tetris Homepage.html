@@ -1,0 +1,302 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matching Type</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background-image: url('Tetrisss.png');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      position: relative;
+    }
+
+    /* Back button — white circle */
+    .back-btn {
+      position: fixed;
+      top: 18px;
+      left: 22px;
+      font-size: 36px;
+      text-decoration: none;
+      color: #333;
+      background-color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: 0.3s ease;
+      z-index: 999;
+      font-weight: bold;
+    }
+
+    .back-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 5px;
+      margin-bottom: -20px;
+      flex-wrap: wrap;
+    }
+
+    .icon-row img {
+      width: 150px;
+      height: auto;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    h1 {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow: 2px 3px 6px rgba(0, 0, 0, 0.4);
+      margin-bottom: 5px;
+      margin-top: -30px;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-bottom: 35px;
+      letter-spacing: 2px;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background-color: white;
+      opacity: 0.6;
+      margin: 10px 0 25px;
+    }
+
+    /* Info section */
+    .info-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      flex-wrap: wrap;
+      text-align: left;
+      margin-bottom: 10px;
+      position: relative;
+      padding: 20px 0;
+    }
+
+    /* Divider line between sections */
+    .info-section::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: translateX(-50%);
+    }
+
+    .stats {
+      display: flex;
+      gap: 90px;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding-right: 50px;
+    }
+
+    .stats div {
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .stats h3 {
+      font-size: 64px;
+      margin-bottom: 6px;
+      font-weight: 800;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .stats p {
+      font-size: 18px;
+      opacity: 0.8;
+      letter-spacing: 1px;
+    }
+
+    .benefits {
+      text-align: left;
+      flex: 1;
+      padding-left: 50px;
+      font-size: 16px;
+      line-height: 2em;
+      opacity: 0.9;
+      min-width: 250px;
+    }
+
+    .benefits strong {
+      font-size: 22px;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .benefits p {
+      margin: 6px 0;
+    }
+
+    /* Play button — moved slightly up */
+    .play-btn {
+      background: rgba(255, 255, 255, 0.85);
+      color: #4a2f2f;
+      padding: 18px 90px;
+      border-radius: 50px;
+      border: none;
+      font-weight: 900;
+      font-size: 28px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 rgba(0, 0, 0, 0.25);
+      margin-top: 25px; /* Dati 50px — mas mataas na ngayon */
+      transition: 0.2s ease;
+    }
+
+    .play-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .info-section {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .info-section::after {
+        display: none;
+      }
+
+      .stats {
+        padding: 0;
+        margin-bottom: 40px;
+      }
+
+      .benefits {
+        padding: 0;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 48px;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+
+      .stats h3 {
+        font-size: 48px;
+      }
+
+      .play-btn {
+        padding: 16px 70px;
+        font-size: 24px;
+      }
+      
+      .back-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Back button - white circle linking to MINDSPARKKK.html -->
+    <a href="MINDSPARKKK.html" class="back-btn">←</a>
+
+    <div class="icon-row">
+      <img src="Tetrislogo.png" alt="Tetris logo">
+    </div>
+
+    <h1>TETRIS</h1>
+    <h2>GAMES</h2>
+
+    <div class="divider"></div>
+
+    <div class="info-section">
+      <div class="stats">
+        <div>
+          <h3 id="score">0</h3>
+          <p>HIGH SCORE</p>
+        </div>
+        <div>
+          <h3 id="difficulty">0</h3>
+          <p>DIFFICULTY</p>
+        </div>
+      </div>
+
+      <div class="benefits">
+        <strong>BENEFITS:</strong>
+        <p>💡 Boost your memory and concentration.</p>
+        <p>⏳ Promotes maintaining patience and persistence.</p>
+        <p>📘 Enhance problem-solving abilities.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="play-btn" id="playBtn">PLAY</button>
+  </div>
+
+  <script>
+    let score = 0;
+    let difficulty = 0;
+
+    const scoreDisplay = document.getElementById("score");
+    const difficultyDisplay = document.getElementById("difficulty");
+    const playBtn = document.getElementById("playBtn");
+
+    playBtn.addEventListener("click", () => {
+      // Redirect to next page
+      setTimeout(() => {
+        window.location.href = "TETRIS.html";
+      }, 800);
+    });
+  </script>
+</body>
+</html>
+
+
+
+

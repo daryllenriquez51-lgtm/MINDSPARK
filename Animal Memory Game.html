@@ -1,0 +1,663 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Missing? – animal scene · back button</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            /* OUTSIDE BACKGROUND – now a GIF (forest animated) */
+            background: url('FORESTYYYYY.gif') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            padding: 16px;
+            position: relative;
+        }
+
+        /* ----- BACK BUTTON: white circle, left top, outside container ----- */
+        .back-button {
+            position: fixed;           /* relative to viewport – stays on top */
+            top: 24px;
+            left: 24px;
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            border-radius: 50%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3), 0 0 0 4px rgba(255,245,200,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            z-index: 9999;
+            border: 2px solid white;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 10px 24px #00000060;
+        }
+        /* simple arrow / home symbol */
+        .back-button svg {
+            width: 36px;
+            height: 36px;
+            fill: #2b4f2b;             /* forest green */
+            transition: fill 0.2s;
+        }
+        .back-button:hover svg {
+            fill: #1d6b1d;
+        }
+
+        /* main container – fully transparent so outside bg shows */
+        .game-container {
+            max-width: 1050px;
+            width: 100%;
+            background: transparent;
+            border-radius: 60px;
+            padding: 20px 25px 35px;
+            border: 2px solid rgba(255, 250, 230, 0.3);
+            backdrop-filter: blur(2px); /* slight blur to highlight game, but background GIF still moves */
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(3px);
+            border-radius: 100px;
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 220, 150, 0.4);
+        }
+
+        h1 {
+            color: #fff9e6;
+            font-size: 2.8rem;
+            font-weight: 800;
+            text-shadow: 4px 4px 0 #3c2a1e, 6px 6px 0 #00000055;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 20, 10, 0.5);
+            backdrop-filter: blur(5px);
+            padding: 12px 25px;
+            border-radius: 50px;
+            margin: 16px 0 10px;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #fbd59c;
+        }
+
+        .level-badge {
+            background: #df8c4ae0;
+            color: white;
+            padding: 6px 22px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.3rem;
+            backdrop-filter: blur(2px);
+            border: 2px solid #ffdec2;
+        }
+
+        .score {
+            color: #ffeedd;
+            font-weight: 600;
+            font-size: 1.3rem;
+            text-shadow: 2px 2px 2px black;
+        }
+        .score span {
+            color: #ffb881;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-left: 6px;
+        }
+
+        /* SCENE CONTAINER – background kept (forest.jpg) */
+        .scene-container {
+            background: url('forest.jpg') center / cover no-repeat;
+            border-radius: 70px;
+            padding: 40px 20px 40px;
+            margin: 10px 0 15px;
+            position: relative;
+            min-height: 360px;
+            border: 3px solid rgba(255, 235, 180, 0.6);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .objects-area {
+            position: relative;
+            z-index: 15;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 40px 30px;
+            min-height: 280px;
+        }
+
+        /* big animal images */
+        .object {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(0 8px 12px #1f1a14);
+            animation: floatUp 0.5s ease;
+        }
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(30px) scale(0.8); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .object-image {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            background: rgba(255, 240, 200, 0.15);
+            border-radius: 40px;
+            padding: 10px;
+            backdrop-filter: blur(4px);
+            border: 3px solid #fbeed8;
+            transition: transform 0.2s;
+        }
+
+        .object-label {
+            font-size: 1.3rem;
+            margin-top: 12px;
+            background: rgba(40, 30, 15, 0.6);
+            backdrop-filter: blur(6px);
+            padding: 8px 25px;
+            border-radius: 60px;
+            font-weight: 700;
+            color: #fff2d4;
+            border: 2px solid #ffeacb;
+            text-transform: capitalize;
+            text-shadow: 2px 2px 2px #000;
+        }
+
+        /* MISSING SPOT – question mark image (SVG) */
+        .missing-spot {
+            width: 160px;
+            height: 160px;
+            background: rgba(255, 210, 150, 0.2);
+            backdrop-filter: blur(8px);
+            border: 5px dashed rgba(255, 255, 200, 0.9);
+            border-radius: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: pulseGlow 1.8s infinite;
+        }
+
+        .missing-spot .question-img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px #3e2e1e);
+            background: transparent;
+        }
+
+        .missing-spot p {
+            margin: 4px 0 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #ffffff;
+            background: #00000030;
+            padding: 4px 15px;
+            border-radius: 30px;
+            backdrop-filter: blur(2px);
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); background: rgba(255, 220, 140, 0.2); }
+            50% { transform: scale(1.06); background: rgba(255, 190, 100, 0.3); }
+        }
+
+        .instruction {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #fffae5;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            margin: 12px 0 10px;
+            padding: 15px 15px;
+            border-radius: 60px;
+            font-weight: 600;
+            border: 2px solid rgba(255, 235, 150, 0.8);
+            text-shadow: 2px 2px 0 #422b18;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 15px 0 12px;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 20px 30px;
+            font-size: 1.6rem;
+            border: 4px solid #eeddbb;
+            border-radius: 70px;
+            outline: none;
+            transition: 0.2s;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+            color: #fff6e6;
+            caret-color: #ffbb77;
+            border-color: #ffdcaa;
+        }
+        .answer-input::placeholder {
+            color: #ffeecd;
+            opacity: 0.8;
+        }
+        .answer-input:focus {
+            border-color: #ffbb66;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 6px rgba(255,210,100,0.2);
+        }
+        .answer-input:disabled {
+            background: rgba(40, 30, 15, 0.4);
+            color: #bbbbaa;
+        }
+
+        .submit-btn {
+            background: rgba(230, 140, 60, 0.8);
+            backdrop-filter: blur(8px);
+            color: white;
+            border: none;
+            padding: 20px 30px;
+            border-radius: 70px;
+            font-size: 1.9rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 3px solid #ffddb0;
+            width: 100%;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0 #773e00;
+        }
+        .submit-btn:hover:not(:disabled) {
+            background: rgba(245, 120, 40, 0.9);
+            transform: scale(1.02);
+            border-color: #ffbb77;
+        }
+        .submit-btn:disabled {
+            background: rgba(110, 80, 50, 0.5);
+            border-color: #aa9f8c;
+            color: #dddddd;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.4rem;
+            margin: 12px 0 12px;
+            padding: 16px 25px;
+            border-radius: 60px;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border: 3px solid #fcd396;
+            color: #fff4e0;
+        }
+        .success {
+            background: rgba(60, 120, 40, 0.5);
+            border-color: #b3f39b;
+            color: #ffffff;
+        }
+        .error {
+            background: rgba(150, 50, 20, 0.5);
+            border-color: #ffb592;
+            color: #fff0e0;
+        }
+
+        .next-level-indicator {
+            background: rgba(80, 150, 80, 0.7);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 16px 28px;
+            border-radius: 70px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: inline-block;
+            margin: 15px auto 0;
+            border: 3px solid #b4f0b4;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(3px);
+            border-radius: 20px;
+            margin: 10px 0 5px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 215, 140, 0.8);
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f5b057, #90cc7b);
+            transition: width 0.4s ease;
+            border-radius: 20px;
+            box-shadow: 0 0 10px #fadd93;
+        }
+
+        .bottom-section {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* mobile adjustment */
+        @media (max-width: 650px) {
+            h1 { font-size: 2.2rem; }
+            .object-image { width: 110px; height: 110px; }
+            .missing-spot { width: 130px; height: 130px; }
+            .object-label { font-size: 1.1rem; }
+            .missing-spot .question-img { width: 70px; height: 70px; }
+            .back-button { width: 52px; height: 52px; top: 16px; left: 16px; }
+            .back-button svg { width: 28px; height: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- WHITE CIRCLE BACK BUTTON – links to specified file -->
+    <a href="Recommend.html" class="back-button" title="back to recommendation">
+        <svg viewBox="0 0 24 24" width="36" height="36">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+    </a>
+
+<div class="game-container">
+    <div class="header">
+        <h1>WHAT'S MISSING? — ANIMALS</h1>
+        <div class="level-info">
+            <div class="level-badge" id="levelDisplay">Level 1</div>
+            <div class="score">POINTS <span id="scoreDisplay">0</span></div>
+            <div class="score">ATTEMPTS <span id="attemptsDisplay">3</span></div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- scene container: background image is forest.jpg (as original) -->
+    <div class="scene-container" id="sceneContainer">
+        <div class="objects-area" id="objectsArea"></div>
+    </div>
+
+    <div class="instruction" id="instruction">
+        remember all the animals ...
+    </div>
+
+    <div class="input-container">
+        <input type="text" class="answer-input" id="answerInput"
+               placeholder="type missing animal" autocomplete="off" disabled>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="bottom-section">
+        <button class="submit-btn" id="submitBtn" onclick="checkAnswer()" disabled>
+            SUBMIT
+        </button>
+        <div id="autoNextIndicator" class="next-level-indicator" style="display: none;"></div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- PURE ANIMAL THEME (no emojis) -----
+        const animalTheme = {
+            name: 'animal friends',
+            objects: [
+                { name: 'chick', image: 'chick.png', altNames: ['chick', 'chicks', 'baby chicken'] },
+                { name: 'cat', image: 'cat.png', altNames: ['cat', 'cats', 'kitty', 'kitten'] },
+                { name: 'frog', image: 'frogg.png', altNames: ['frog', 'froggy', 'toad'] },
+                { name: 'pig', image: 'pig.png', altNames: ['pig', 'pigs', 'piggy', 'piglet'] },
+                { name: 'panda', image: 'panda%20(1).png', altNames: ['panda', 'pandas'] },
+                { name: 'penguin', image: 'penguin.png', altNames: ['penguin', 'pengy'] },
+                { name: 'elephant', image: 'phante.png', altNames: ['elephant', 'ellie'] },
+                { name: 'fish', image: 'fishyy.png', altNames: ['fish', 'beta'] },
+                { name: 'monkey', image: 'onkey.png', altNames: ['monkey', 'simian'] },
+                { name: 'koala', image: 'koalaa.png', altNames: ['koala', 'cute'] },
+                { name: 'butterfly', image: 'flyyyy.png', altNames: ['butterfly', 'orange'] },
+                { name: 'crab', image: 'Mrscrab.png', altNames: ['crab', 'mrscrab'] },
+                { name: 'owl', image: 'owlll.png', altNames: ['owl', 'owly'] },
+                { name: 'sheep', image: 'sheepy.png', altNames: ['sheep', 'soft'] },
+                { name: 'bee', image: 'babee.png', altNames: ['bee', 'honey'] },
+                { name: 'octopus', image: 'octopus%20s.png', altNames: ['octopus', 'water'] },
+                { name: 'snail', image: 'snailyy.png', altNames: ['snail', 'slow'] },
+                { name: 'ladybug', image: 'Ladybb.png', altNames: ['ladybug', 'spot'] }
+            ]
+        };
+
+        // Game state
+        let currentLevel = 1;
+        let score = 0;
+        let attempts = 3;
+        let currentObjects = [];
+        let missingObject = null;
+        let isMemorizing = true;
+        let gameCompleted = false;
+        let autoNextTimeout = null;
+        const maxLevel = 15;
+
+        // DOM elements
+        const objectsArea = document.getElementById('objectsArea');
+        const instruction = document.getElementById('instruction');
+        const feedback = document.getElementById('feedback');
+        const levelDisplay = document.getElementById('levelDisplay');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const attemptsDisplay = document.getElementById('attemptsDisplay');
+        const progressFill = document.getElementById('progressFill');
+        const answerInput = document.getElementById('answerInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const autoNextIndicator = document.getElementById('autoNextIndicator');
+
+        function loadLevel() {
+            if (autoNextTimeout) clearTimeout(autoNextTimeout);
+            autoNextIndicator.style.display = 'none';
+
+            let numObjects = Math.min(3 + Math.floor(currentLevel / 1.4), 8);
+            const shuffled = [...animalTheme.objects].sort(() => 0.5 - Math.random());
+            currentObjects = shuffled.slice(0, numObjects);
+
+            levelDisplay.textContent = `Level ${currentLevel} · ${animalTheme.name}`;
+            startMemorizationPhase();
+        }
+
+        function startMemorizationPhase() {
+            isMemorizing = true;
+            gameCompleted = false;
+            answerInput.disabled = true;
+            submitBtn.disabled = true;
+            instruction.textContent = `LOOK CAREFULLY ...`;
+            feedback.innerHTML = '';
+            feedback.className = 'feedback';
+            displayObjects(currentObjects);
+            setTimeout(() => {
+                if (isMemorizing) startQuestionPhase();
+            }, 3200);
+        }
+
+        function startQuestionPhase() {
+            isMemorizing = false;
+            const missingIndex = Math.floor(Math.random() * currentObjects.length);
+            missingObject = currentObjects[missingIndex];
+            instruction.textContent = `WHICH ANIMAL IS MISSING?`;
+            displayObjectsWithMissing(missingIndex);
+            answerInput.disabled = false;
+            submitBtn.disabled = false;
+            answerInput.focus();
+            answerInput.value = '';
+        }
+
+        function displayObjects(objects) {
+            objectsArea.innerHTML = '';
+            objects.forEach((obj) => {
+                const div = document.createElement('div');
+                div.className = 'object';
+                div.innerHTML = `
+                    <img class="object-image" src="${obj.image}" alt="${obj.name}" 
+                         onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22140%22%20height%3D%22140%22%20viewBox%3D%220%200%20140%20140%22%3E%3Ccircle%20cx%3D%2270%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23dba570%22%2F%3E%3Ctext%20x%3D%2235%22%20y%3D%2295%22%20fill%3D%22%23fff0d0%22%20font-size%3D%2240%22%3E%3F%3F%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                    <div class="object-label">${obj.name}</div>
+                `;
+                objectsArea.appendChild(div);
+            });
+        }
+
+        function displayObjectsWithMissing(missingIdx) {
+            objectsArea.innerHTML = '';
+            for (let i = 0; i < currentObjects.length; i++) {
+                if (i === missingIdx) {
+                    const missDiv = document.createElement('div');
+                    missDiv.className = 'object';
+                    missDiv.id = 'missingSpot';
+                    missDiv.innerHTML = `
+                        <div class="missing-spot">
+                            <img class="question-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23f5e2c1' stroke='%23b37b4b' stroke-width='6'/%3E%3Ctext x='50' y='72' font-size='70' text-anchor='middle' fill='%235e3a1e' font-family='Arial' font-weight='bold'%3E?%3C/text%3E%3C/svg%3E" alt="question mark">
+                            <p>missing</p>
+                        </div>
+                    `;
+                    objectsArea.appendChild(missDiv);
+                } else {
+                    const obj = currentObjects[i];
+                    const div = document.createElement('div');
+                    div.className = 'object';
+                    div.innerHTML = `
+                        <img class="object-image" src="${obj.image}" alt="${obj.name}" 
+                             onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22140%22%20height%3D%22140%22%20viewBox%3D%220%200%20140%20140%22%3E%3Ccircle%20cx%3D%2270%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23dba570%22%2F%3E%3Ctext%20x%3D%2250%22%20y%3D%22100%22%20fill%3D%22%23fff0d0%22%20font-size%3D%2250%22%3E%3F%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                        <div class="object-label">${obj.name}</div>
+                    `;
+                    objectsArea.appendChild(div);
+                }
+            }
+        }
+
+        window.checkAnswer = function() {
+            if (gameCompleted || isMemorizing) return;
+            const userAnswer = answerInput.value.toLowerCase().trim();
+            if (!userAnswer) {
+                feedback.innerHTML = 'Please type an animal name.';
+                feedback.className = 'feedback error';
+                return;
+            }
+            const isCorrect = missingObject.altNames.some(alias => 
+                userAnswer.includes(alias.toLowerCase()) || alias.toLowerCase().includes(userAnswer)
+            );
+            if (isCorrect) handleCorrect();
+            else handleWrong();
+        };
+
+        function handleCorrect() {
+            gameCompleted = true;
+            score += 10;
+            updateScore();
+            feedback.innerHTML = `CORRECT! it was the ${missingObject.name} +10 points`;
+            feedback.className = 'feedback success';
+
+            const missingSpot = document.getElementById('missingSpot');
+            if (missingSpot) {
+                missingSpot.innerHTML = `
+                    <img class="object-image" src="${missingObject.image}" alt="${missingObject.name}" style="animation: floatUp 0.3s;">
+                    <div class="object-label">${missingObject.name}</div>
+                `;
+            }
+            instruction.textContent = 'Great! Next level soon...';
+            answerInput.disabled = true;
+            submitBtn.disabled = true;
+
+            if (currentLevel >= maxLevel) {
+                feedback.innerHTML = 'CONGRATULATIONS! You completed all levels.';
+                return;
+            }
+            autoNextIndicator.textContent = `next level in 3 seconds...`;
+            autoNextIndicator.style.display = 'inline-block';
+            autoNextTimeout = setTimeout(() => {
+                autoNextIndicator.style.display = 'none';
+                currentLevel++;
+                attempts = 3;
+                updateAttempts();
+                updateProgress();
+                loadLevel();
+            }, 3000);
+        }
+
+        function handleWrong() {
+            attempts--;
+            updateAttempts();
+            if (attempts <= 0) {
+                gameCompleted = true;
+                feedback.innerHTML = `The missing animal was "${missingObject.name}". Moving to next level.`;
+                feedback.className = 'feedback error';
+                const missingSpot = document.getElementById('missingSpot');
+                if (missingSpot) {
+                    missingSpot.innerHTML = `
+                        <img class="object-image" src="${missingObject.image}" alt="${missingObject.name}">
+                        <div class="object-label">${missingObject.name}</div>
+                    `;
+                }
+                instruction.textContent = 'Next level...';
+                answerInput.disabled = true;
+                submitBtn.disabled = true;
+                if (currentLevel >= maxLevel) return;
+                autoNextIndicator.textContent = `next in 3s`;
+                autoNextIndicator.style.display = 'inline-block';
+                autoNextTimeout = setTimeout(() => {
+                    autoNextIndicator.style.display = 'none';
+                    currentLevel++;
+                    attempts = 3;
+                    updateAttempts();
+                    updateProgress();
+                    loadLevel();
+                }, 3000);
+            } else {
+                feedback.innerHTML = `Not correct. ${attempts} attempt(s) left.`;
+                feedback.className = 'feedback error';
+                answerInput.value = '';
+                answerInput.focus();
+                answerInput.style.animation = 'shake 0.2s';
+                setTimeout(() => answerInput.style.animation = '', 200);
+            }
+        }
+
+        function updateScore() { scoreDisplay.textContent = score; }
+        function updateAttempts() { attemptsDisplay.textContent = attempts; }
+        function updateProgress() { progressFill.style.width = `${(currentLevel / maxLevel)*100}%`; }
+
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !submitBtn.disabled) checkAnswer();
+        });
+
+        // shake style
+        const styleShake = document.createElement('style');
+        styleShake.innerHTML = `@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }`;
+        document.head.appendChild(styleShake);
+
+        loadLevel();
+    })();
+</script>
+</body>
+</html>
+
+

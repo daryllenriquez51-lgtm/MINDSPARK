@@ -1,0 +1,375 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matching Type · Game lobby</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background-image: url('MINDSPARK_20250930_090949_0000.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+      backdrop-filter: brightness(0.85);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      padding: 1rem 2rem;
+      position: relative;
+    }
+
+    /* ---- BACK BUTTON (direct to MINDSPARKKK.html) ---- */
+    .back-btn {
+      position: fixed;
+      top: 22px;
+      left: 24px;
+      width: 54px;
+      height: 54px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: #2b2b2b;
+      font-size: 38px;
+      font-weight: 400;
+      line-height: 1;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+      transition: 0.25s ease;
+      z-index: 999;
+      border: none;
+      padding-bottom: 6px;
+    }
+
+    .back-btn:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.06) translateY(-2px);
+      box-shadow: 0 12px 18px rgba(0, 0, 0, 0.3);
+      color: #111;
+    }
+
+    .back-btn:active {
+      transform: scale(0.98) translateY(2px);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .icon-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 40px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    /* ===== BORDER REMOVED – icons now have no border ===== */
+    .icon-row img {
+      width: 70px;
+      height: 90px;
+      border-radius: 12px;
+      object-fit: cover;          /* image covers the entire box without distortion */
+      display: block;
+      
+      /* NO BORDER – completely removed */
+      border: none;
+      
+      /* soft shadow for depth (optional – keeps the pop, no border) */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      
+      outline: none;
+      background-color: transparent;
+      
+      transition: transform 0.2s;
+    }
+
+    .icon-row img:hover {
+      transform: scale(1.02);
+      /* no border change, just scale */
+    }
+
+    h1 {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow: 3px 4px 8px rgba(0, 0, 0, 0.6);
+      margin-bottom: 5px;
+      line-height: 1.1;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      opacity: 0.95;
+      margin-bottom: 30px;
+      letter-spacing: 3px;
+      text-shadow: 2px 2px 5px black;
+    }
+
+    .divider {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, white, transparent);
+      opacity: 0.7;
+      margin: 15px 0 25px;
+    }
+
+    .info-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      flex-wrap: wrap;
+      text-align: left;
+      margin-bottom: 10px;
+      position: relative;
+      padding: 20px 0;
+    }
+
+    .info-section::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: translateX(-50%);
+    }
+
+    .stats {
+      display: flex;
+      gap: 60px;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding-right: 40px;
+    }
+
+    .stats div {
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .stats h3 {
+      font-size: 64px;
+      margin-bottom: 6px;
+      font-weight: 800;
+      text-shadow: 2px 3px 5px rgba(0,0,0,0.6);
+      line-height: 1;
+    }
+
+    .stats p {
+      font-size: 18px;
+      opacity: 0.9;
+      letter-spacing: 1.5px;
+      font-weight: 500;
+    }
+
+    .benefits {
+      text-align: left;
+      flex: 1;
+      padding-left: 50px;
+      font-size: 16px;
+      line-height: 2em;
+      opacity: 0.95;
+      min-width: 260px;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    .benefits strong {
+      font-size: 22px;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 12px;
+      letter-spacing: 1.5px;
+    }
+
+    .benefits p {
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .play-btn {
+      background: rgba(255, 255, 255, 0.9);
+      color: #2d2d2d;
+      padding: 18px 90px;
+      border-radius: 60px;
+      border: none;
+      font-weight: 900;
+      font-size: 30px;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      box-shadow: 0 9px 0 #1f1f1f, 0 10px 25px rgba(0,0,0,0.5);
+      margin-top: 30px;
+      transition: 0.12s linear;
+      border: 2px solid rgba(255,255,255,0.7);
+    }
+
+    .play-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 0 #1f1f1f, 0 15px 30px black;
+      background: white;
+    }
+
+    .play-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #1f1f1f, 0 10px 20px black;
+    }
+
+    @media (max-width: 900px) {
+      .info-section {
+        flex-direction: column;
+        align-items: center;
+      }
+      .info-section::after {
+        display: none;
+      }
+      .stats {
+        padding: 0;
+        margin-bottom: 40px;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+      .benefits {
+        padding: 0;
+        text-align: center;
+      }
+      .benefits p {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 700px) {
+      h1 { font-size: 48px; }
+      h2 { font-size: 18px; }
+      .stats h3 { font-size: 48px; }
+      .play-btn { padding: 16px 50px; font-size: 26px; }
+      .back-btn { width: 48px; height: 48px; font-size: 34px; }
+    }
+
+    @media (max-width: 450px) {
+      .back-btn { top: 12px; left: 12px; }
+      .icon-row img { width: 55px; height: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- BACK BUTTON: direct link to MINDSPARKKK.html -->
+    <a href="MINDSPARKKK.html" class="back-btn" id="backButton">←</a>
+
+    <div class="icon-row">
+      <img src="CARD.png" alt="memory card 1">
+      <img src="CARD.png" alt="memory card 2">
+      <img src="CARD.png" alt="memory card 3">
+    </div>
+
+    <h1>MATCHING TYPE</h1>
+    <h2>GAMES</h2>
+
+    <div class="divider"></div>
+
+    <div class="info-section">
+      <div class="stats">
+        <div>
+          <h3 id="score">0</h3>
+          <p>HIGH SCORE</p>
+        </div>
+        <div>
+          <h3 id="difficulty">0</h3>
+          <p>DIFFICULTY</p>
+        </div>
+      </div>
+
+      <div class="benefits">
+        <strong>BENEFITS:</strong>
+        <p>💡 Boost your memory and concentration.</p>
+        <p>⏳ Promotes maintaining patience and persistence.</p>
+        <p>📘 Enhance problem-solving abilities.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="play-btn" id="playBtn">PLAY</button>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- BACK BUTTON with fallback if file:// is blocked ----------
+      const backBtn = document.getElementById('backButton');
+      
+      backBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // we'll handle navigation manually
+        
+        const targetHref = backBtn.getAttribute('href'); // file://... path
+        
+        // Try to navigate to the file URL
+        window.location.href = targetHref;
+        
+        // If after 400ms the page is still here (navigation blocked), use relative fallback
+        setTimeout(() => {
+          // Check if we are still on the same page (simple check: document.location hasn't changed completely)
+          // We'll just attempt to go to MINDSPARKKK.html in the same directory
+          console.log("Direct file navigation may be blocked, trying fallback relative path");
+          window.location.href = "MINDSPARKKK.html"; // fallback if files are in same folder
+        }, 400);
+      });
+
+      // ---------- PLAY / SCORE SIMULATION ----------
+      let score = 0;
+      let difficulty = 0;
+
+      const scoreDisplay = document.getElementById("score");
+      const difficultyDisplay = document.getElementById("difficulty");
+      const playBtn = document.getElementById("playBtn");
+
+      playBtn.addEventListener("click", () => {
+        let points = Math.floor(Math.random() * 15) + 5;   // 5–19
+        score += points;
+        difficulty = Math.floor(score / 3);
+
+        scoreDisplay.textContent = score;
+        difficultyDisplay.textContent = difficulty;
+
+        // redirect to actual game page (Matching type.html)
+        setTimeout(() => {
+          window.location.href = "Matching type.html";
+        }, 800);
+      });
+
+      // Hide any images that fail to load (avoid broken icons)
+      const images = document.querySelectorAll('.icon-row img');
+      images.forEach(img => {
+        img.onerror = function() {
+          this.style.display = 'none'; 
+        };
+      });
+
+    })();
+  </script>
+</body>
+</html>
+
+
+
+

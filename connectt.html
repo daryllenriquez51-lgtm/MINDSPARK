@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Connect 4</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Helvetica", "Verdana", "Roboto", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f0f0f0;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .board {
+      position: relative;
+      width: 490px;
+      height: 490px;
+      background: #2196f3;
+      border-radius: 8px;
+      padding: 15px;
+      box-sizing: border-box;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      width: 100%;
+      height: 100%;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .cell:hover {
+      background: #f5f5f5;
+    }
+
+    .cell.red {
+      background: #ff4444;
+    }
+
+    .cell.yellow {
+      background: #ffdd00;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #1976d2;
+    }
+
+    .status {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      min-height: 24px;
+    }
+
+    .scoreboard {
+      display: flex;
+      gap: 40px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .score-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-label {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .score-value {
+      font-size: 28px;
+      padding: 8px 16px;
+      border-radius: 4px;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .score-value.red {
+      color: #ff4444;
+      background: rgba(255, 68, 68, 0.1);
+    }
+
+    .score-value.yellow {
+      color: #ffdd00;
+      background: rgba(255, 221, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+<form>
+  <div class="status" id="status">Red's Turn</div>
+  
+  <div class="scoreboard">
+    <div class="score-item">
+      <div class="score-label">Red</div>
+      <div class="score-value red" id="redScore">0</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Yellow</div>
+      <div class="score-value yellow" id="yellowScore">0</div>
+    </div>
+  </div>
+  
+  <div class="board">
+    <div class="grid" id="grid">
+      <!-- Will be populated by JavaScript -->
+    </div>
+  </div>
+
+  <button type="button" onclick="resetGame()">New Game</button>
+</form>
+
+<script>
+  const ROWS = 6;
+  const COLS = 7;
+  let board = [];
+  let currentPlayer = 'red'; // 'red' or 'yellow'
+  let gameOver = false;
+  let scores = { red: 0, yellow: 0 };
+
+  function initBoard() {
+    board = [];
+    for (let r = 0; r < ROWS; r++) {
+      board[r] = [];
+      for (let c = 0; c < COLS; c++) {
+        board[r][c] = null;
+      }
+    }
+    currentPlayer = 'red';
+    gameOver = false;
+    loadScores();
+    updateStatus();
+    renderBoard();
+  }
+
+  function renderBoard() {
+    const gridEl = document.getElementById('grid');
+    gridEl.innerHTML = '';
+
+    for (let c = 0; c < COLS; c++) {
+      const colDiv = document.createElement('div');
+      colDiv.className = 'column';
+
+      for (let r = 0; r < ROWS; r++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        
+        const value = board[r][c];
+        if (value === 'red') cell.classList.add('red');
+        else if (value === 'yellow') cell.classList.add('yellow');
+
+        cell.onclick = () => dropPiece(c);
+        colDiv.appendChild(cell);
+      }
+
+      gridEl.appendChild(colDiv);
+    }
+  }
+
+  function dropPiece(col) {
+    if (gameOver) return;
+
+    // Find the lowest empty row in this column
+    let row = -1;
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (board[r][col] === null) {
+        row = r;
+        break;
+      }
+    }
+
+    if (row === -1) return; // Column is full
+
+    // Place piece
+    board[row][col] = currentPlayer;
+
+    // Check for win
+    if (checkWin(row, col)) {
+      gameOver = true;
+      const winner = currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1);
+      updateStatus(`${winner} Wins!`);
+      scores[currentPlayer]++;
+      saveScores();
+      updateScoreboard();
+    } else if (isBoardFull()) {
+      gameOver = true;
+      updateStatus("It's a Draw!");
+    } else {
+      // Switch player
+      currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+      updateStatus();
+    }
+
+    renderBoard();
+  }
+
+  function checkWin(row, col) {
+    const player = board[row][col];
+    
+    // Check horizontal
+    let count = 1;
+    for (let c = col - 1; c >= 0 && board[row][c] === player; c--) count++;
+    for (let c = col + 1; c < COLS && board[row][c] === player; c++) count++;
+    if (count >= 4) return true;
+
+    // Check vertical
+    count = 1;
+    for (let r = row - 1; r >= 0 && board[r][col] === player; r--) count++;
+    for (let r = row + 1; r < ROWS && board[r][col] === player; r++) count++;
+    if (count >= 4) return true;
+
+    // Check diagonal (top-left to bottom-right)
+    count = 1;
+    for (let r = row - 1, c = col - 1; r >= 0 && c >= 0 && board[r][c] === player; r--, c--) count++;
+    for (let r = row + 1, c = col + 1; r < ROWS && c < COLS && board[r][c] === player; r++, c++) count++;
+    if (count >= 4) return true;
+
+    // Check diagonal (top-right to bottom-left)
+    count = 1;
+    for (let r = row - 1, c = col + 1; r >= 0 && c < COLS && board[r][c] === player; r--, c++) count++;
+    for (let r = row + 1, c = col - 1; r < ROWS && c >= 0 && board[r][c] === player; r++, c--) count++;
+    if (count >= 4) return true;
+
+    return false;
+  }
+
+  function isBoardFull() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (board[r][c] === null) return false;
+      }
+    }
+    return true;
+  }
+
+  function updateStatus(msg) {
+    const statusEl = document.getElementById('status');
+    if (msg) {
+      statusEl.textContent = msg;
+    } else {
+      statusEl.textContent = `${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)}'s Turn`;
+    }
+  }
+
+  function resetGame() {
+    initBoard();
+  }
+
+  function saveScores() {
+    localStorage.setItem('connect4_scores', JSON.stringify(scores));
+  }
+
+  function loadScores() {
+    const saved = localStorage.getItem('connect4_scores');
+    if (saved) {
+      scores = JSON.parse(saved);
+    }
+    updateScoreboard();
+  }
+
+  function updateScoreboard() {
+    document.getElementById('redScore').textContent = scores.red;
+    document.getElementById('yellowScore').textContent = scores.yellow;
+  }
+
+  // Start game
+  initBoard();
+</script>
+
+</body>
+</html>

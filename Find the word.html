@@ -1,0 +1,495 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dyslexiPlay · blurred see‑through · GIF bg</title>
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+/* ===== GIF BACKGROUND – local file (adjust path if needed) ===== */
+body{
+    background-image:url('ttttttttteee.gif');
+    background-size:cover;
+    background-position:center;
+    background-attachment:fixed;
+
+    height:100vh;
+    overflow:hidden;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-family:'OpenDyslexic','Comic Sans MS','Lexie Readable','Tahoma','Verdana',sans-serif;
+    line-height:1.5;
+    letter-spacing:0.1ch;
+    word-spacing:0.14ch;
+
+    position:relative;
+}
+/* very subtle warmth overlay – does NOT block GIF, just softens */
+body::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:rgba(255,235,200,0.08);
+    pointer-events:none;
+    z-index:0;
+}
+
+/* Dyslexia Font */
+@font-face{
+    font-family:'OpenDyslexic';
+    src:local('OpenDyslexic'),
+        url('https://fonts.cdnfonts.com/s/15967/OpenDyslexic-Regular.woff') format('woff');
+    font-display:swap;
+}
+
+/* ===== BACK BUTTON: plain white circle (outside container) ===== */
+.back-circle{
+    position:fixed;
+    top:25px;
+    left:25px;
+    width:60px;
+    height:60px;
+    background:white;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+    font-size:2.4rem;
+    font-weight:bold;
+    color:#3d2b1c;
+    border:none;
+    cursor:pointer;
+    z-index:1000;
+    transition:transform 0.1s ease, box-shadow 0.1s ease;
+    line-height:1;
+    user-select:none;
+}
+.back-circle:hover{
+    transform:scale(1.05);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    background:#f8f8f8;
+}
+.back-circle:active{
+    transform:scale(0.98);
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* ===== MAIN GLOWING CONTAINER – NOW BLURRED TRANSPARENT ===== */
+.game-container{
+    width:95%;
+    max-width:1100px;
+    height:92vh;
+    position:relative;
+    z-index:2;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+
+    /* ========== FULLY TRANSPARENT + BLUR ========== */
+    background:rgba(255, 245, 235, 0.2) !important;   /* very light tint – lets GIF dominate */
+    backdrop-filter:blur(12px) saturate(150%) !important;
+    -webkit-backdrop-filter:blur(12px) saturate(150%) !important;
+
+    border-radius:40px;
+    padding:1.5rem;
+
+    /* glowing border */
+    border:2px solid rgba(255, 240, 200, 0.7);
+
+    /* outer glow */
+    box-shadow:0 20px 40px rgba(0,0,0,0.2),
+               0 0 0 2px rgba(255, 250, 210, 0.3) inset,
+               0 0 30px rgba(255, 215, 100, 0.8),
+               0 0 60px rgba(255, 200, 50, 0.5);
+
+    animation:softGlow 3s infinite ease-in-out;
+}
+
+/* glow animation */
+@keyframes softGlow{
+    0%{
+        box-shadow:0 20px 40px rgba(0,0,0,0.2),
+                   0 0 0 2px rgba(255, 240, 180, 0.3) inset,
+                   0 0 30px rgba(255, 215, 100, 0.7),
+                   0 0 60px rgba(255, 200, 50, 0.4);
+    }
+    50%{
+        box-shadow:0 20px 40px rgba(0,0,0,0.2),
+                   0 0 0 4px rgba(255, 250, 200, 0.5) inset,
+                   0 0 50px rgba(255, 230, 130, 1),
+                   0 0 80px rgba(255, 215, 0, 0.7);
+    }
+    100%{
+        box-shadow:0 20px 40px rgba(0,0,0,0.2),
+                   0 0 0 2px rgba(255, 240, 180, 0.3) inset,
+                   0 0 30px rgba(255, 215, 100, 0.7),
+                   0 0 60px rgba(255, 200, 50, 0.4);
+    }
+}
+
+/* ===== INTERIOR ELEMENTS – ALL NOW TRANSPARENT + BLUR ===== */
+.top-bar{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:2rem;
+
+    /* transparent with blur – matches container aesthetic */
+    background:rgba(240, 227, 213, 0.4);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    padding:0.6rem 2rem;
+    border-radius:60px;
+    font-size:1.8rem;
+    box-shadow:0 8px 0 rgba(180,150,120,0.2), inset 0 2px 10px rgba(255,255,255,0.3);
+    border-bottom:3px solid rgba(200,170,140,0.3);
+}
+
+.score-item,
+.lives-group{
+    background:rgba(252, 242, 231, 0.4);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    padding:0.3rem 1.5rem;
+    border-radius:40px;
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,0.1), 0 4px 0 rgba(150,120,100,0.15);
+    border:1px solid rgba(255,255,255,0.5);
+}
+
+.score-item:hover{
+    transform:translateY(-2px);
+    transition:0.2s;
+    background:rgba(255, 245, 235, 0.6);
+}
+
+.heart{
+    font-size:2rem;
+    color:#b34332;
+    filter:drop-shadow(0 2px 2px rgba(150,50,30,0.3));
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+    100%{transform:scale(1);}
+}
+
+.word-card{
+    text-align:center;
+    background:rgba(255, 243, 224, 0.35);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border-radius:40px;
+    padding:1.5rem;
+    margin:1rem 0;
+    box-shadow:0 10px 0 rgba(180,150,130,0.2), inset 0 0 20px rgba(255,235,150,0.2);
+    border:2px solid rgba(255,215,175,0.5);
+    position:relative;
+    overflow:hidden;
+}
+
+.word-card::before{
+    content:"✨";
+    position:absolute;
+    left:20px;
+    top:10px;
+    font-size:1.5rem;
+    opacity:0.5;
+    animation:twinkle 2s infinite;
+}
+
+.word-card::after{
+    content:"✨";
+    position:absolute;
+    right:20px;
+    bottom:10px;
+    font-size:1.5rem;
+    opacity:0.5;
+    animation:twinkle 2s infinite 1s;
+}
+
+@keyframes twinkle{
+    0%,100%{opacity:0.2; transform:scale(1);}
+    50%{opacity:0.7; transform:scale(1.2);}
+}
+
+.instruction{
+    font-size:1.6rem;
+    margin-bottom:0.5rem;
+    text-shadow:2px 2px 0 rgba(255,215,175,0.3);
+    color:#5a3e2b;
+}
+
+.target-word{
+    font-size:4.2rem;
+    font-weight:600;
+    letter-spacing:5px;
+    text-shadow:3px 3px 0 #d4b28c, 6px 6px 0 rgba(0,0,0,0.1);
+    background:linear-gradient(135deg, #2d1f12, #5a3e2b);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    filter:drop-shadow(0 5px 5px rgba(255,215,0,0.2));
+}
+
+.letters-grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:0.6rem;
+    margin:1rem 0;
+    padding:1rem;
+    background:rgba(210, 180, 140, 0.4);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    border-radius:60px;
+}
+
+.letter-btn{
+    width:4.2rem;
+    height:4.2rem;
+    font-size:2.4rem;
+
+    background:rgba(250, 240, 228, 0.7);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    border:3px solid rgba(216,189,165,0.6);
+    border-radius:20px;
+    cursor:pointer;
+    transition:0.1s;
+    box-shadow:0 6px 0 #b4865f, 0 8px 10px rgba(0,0,0,0.2);
+    font-weight:bold;
+    color:#3d2b1c;
+    text-shadow:1px 1px 0 white;
+}
+
+.letter-btn:hover:not(:disabled){
+    transform:translateY(-3px);
+    box-shadow:0 9px 0 #b4865f, 0 12px 20px rgba(0,0,0,0.2);
+    background:rgba(255, 250, 240, 0.9);
+}
+
+.letter-btn:active:not(:disabled){
+    transform:translateY(4px);
+    box-shadow:0 2px 0 #b4865f, 0 5px 10px rgba(0,0,0,0.2);
+}
+
+.letter-btn.wrong-guess{
+    background:rgba(244,182,182,0.6);
+    backdrop-filter:blur(4px);
+    border-color:#c23b3b;
+    box-shadow:0 3px 0 #a13131, 0 5px 10px rgba(0,0,0,0.2);
+    color:#5a1e1e;
+    transform:translateY(3px);
+}
+
+.letter-btn:disabled{
+    opacity:0.6;
+    filter:grayscale(30%);
+    box-shadow:0 3px 0 #7e6b5a;
+    transform:translateY(3px);
+}
+
+.feedback-area{
+    text-align:center;
+    font-size:1.8rem;
+    min-height:3rem;
+    padding:0.5rem;
+    background:rgba(255, 235, 200, 0.5);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border-radius:40px;
+    border:1px solid rgba(255,215,150,0.5);
+    color:#3d2b1c;
+    font-weight:bold;
+    text-shadow:1px 1px 0 white;
+    animation:slideUp 0.3s ease;
+}
+
+@keyframes slideUp{
+    from{transform:translateY(10px); opacity:0;}
+    to{transform:translateY(0); opacity:1;}
+}
+
+@media (max-height:750px){
+    .target-word{ font-size:3.2rem; }
+    .letter-btn{
+        width:3.5rem;
+        height:3.5rem;
+        font-size:2rem;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<!-- plain white circle back button (outside container) -->
+<a href="Recommend.html" class="back-circle" id="backButton">←</a>
+
+<div class="game-container">
+
+    <!-- TOP BAR – now blurred transparent -->
+    <div class="top-bar">
+        <span class="score-item" id="currentScore">⭐ 0</span>
+        <span class="score-item" id="highScoreDisplay">🏆 0</span>
+        <span class="lives-group">
+            <span class="heart">❤️</span>
+            <span id="livesCount">0</span>/5
+        </span>
+    </div>
+
+    <!-- WORD CARD – blurred transparent -->
+    <div class="word-card">
+        <div class="instruction">🌟 find the word:</div>
+        <div class="target-word" id="targetWordDisplay">????</div>
+    </div>
+
+    <!-- LETTER GRID – blurred transparent -->
+    <div id="lettersContainer" class="letters-grid"></div>
+
+    <!-- FEEDBACK – blurred transparent -->
+    <div class="feedback-area" id="feedbackMessage"></div>
+
+</div>
+
+<script>
+(function(){
+
+// Word set and game variables
+const WORD_SET=[
+"MOON","STAR","FISH","TREE","BOOK","FROG","DUCK","BIRD",
+"CLOUD","HEART","SNAIL","LEAF","SUNNY","HAPPY","LAMP","CLOCK"
+];
+
+let currentWord='';
+let guessedLetters=new Set();
+let wrongCount=0;
+const MAX_WRONG=5;
+
+let score=0;
+let highScore=0;
+
+const targetWordDisplay=document.getElementById('targetWordDisplay');
+const lettersContainer=document.getElementById('lettersContainer');
+const feedbackEl=document.getElementById('feedbackMessage');
+const currentScoreSpan=document.getElementById('currentScore');
+const highScoreDisplay=document.getElementById('highScoreDisplay');
+const livesCountSpan=document.getElementById('livesCount');
+
+function updateScore(){
+currentScoreSpan.innerText=`⭐ ${score}`;
+}
+
+function updateHighScore(){
+highScoreDisplay.innerText=`🏆 ${highScore}`;
+}
+
+function updateLives(){
+livesCountSpan.innerText=wrongCount;
+}
+
+function getDisplayWord(){
+return [...currentWord].map(l=>guessedLetters.has(l)?l:'_').join(' ');
+}
+
+function updateWord(){
+targetWordDisplay.innerText=getDisplayWord();
+}
+
+function renderLetters(){
+lettersContainer.innerHTML='';
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter=>{
+const btn=document.createElement('button');
+btn.className='letter-btn';
+btn.innerText=letter;
+btn.onclick=()=>handleGuess(letter,btn);
+lettersContainer.appendChild(btn);
+});
+}
+
+function handleGuess(letter,btn){
+if(guessedLetters.has(letter)) return;
+
+guessedLetters.add(letter);
+
+if(currentWord.includes(letter)){
+updateWord();
+feedbackEl.innerText=`✅ Good guess!`;
+setTimeout(()=>{if(wrongCount<MAX_WRONG) feedbackEl.innerText='';},500);
+}else{
+wrongCount++;
+updateLives();
+btn.classList.add('wrong-guess');
+feedbackEl.innerText=`❌ Try again...`;
+setTimeout(()=>{if(wrongCount<MAX_WRONG) feedbackEl.innerText='';},500);
+}
+
+btn.disabled=true;
+
+if(getDisplayWord().replace(/ /g,'')===currentWord){
+feedbackEl.innerText=`🎉 Great job! +1 star ⭐`;
+score++;
+if(score>highScore){
+highScore=score;
+localStorage.setItem('dyslexiaGameHighScore',highScore);
+updateHighScore();
+}
+updateScore();
+setTimeout(newRound,800);
+}
+
+if(wrongCount>=MAX_WRONG){
+feedbackEl.innerText=`💫 5 wrong tries — new word! ✨`;
+setTimeout(newRound,800);
+}
+}
+
+function newRound(){
+currentWord=WORD_SET[Math.floor(Math.random()*WORD_SET.length)];
+guessedLetters.clear();
+wrongCount=0;
+updateLives();
+updateScore();
+updateHighScore();
+feedbackEl.innerText='✨ New word! ✨';
+updateWord();
+renderLetters();
+}
+
+(function init(){
+highScore=parseInt(localStorage.getItem('dyslexiaGameHighScore'))||0;
+updateHighScore();
+updateScore();
+newRound();
+})();
+
+})();
+</script>
+<!-- 
+    ===== WHAT CHANGED =====
+    - .game-container now uses background:rgba(255,245,235,0.2) + backdrop-filter:blur(12px)
+    - ALL interior elements (top-bar, word-card, letters-grid, feedback, buttons) 
+      now have semi‑transparent backgrounds + blur, creating a cohesive "blurred transparent" look.
+    - The GIF background remains fully visible through every layer.
+    - Glow and animation preserved.
+-->
+</body>
+</html>
+
+

@@ -1,0 +1,680 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Word Connect â€” 6 words per level Â· sobrang hirap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Montserrat', system-ui, sans-serif;
+      background-image: url('WordConnecttt.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: #fff;
+      padding: 16px;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .app {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 16px;
+      height: 100%;
+      max-height: 100%;
+      position: relative; /* for back button positioning */
+    }
+
+    /* WHITE CIRCLE BACK BUTTON â€“ pinned to extreme left, no overlap with level strip */
+    .back-circle {
+      position: absolute;
+      top: 0px;
+      left: -10px;          /* nakadikit sa pinaka gilid, half visible */
+      width: 48px;
+      height: 48px;
+      background-color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      cursor: pointer;
+      z-index: 300;          /* higher than everything */
+      transition: transform 0.2s ease;
+      border: 2px solid rgba(255,255,255,0.95);
+    }
+    /* enlarge hit area */
+    .back-circle::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border-radius: 50%;
+      background: transparent;
+    }
+    .back-circle:hover {
+      transform: scale(1.08);
+      background-color: #f0f0ff;
+    }
+    .back-circle svg {
+      width: 26px;
+      height: 26px;
+      fill: none;
+      stroke: #1e2b3c;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      margin-left: -2px;   /* fine-tune arrow */
+    }
+
+    /* left column */
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    /* level strip moved to the right so back button doesn't cover it */
+    .level-strip {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      padding: 6px 16px;
+      border-radius: 40px;
+      border: 1px solid rgba(255,255,255,0.2);
+      width: fit-content;
+      flex-shrink: 0;
+      margin-left: 44px;     /* â¬…ï¸ important: gives space for the back button */
+    }
+    .level-strip .level-badge {
+      font-weight: 800;
+      font-size: 1rem;
+      background: #1e90ff;
+      padding: 4px 14px;
+      border-radius: 30px;
+      color: white;
+    }
+    .level-strip span {
+      font-weight: 600;
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    /* BOARD */
+    .board {
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+      background: rgba(0,0,0,0.2);
+      backdrop-filter: blur(6px);
+      border-radius: 28px;
+      display: grid;
+      grid-template-rows: repeat(5, 1fr);
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      padding: 16px;
+      position: relative;
+      user-select: none;
+      border: 1px solid rgba(255,255,255,0.4);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+    }
+
+    .tile {
+      background: linear-gradient(145deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.12) 100%);
+      backdrop-filter: blur(8px);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: clamp(1rem, 3vw, 1.6rem);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: all 0.1s ease;
+      color: white;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.6);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .tile:hover {
+      transform: scale(1.02);
+      background: rgba(255,255,255,0.3);
+    }
+
+    .tile.active {
+      background: #1e90ff;
+      border-color: #fff;
+      box-shadow: 0 6px 15px rgba(30,144,255,0.5);
+    }
+
+    .tile.used {
+      opacity: 0.35;
+      transform: scale(0.96);
+      filter: grayscale(0.7);
+    }
+
+    .line-canvas {
+      position: absolute;
+      inset: 16px;
+      pointer-events: none;
+    }
+
+    /* RIGHT PANEL â€“ only target words */
+    .target-panel {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(15px) saturate(180%);
+      border-radius: 24px;
+      padding: 20px 16px;
+      border: 1px solid rgba(255,255,255,0.4);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .target-title {
+      font-weight: 700;
+      font-size: 1.4rem;
+      margin-bottom: 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      padding-bottom: 8px;
+      flex-shrink: 0;
+    }
+
+    .target-words-container {
+      overflow-y: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      align-items: flex-start;
+      align-content: flex-start;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .word-item {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(4px);
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border: 1px solid rgba(255,255,255,0.3);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      white-space: nowrap;
+      transition: 0.1s ease;
+    }
+
+    .word-item.found {
+      background: rgba(30,144,255,0.6);
+      border-color: white;
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- white circle back button â€“ sa pinaka gilid (left edge) with high z-index -->
+    <a href="MINDSPARKKK.html" style="text-decoration: none; position: absolute; top: 0; left: 0; z-index: 999;">
+      <div class="back-circle">
+        <svg viewBox="0 0 24 24">
+          <path d="M20 12H4M10 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
+    </a>
+
+    <!-- LEFT COLUMN (board only) -->
+    <div class="left-column">
+      <!-- level strip now has left margin to clear the back button -->
+      <div class="level-strip">
+        <div class="level-badge" id="levelBadge">Lv1</div>
+        <span id="levelDescription">Level 1 Â· 6 words</span>
+      </div>
+
+      <div class="board" id="board">
+        <canvas class="line-canvas" id="lineCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: target words only (6 words per level) -->
+    <div class="target-panel">
+      <div class="target-title"> WORDS TO FIND </div>
+      <div class="target-words-container" id="targetListContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const ROWS = 5, COLS = 7;
+      const ALPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+      // ================== 25+ LEVELS, EACH 6 WORDS ==================
+      // Now level count is 25 â€” layout unchanged, exactly 6 words each
+      const LEVELS = [
+        // 6 words each, mas mahirap parin
+        ['RELAX', 'SCREEN', 'DRAG', 'WINDOW', 'MOUSE', 'CLICK'],           
+        ['CONNECT', 'LETTER', 'POINT', 'BOARD', 'LEVEL', 'SCORE'],        
+        ['PUZZLE', 'FIND', 'SELECT', 'COMPUTER', 'KEYBOARD', 'MONITOR'],  
+        ['GALAXY', 'ROCKET', 'PLANET', 'STAR', 'SPACE', 'ORBIT'],         
+        ['CLICK', 'DRAG', 'RELEASE', 'PRESS', 'SCROLL', 'TAP'],           
+        ['ANGEL', 'DEMON', 'HEAVEN', 'HELL', 'PRAY', 'CROSS'],            
+        ['BRAIN', 'STORM', 'CLOUD', 'THUNDER', 'LIGHT', 'FLASH'],         
+        ['OCEAN', 'WATER', 'WAVE', 'TIDE', 'SALT', 'SAND'],               
+        ['FOREST', 'WOOD', 'TREE', 'LEAF', 'ROOT', 'BRANCH'],             
+        ['SUNSET', 'DAWN', 'DUSK', 'TWILIGHT', 'HORIZON', 'SKY'],         
+        ['COFFEE', 'TEA', 'MILK', 'SUGAR', 'CREAM', 'HONEY'],             
+        ['PYTHON', 'JAVA', 'RUBY', 'SWIFT', 'COBOL', 'BASIC'],            
+        ['CIRCLE', 'SQUARE', 'TRIANGLE', 'OVAL', 'HEXAGON', 'OCTAGON'],   
+        ['SUMMER', 'WINTER', 'AUTUMN', 'SPRING', 'SEASON', 'WEATHER'],    
+        ['LAPTOP', 'TABLET', 'PHONE', 'CHARGER', 'CABLE', 'ADAPTER'],     
+        ['PENCIL', 'PAPER', 'ERASER', 'RULER', 'SHARPENER', 'NOTEBOOK'],  
+        ['ACTOR', 'STAGE', 'MOVIE', 'SCENE', 'SCRIPT', 'DIRECTOR'],       
+        ['CANDY', 'CHOCOLATE', 'COOKIE', 'CAKE', 'ICING', 'SPRINKLE'],    
+        ['SOCKET', 'PLUG', 'VOLT', 'WATT', 'CURRENT', 'POWER'],           
+        ['SILVER', 'GOLDEN', 'BRONZE', 'METAL', 'COPPER', 'IRON'],        
+        ['MAGIC', 'WIZARD', 'SPELL', 'WAND', 'POTION', 'ELF'],            
+        ['MUSIC', 'SONG', 'BEAT', 'RHYTHM', 'MELODY', 'NOTE'],            
+        ['HOCKEY', 'SOCCER', 'TENNIS', 'CRICKET', 'RUGBY', 'GOLF'],       
+        ['ZEBRA', 'TIGER', 'LION', 'BEAR', 'WOLF', 'PANDA'],              
+        ['CACTUS', 'DESERT', 'SAND', 'OASIS', 'HEAT', 'SUN']              
+      ].map(l => l.map(w => w.toUpperCase()));
+
+      let currentLevel = 0;
+      let TARGET_WORDS = [];
+
+      let grid = [];
+      let baseLetters = [];
+      let activePath = [];
+      let found = new Set();
+
+      // DOM elements
+      const boardEl = document.getElementById('board');
+      const targetListContainer = document.getElementById('targetListContainer');
+      const lineCanvas = document.getElementById('lineCanvas');
+      const levelBadge = document.getElementById('levelBadge');
+      const levelDescription = document.getElementById('levelDescription');
+      const ctx = lineCanvas.getContext('2d');
+
+      // Helper
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function resizeCanvas() {
+        const rect = boardEl.getBoundingClientRect();
+        lineCanvas.width = rect.width;
+        lineCanvas.height = rect.height;
+      }
+
+      window.addEventListener('resize', () => { resizeCanvas(); drawPath(); });
+
+      // Load level
+      function loadLevel(levelIndex) {
+        let i = levelIndex;
+        if (i < 0) i = 0;
+        if (i >= LEVELS.length) i = LEVELS.length - 1;
+        currentLevel = i;
+        TARGET_WORDS = LEVELS[currentLevel].slice();
+        found.clear();
+        activePath = [];
+
+        if (grid.length) {
+          grid.forEach(g => g.el.classList.remove('active', 'used'));
+        }
+
+        placeWordsIntoGrid();
+        buildGridFromLetters();
+        renderTargetList();
+
+        levelBadge.textContent = `Lv${currentLevel + 1}`;
+        const wc = TARGET_WORDS.length;
+        levelDescription.textContent = `Level ${currentLevel + 1} Â· ${wc} words`;
+      }
+
+      // Auto next
+      function tryAutoNextLevel() {
+        if (found.size === TARGET_WORDS.length) {
+          if (currentLevel + 1 < LEVELS.length) {
+            setTimeout(() => loadLevel(currentLevel + 1), 500);
+          } else {
+            setTimeout(() => alert('ðŸŽ‰ Grabe! Natapos mo lahat! 25 levels of 6 words!'), 400);
+          }
+        }
+      }
+
+      // ----- placement with even more panggulo letters -----
+      function placeWordsIntoGrid() {
+        let cells = new Array(ROWS * COLS).fill(null);
+        const directions = [
+          [0, 1], [1, 0], [0, -1], [-1, 0],
+          [1, 1], [1, -1], [-1, 1], [-1, -1]
+        ];
+
+        // First, place the 6 target words (more words = more crowded)
+        const MAX_RETRIES = 12;  // more attempts because 6 words are harder to fit
+        let success = false;
+        let attempt = 0;
+        let order = TARGET_WORDS.slice();
+
+        while (!success && attempt < MAX_RETRIES) {
+          cells.fill(null);
+          success = true;
+          for (const w of order) {
+            if (!placeSingle(cells, w)) {
+              success = false;
+              break;
+            }
+          }
+          if (!success) {
+            order = shuffle(order);
+            attempt++;
+          }
+        }
+
+        // If still failing, force place (some words may overlap slightly, but we correct later)
+        if (!success) {
+          cells.fill(null);
+          for (const w of TARGET_WORDS) {
+            placeSingle(cells, w); // ignore return
+          }
+        }
+
+        // ========== HARDER PANGGULO ==========
+        // Use more consonants and less vowels, and repeat letters to make it confusing
+        const hardLetters = 'BCDFGHJKLMNPQRSTVWXYZBCDFGHJKLMNPQRSTVWXYZ'; // double consonants
+        for (let i = 0; i < cells.length; i++) {
+          if (!cells[i]) {
+            // Only 15% chance of vowel (was 30%) â€“ mas mahirap
+            cells[i] = Math.random() < 0.15
+              ? 'AEIOU'[Math.floor(Math.random() * 5)]
+              : hardLetters[Math.floor(Math.random() * hardLetters.length)];
+          }
+        }
+
+        // Extra trick: randomly replace some letters with similar-looking ones? 
+        // But we keep it fair â€“ just very consonant-heavy.
+        baseLetters = cells.slice();
+      }
+
+      function placeSingle(cells, word) {
+        const positions = [];
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            for (const d of [[0, 1], [1, 0], [0, -1], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+              const er = r + d[0] * (word.length - 1);
+              const ec = c + d[1] * (word.length - 1);
+              if (er < 0 || er >= ROWS || ec < 0 || ec >= COLS) continue;
+              positions.push({ r, c, d });
+            }
+          }
+        }
+
+        const shuffled = shuffle(positions);
+        for (const p of shuffled) {
+          let ok = true;
+          const ids = [];
+          for (let k = 0; k < word.length; k++) {
+            const rr = p.r + p.d[0] * k;
+            const cc = p.c + p.d[1] * k;
+            const id = rr * COLS + cc;
+            const ch = word[k];
+            if (cells[id] && cells[id] !== ch) {
+              ok = false;
+              break;
+            }
+            ids.push(id);
+          }
+          if (!ok) continue;
+          for (let k = 0; k < word.length; k++) {
+            const rr = p.r + p.d[0] * k;
+            const cc = p.c + p.d[1] * k;
+            const id = rr * COLS + cc;
+            cells[id] = word[k];
+          }
+          return true;
+        }
+        return false;
+      }
+
+      // Build DOM grid
+      function buildGridFromLetters() {
+        boardEl.querySelectorAll('.tile').forEach(el => el.remove());
+        grid = [];
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const idx = r * COLS + c;
+            const letter = baseLetters[idx] || 'A';
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.dataset.idx = idx;
+            tile.dataset.r = r;
+            tile.dataset.c = c;
+            tile.textContent = letter;
+            boardEl.appendChild(tile);
+            grid.push({ r, c, letter, el: tile, index: idx });
+            tile.addEventListener('mousedown', onPointerStart);
+            tile.addEventListener('mouseenter', onPointerEnter);
+            tile.addEventListener('mouseup', onPointerEnd);
+          }
+        }
+        document.addEventListener('mouseup', onPointerEnd);
+        boardEl.addEventListener('mouseleave', onPointerEnd);
+        document.addEventListener('keydown', onKeyDown);
+        resizeCanvas();
+      }
+
+      // Render target list
+      function renderTargetList() {
+        targetListContainer.innerHTML = '';
+        TARGET_WORDS.forEach(w => {
+          const span = document.createElement('span');
+          span.className = `word-item ${found.has(w) ? 'found' : 'target'}`;
+          span.textContent = w;
+          targetListContainer.appendChild(span);
+        });
+      }
+
+      // Interactions
+      let isDown = false;
+
+      function onPointerStart(e) {
+        e.preventDefault();
+        isDown = true;
+        const idx = Number(this.dataset.idx);
+        startSelection(idx);
+      }
+
+      function onPointerEnter(e) {
+        if (!isDown) return;
+        const idx = Number(this.dataset.idx);
+        extendSelection(idx);
+      }
+
+      function onPointerEnd() {
+        if (!isDown) return;
+        isDown = false;
+        submitSelection();
+      }
+
+      function startSelection(idx) {
+        activePath = [];
+        addToPath(idx);
+        drawPath();
+      }
+
+      function extendSelection(idx) {
+        if (activePath.length === 0) {
+          addToPath(idx);
+          drawPath();
+          return;
+        }
+        const last = activePath[activePath.length - 1];
+        if (idx === last) return;
+        if (activePath.includes(idx)) {
+          const pos = activePath.indexOf(idx);
+          activePath = activePath.slice(0, pos + 1);
+          updateActiveClasses();
+          drawPath();
+          return;
+        }
+        if (isAdjacent(last, idx)) {
+          addToPath(idx);
+          drawPath();
+        }
+      }
+
+      function addToPath(idx) {
+        activePath.push(idx);
+        updateActiveClasses();
+      }
+
+      function updateActiveClasses() {
+        grid.forEach(g => g.el.classList.remove('active'));
+        activePath.forEach(i => grid[i].el.classList.add('active'));
+      }
+
+      function submitSelection() {
+        if (activePath.length === 0) return;
+        const word = activePath.map(i => grid[i].letter).join('');
+        trySubmit(word, activePath.slice());
+        setTimeout(() => {
+          activePath = [];
+          updateActiveClasses();
+          drawPath();
+        }, 120);
+      }
+
+      function trySubmit(word, path) {
+        if (TARGET_WORDS.includes(word) && !found.has(word)) {
+          found.add(word);
+          path.forEach(i => grid[i].el.classList.add('used'));
+          renderTargetList();
+          tryAutoNextLevel();
+        } else {
+          activePath.forEach(i => {
+            grid[i].el.animate([
+              { transform: 'translateX(0)' },
+              { transform: 'translateX(-4px)' },
+              { transform: 'translateX(4px)' },
+              { transform: 'translateX(0)' }
+            ], { duration: 250 });
+          });
+        }
+      }
+
+      function isAdjacent(aIdx, bIdx) {
+        const a = grid[aIdx];
+        const b = grid[bIdx];
+        const dr = Math.abs(a.r - b.r);
+        const dc = Math.abs(a.c - b.c);
+        return dr <= 1 && dc <= 1 && !(dr === 0 && dc === 0);
+      }
+
+      function onKeyDown(e) {
+        if (e.key === 'Backspace') {
+          activePath.pop();
+          updateActiveClasses();
+          drawPath();
+          e.preventDefault();
+          return;
+        }
+        if (e.key === 'Enter') {
+          submitSelection();
+          e.preventDefault();
+          return;
+        }
+        const k = e.key.toUpperCase();
+        if (/^[A-Z]$/.test(k)) {
+          const last = activePath.length ? activePath[activePath.length - 1] : null;
+          let candidate = null;
+          for (const g of grid) {
+            if (g.letter === k && !activePath.includes(g.index)) {
+              if (last === null || isAdjacent(last, g.index)) {
+                candidate = g.index;
+                break;
+              }
+            }
+          }
+          if (candidate !== null) {
+            addToPath(candidate);
+            drawPath();
+          }
+        }
+      }
+
+      function drawPath() {
+        resizeCanvas();
+        ctx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
+        if (activePath.length === 0) return;
+
+        const rect = boardEl.getBoundingClientRect();
+        const tileRects = grid.map(g => g.el.getBoundingClientRect());
+
+        function center(i) {
+          const r = tileRects[i];
+          return {
+            x: r.left - rect.left + r.width / 2,
+            y: r.top - rect.top + r.height / 2
+          };
+        }
+
+        ctx.lineWidth = 12;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        const grad = ctx.createLinearGradient(0, 0, lineCanvas.width, lineCanvas.height);
+        grad.addColorStop(0, '#1e90ff');
+        grad.addColorStop(1, '#6eb5ff');
+        ctx.strokeStyle = grad;
+        ctx.beginPath();
+        activePath.forEach((i, idx) => {
+          const c = center(i);
+          if (idx === 0) ctx.moveTo(c.x, c.y);
+          else ctx.lineTo(c.x, c.y);
+        });
+        ctx.stroke();
+        activePath.forEach(i => {
+          const c = center(i);
+          ctx.fillStyle = '#1e90ff';
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, 12, 0, 2 * Math.PI);
+          ctx.fill();
+        });
+      }
+
+      // Start
+      loadLevel(0);
+    })();
+  </script>
+</body>
+</html>

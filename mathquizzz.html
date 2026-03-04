@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindSpark – back circle topmost left</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #9edcff;        /* uniform background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      position: relative;          /* allows absolute positioning relative to viewport */
+    }
+
+    /* ---------- WHITE CIRCLE BACK BUTTON – at the VERY TOP LEFT of the page ---------- */
+    .back-circle-top-left {
+      position: absolute;          /* relative to body */
+      top: 16px;                   /* small gap from top edge */
+      left: 16px;                  /* small gap from left edge */
+      background: white;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s;
+      z-index: 100;                /* stays above everything */
+      border: 2px solid #ffffff;
+      text-decoration: none;
+    }
+
+    .back-circle-top-left:hover {
+      transform: scale(1.08);
+      background: #f2f9ff;
+    }
+
+    /* left arrow inside circle */
+    .back-circle-top-left span {
+      font-size: 30px;
+      font-weight: 500;
+      color: #2f4f7c;
+      line-height: 1;
+      margin-right: 3px;
+      margin-bottom: 4px;
+    }
+
+    /* game wrapper – no extra margin, just centered */
+    .game-wrapper {
+      width: 420px;
+      max-width: 100%;
+      background: linear-gradient(180deg, #8fd3ff, #6bbcff);
+      border-radius: 24px;
+      padding: 25px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      position: relative;           /* for any inner absolute, but back button independent */
+    }
+
+    .timer-bubble {
+      background: #e9f8ff;
+      border-radius: 40px;
+      padding: 10px 25px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: #3b3b7a;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 30px 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .question {
+      font-size: 38px;
+      font-weight: 700;
+      color: #3d3d7c;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    .answer {
+      width: 180px;
+      padding: 12px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: 2px solid #7bbcff;
+      text-align: center;
+      margin-bottom: 20px;
+      outline: none;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .btn {
+      padding: 12px 26px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      color: white;
+      transition: filter 0.2s;
+    }
+
+    .btn:hover {
+      filter: brightness(0.95);
+    }
+
+    .check { background: #4caf50; }
+    .next { background: #1976d2; }
+
+    .score-panel {
+      margin-top: 18px;
+      background: rgba(255, 255, 255, 0.3);
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 15px;
+      color: white;
+      font-weight: 600;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- WHITE CIRCLE BACK BUTTON – at the VERY TOP LEFT of the page (outside game container) -->
+  <div class="back-circle-top-left" id="backCircle" role="button" tabindex="0" aria-label="Go back">
+    <span>←</span>
+  </div>
+
+  <div class="game-wrapper">
+
+    <div class="timer-bubble">
+      ⏰ <span id="time">30</span>
+    </div>
+
+    <div class="card">
+      <div class="question" id="question">18 + 7</div>
+
+      <input type="number" id="answer" class="answer" placeholder="Your answer">
+
+      <div class="buttons">
+        <button class="btn check" onclick="checkAnswer()">Check</button>
+        <button class="btn next" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
+
+    <div class="score-panel">
+      <span>Score: <span id="score">0</span></span>
+      <span>Attempts: <span id="attempts">3</span></span>
+    </div>
+
+  </div>
+
+  <script>
+    // ----- MindSpark with +, -, ×, ÷ -----
+    let score = 0;
+    let attempts = 3;
+    let time = 30;
+    let correctAnswer = 0;
+    let timer;
+
+    const operations = ['+', '-', '×', '÷'];
+    let currentOp = '+';
+
+    const timeSpan = document.getElementById('time');
+    const questionEl = document.getElementById('question');
+    const answerInput = document.getElementById('answer');
+    const scoreSpan = document.getElementById('score');
+    const attemptsSpan = document.getElementById('attempts');
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // generate question with random operation
+    function generateQuestion() {
+      const opIndex = randomInt(0, 3);
+      currentOp = operations[opIndex];
+
+      let a, b, expr, answer;
+
+      switch (currentOp) {
+        case '+':
+          a = randomInt(5, 45);
+          b = randomInt(5, 45);
+          answer = a + b;
+          expr = `${a} + ${b}`;
+          break;
+        case '-':
+          a = randomInt(15, 60);
+          b = randomInt(5, a - 2);
+          answer = a - b;
+          expr = `${a} - ${b}`;
+          break;
+        case '×':
+          a = randomInt(2, 12);
+          b = randomInt(2, 12);
+          answer = a * b;
+          expr = `${a} × ${b}`;
+          break;
+        case '÷':
+          b = randomInt(2, 9);
+          const quotient = randomInt(2, 12);
+          a = b * quotient;
+          answer = quotient;
+          expr = `${a} ÷ ${b}`;
+          break;
+        default:
+          a = 0; b = 0; answer = 0; expr = '0 + 0';
+      }
+
+      correctAnswer = answer;
+      questionEl.textContent = expr;
+    }
+
+    // timer
+    function startTimer() {
+      clearInterval(timer);
+      time = 30;
+      timeSpan.textContent = time;
+
+      timer = setInterval(() => {
+        time--;
+        timeSpan.textContent = time;
+
+        if (time === 0) {
+          clearInterval(timer);
+          attempts--;
+          updateUI();
+
+          if (attempts === 0) {
+            endGame();
+          } else {
+            nextQuestion();
+          }
+        }
+      }, 1000);
+    }
+
+    // check answer
+    function checkAnswer() {
+      const inputVal = answerInput.value.trim();
+      if (inputVal === '') return;
+
+      clearInterval(timer);
+
+      if (Number(inputVal) === correctAnswer) {
+        score++;
+      } else {
+        attempts--;
+      }
+
+      updateUI();
+
+      if (attempts === 0) {
+        endGame();
+      } else {
+        nextQuestion();
+      }
+    }
+
+    // next question
+    function nextQuestion() {
+      answerInput.value = '';
+      generateQuestion();
+      startTimer();
+    }
+
+    // update display
+    function updateUI() {
+      scoreSpan.textContent = score;
+      attemptsSpan.textContent = attempts;
+    }
+
+    // end game / reset
+    function endGame() {
+      alert(`Game Over!\nFinal Score: ${score}`);
+      resetGame();
+    }
+
+    function resetGame() {
+      score = 0;
+      attempts = 3;
+      updateUI();
+      nextQuestion();
+    }
+
+    // ----- BACK BUTTON (white circle) navigation -----
+    const backCircle = document.getElementById('backCircle');
+    backCircle.addEventListener('click', function() {
+      // Navigate to the specified local file (Windows path)
+      window.location.href = 'MINDSPARKKK.html';
+    });
+
+    // start the game
+    generateQuestion();
+    startTimer();
+  </script>
+</body>
+</html>
+

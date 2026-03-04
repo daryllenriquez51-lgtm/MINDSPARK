@@ -1,0 +1,450 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MindSpark – Sudoku Levels</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --border:#355c85;
+  --dark:#2c4a6e;
+  --wrong:#ff6b6b;
+}
+
+*{
+  box-sizing:border-box;
+  font-family:Segoe UI,sans-serif;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  /* BACKGROUND IMAGE (full, unchanged) */
+  background:
+    linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.15)),
+    url("Soduku bgg.png") center / cover no-repeat fixed;
+}
+
+/* === CLEAR GLASS PANEL (NO BLUR) === */
+.game{
+  position:relative;
+  width:920px;
+  height:520px;
+
+  background:linear-gradient(
+    135deg,
+    rgba(255,255,255,.55),
+    rgba(255,255,255,.30)
+  );
+
+  border-radius:28px;
+  padding:24px;
+  display:grid;
+  grid-template-columns:180px 1fr 120px;
+  gap:20px;
+
+  border:1px solid rgba(255,255,255,.45);
+
+  box-shadow:
+    0 20px 40px rgba(0,0,0,.25),
+    inset 0 1px 1px rgba(255,255,255,.6);
+}
+
+/* light reflection (no blur) */
+.game::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:28px;
+  background:linear-gradient(
+    to bottom right,
+    rgba(255,255,255,.22),
+    transparent 65%
+  );
+  pointer-events:none;
+}
+
+.left,.right{
+  color:var(--dark);
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.board-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+}
+
+.sudoku{
+  width:360px;
+  height:360px;
+  display:grid;
+  grid-template-columns:repeat(9,1fr);
+  border:3px solid var(--border);
+}
+
+.cell{
+  border:1px solid #9bb6d6;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:700;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.cell.fixed{
+  background:#dce9f8;
+  font-weight:900;
+  cursor:default;
+}
+
+.cell.selected{background:#cde6ff}
+.cell.wrong{color:var(--wrong)}
+
+.br{border-right:3px solid var(--border)}
+.bb{border-bottom:3px solid var(--border)}
+
+.numbers{
+  display:flex;
+  gap:8px;
+}
+
+.num{
+  width:42px;
+  height:42px;
+  background:#fff;
+  border-radius:6px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:800;
+  cursor:grab;
+  box-shadow:0 4px 8px rgba(0,0,0,.2);
+  user-select:none;
+}
+
+.num:active{
+  cursor:grabbing;
+}
+
+.cell.drag-over{
+  background:#b3d9ff;
+  box-shadow:inset 0 0 8px rgba(100,150,200,.5);
+}
+
+.tool{
+  text-align:center;
+  cursor:pointer;
+}
+
+/* Success modal */
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);visibility:hidden;opacity:0;transition:opacity .18s ease, visibility .18s;z-index:9999}
+.overlay.show{visibility:visible;opacity:1}
+.modal{padding:20px 24px;border-radius:12px;background:rgba(255,255,255,0.95);box-shadow:0 20px 40px rgba(0,0,0,0.35);text-align:center;max-width:420px}
+.modal h2 { font-family: 'Special Elite'; }
+.modal p{color:#333;margin-bottom:12px}
+
+/* ===== BACK BUTTON – now a PERFECT CIRCLE, white, top left outside ===== */
+.back-circle {
+  position: fixed;          /* outside the game panel, top left corner */
+  top: 24px;
+  left: 24px;
+  width: 54px;
+  height: 54px;
+  background-color: white;
+  border-radius: 50%;       /* fully circular */
+  box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #2c4a6e;
+  font-weight: 800;
+  font-size: 32px;
+  border: 1px solid rgba(255,255,255,0.8);
+  transition: background 0.2s, transform 0.15s;
+  z-index: 10000;           /* above everything */
+  line-height: 1;
+}
+
+.back-circle:hover {
+  background: #e6f0ff;
+  transform: scale(1.05);
+}
+
+.back-circle:active {
+  transform: scale(0.95);
+}
+
+/* simple arrow, no extra text */
+.back-circle span {
+  display: block;
+  margin-top: -3px;         /* fine-tune vertical alignment */
+  margin-left: -1px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- BACK BUTTON – white CIRCLE, top left, links to homepage -->
+<a href="Sodoku%20Homepage.html" class="back-circle" title="Back to homepage">
+  <span>←</span>
+</a>
+
+<div class="game">
+
+  <div class="left">
+    <div><b>Mistakes</b><br><span id="mistakes">0/3</span></div>
+    <div><b>Difficulty</b><br><span id="difficulty"></span></div>
+    <div><b>Level</b><br><span id="level"></span></div>
+  </div>
+
+  <div class="board-wrap">
+    <div class="sudoku" id="board"></div>
+    <div class="numbers">
+      <div class="num">1</div><div class="num">2</div><div class="num">3</div>
+      <div class="num">4</div><div class="num">5</div><div class="num">6</div>
+      <div class="num">7</div><div class="num">8</div><div class="num">9</div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div><b id="time">0:00</b></div>
+    <div class="tool" onclick="undo()">↩️<br>Undo</div>
+    <div class="tool" onclick="erase()">✏️<br>Erase</div>
+    <div class="tool" onclick="hint()">💡<br>Hint</div>
+    <div class="tool" onclick="done()">✅<br>Done</div>
+  </div>
+
+</div>
+
+<!-- Success modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modal-title">Level Complete!</h2>
+    <p id="modal-body">Great work — moving to next level.</p>
+    <button class="btn btn-green" id="next">Next</button>
+  </div>
+</div>
+
+<script>
+const solution=[
+ [5,3,4,6,7,8,9,1,2],
+ [6,7,2,1,9,5,3,4,8],
+ [1,9,8,3,4,2,5,6,7],
+ [8,5,9,7,6,1,4,2,3],
+ [4,2,6,8,5,3,7,9,1],
+ [7,1,3,9,2,4,8,5,6],
+ [9,6,1,5,3,7,2,8,4],
+ [2,8,7,4,1,9,6,3,5],
+ [3,4,5,2,8,6,1,7,9]
+];
+
+function makePuzzle(remove){
+ let p=solution.map(r=>r.slice());
+ let removed=0;
+ while(removed<remove){
+  let r=Math.floor(Math.random()*9);
+  let c=Math.floor(Math.random()*9);
+  if(p[r][c]!==0){p[r][c]=0;removed++;}
+ }
+ return p;
+}
+
+const levels=[];
+for(let i=1;i<=20;i++){
+ let diff=i<=5?"Easy":i<=10?"Medium":i<=15?"Hard":"Expert";
+ let blanks=i<=5?35:i<=10?45:i<=15?55:60;
+ levels.push({diff,puzzle:makePuzzle(blanks),solution});
+}
+
+let lvl=0,selected=null,mistakes=0,history=[],timer,sec=0;
+const board=document.getElementById("board");
+const timeEl=document.getElementById("time");
+const overlay = document.getElementById('overlay');
+const nextBtn = document.getElementById('next');
+
+function startLevel(){
+ clearInterval(timer);
+ sec=0;mistakes=0;history=[];
+ board.innerHTML="";
+ timeEl.textContent="0:00";
+ document.getElementById("mistakes").textContent="0/3";
+ document.getElementById("difficulty").textContent=levels[lvl].diff;
+ document.getElementById("level").textContent=(lvl+1)+"/20";
+
+ // regenerate puzzle for this level so each attempt is a new arrangement
+ const blanks = lvl<=4?35: lvl<=9?45: lvl<=14?55:60;
+ levels[lvl].puzzle = makePuzzle(blanks);
+
+ levels[lvl].puzzle.flat().forEach((v,i)=>{
+  const c=document.createElement("div");
+  c.className="cell";
+  if(v){c.textContent=v;c.classList.add("fixed")}
+  if((i+1)%3===0&&(i+1)%9!==0)c.classList.add("br");
+  if(Math.floor(i/9)%3===2 && i<72)c.classList.add("bb");
+  c.onclick=()=>select(c,i);
+  board.appendChild(c);
+ });
+
+ timer=setInterval(()=>{
+  sec++;
+  timeEl.textContent=Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");
+ },1000);
+}
+
+function select(c,i){
+ if(c.classList.contains("fixed"))return;
+ document.querySelectorAll(".cell").forEach(x=>x.classList.remove("selected"));
+ selected={c,i};
+ c.classList.add("selected");
+}
+
+document.querySelectorAll(".num").forEach(n=>{
+ n.setAttribute("draggable","true");
+ 
+ // DRAG START
+ n.addEventListener("dragstart", e => {
+  e.dataTransfer.effectAllowed="copy";
+  e.dataTransfer.setData("numValue", n.textContent);
+  n.style.opacity="0.5";
+ });
+ 
+ // DRAG END
+ n.addEventListener("dragend", e => {
+  n.style.opacity="1";
+  document.querySelectorAll(".cell").forEach(c=>c.classList.remove("drag-over"));
+ });
+});
+
+// CELL DRAG OVER & DROP (use event delegation on `board` so listeners work after cells are created)
+board.addEventListener("dragover", e => {
+  const cell = e.target.closest('.cell');
+  if(!cell) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  cell.classList.add('drag-over');
+});
+
+board.addEventListener('dragleave', e => {
+  const cell = e.target.closest('.cell');
+  if(!cell) return;
+  cell.classList.remove('drag-over');
+});
+
+board.addEventListener('drop', e => {
+  const cell = e.target.closest('.cell');
+  if(!cell) return;
+  e.preventDefault();
+  cell.classList.remove('drag-over');
+
+  if(cell.classList.contains('fixed')) return;
+
+  const numValue = Number(e.dataTransfer.getData('numValue'));
+  const i = [...board.children].indexOf(cell);
+  const r = Math.floor(i/9);
+  const col = i%9;
+
+  history.push({cell:cell, val:cell.textContent, wrong:cell.classList.contains('wrong')});
+
+  if(levels[lvl].solution[r][col] === numValue){
+    cell.textContent = numValue;
+    cell.classList.remove('wrong');
+    checkWin();
+  } else {
+    mistakes++;
+    cell.textContent = numValue;
+    cell.classList.add('wrong');
+    document.getElementById('mistakes').textContent = `${mistakes}/3`;
+    if(mistakes>=3){ alert('Game Over'); startLevel(); }
+  }
+});
+
+function erase(){
+ if(selected&&!selected.c.classList.contains("fixed")){
+  history.push({cell:selected.c,val:selected.c.textContent,wrong:selected.c.classList.contains("wrong")});
+  selected.c.textContent="";
+  selected.c.classList.remove("wrong");
+ }
+}
+
+function undo(){
+ const m=history.pop();
+ if(!m)return;
+ m.cell.textContent=m.val||"";
+ m.wrong?m.cell.classList.add("wrong"):m.cell.classList.remove("wrong");
+}
+
+function hint(){
+ const cells=[...document.querySelectorAll(".cell")].filter(c=>!c.textContent&&!c.classList.contains("fixed"));
+ if(!cells.length)return;
+ const c=cells[Math.floor(Math.random()*cells.length)];
+ const i=[...board.children].indexOf(c);
+ history.push({cell:c,val:"",wrong:false});
+ c.textContent=levels[lvl].solution[Math.floor(i/9)][i%9];
+}
+
+function done(){
+  // Check if board matches solution
+  const cells=[...document.querySelectorAll('.cell')];
+  let allCorrect = true;
+  for(let i=0;i<81;i++){
+    const val = Number(cells[i].textContent) || 0;
+    if(val !== levels[lvl].solution[Math.floor(i/9)][i%9]){ allCorrect = false; break; }
+  }
+
+  if(!allCorrect){
+    const ok = confirm('Board is not complete or contains mistakes. Start next level anyway?');
+    if(!ok) return;
+  }
+
+  if(allCorrect){
+    showSuccess();
+  } else {
+    lvl++;
+    if(lvl>=20){ alert('🎉 All 20 Levels Complete!'); lvl = 0; }
+    startLevel();
+  }
+}
+
+function checkWin(){
+ const cells=[...document.querySelectorAll(".cell")];
+ for(let i=0;i<81;i++){
+  if(cells[i].textContent!=levels[lvl].solution[Math.floor(i/9)][i%9])return;
+ }
+ showSuccess();
+}
+
+function nextQuestion(){
+  overlay.classList.remove('show');
+  lvl++;
+  if(lvl>=20){ alert('🎉 All 20 Levels Complete!'); lvl = 0; }
+  startLevel();
+}
+
+function showSuccess(){
+  overlay.classList.add('show');
+  document.getElementById('modal-title').textContent = 'Good job!';
+  document.getElementById('modal-body').textContent = `Level ${lvl+1} Complete!`;
+}
+
+nextBtn && (nextBtn.onclick = nextQuestion);
+
+startLevel();
+</script>
+
+</body>
+</html>
+
+
+

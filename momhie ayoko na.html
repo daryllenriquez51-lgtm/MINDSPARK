@@ -1,0 +1,794 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Focus Dashboard – MindSpark</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background-image: url('mindsparkbg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.app{
+  max-width:1400px;
+  width: 95%;
+  height:90vh;
+  margin:20px auto;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(4px);
+  border-radius:30px;
+  display:flex;
+  overflow:hidden;
+  box-shadow:0 25px 50px rgba(0,0,0,.1);
+  opacity: 0;
+  animation: fadeIn 1s ease-in-out 0.1s forwards;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:230px;
+  background: rgba(255,255,255,0.5);
+  padding:30px 20px;
+  backdrop-filter: blur(2px);
+}
+
+.logo{
+  font-size:22px;
+  font-weight:600;
+  margin-bottom:40px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.logo button {
+  background:#7494ec; 
+  color:white; 
+  border:none; 
+  border-radius:8px; 
+  padding:6px 12px; 
+  cursor:pointer; 
+  font-weight: 600;
+  transition: 0.2s;
+}
+.logo button:hover {
+  background:#5a7bd4;
+  transform: scale(1.02);
+}
+
+.menu a{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 15px;
+  margin-bottom:10px;
+  text-decoration:none;
+  color:#666;
+  border-radius:12px;
+  font-size:14px;
+}
+
+.menu a.active,
+.menu a:hover{
+  background:#dee7ff;
+  color:#5a7bd4;
+}
+
+/* ===== CONTENT ===== */
+.content{
+  flex:1;
+  padding:30px 40px;
+  display:flex;
+  gap:30px;
+  overflow-y: auto;
+}
+
+/* ===== LEFT ===== */
+.left{
+  flex:2;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.header h2 span{
+  color:#5a7bd4;
+}
+
+/* ===== CARDS ===== */
+.card{
+  background:#fff;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,.05);
+  margin-bottom:25px;
+}
+
+/* SLIDESHOW STYLES - ENHANCED FEATURED */
+.slideshow{
+  position:relative;
+  height:170px;
+  overflow:hidden;
+  border-radius:15px;
+}
+
+.slide{
+  position:absolute;
+  width:100%;
+  height:100%;
+  display:flex;
+  gap:15px;
+  opacity:0;
+  transition:opacity 0.8s ease;
+  pointer-events: none;
+}
+
+.slide.active{
+  opacity:1;
+  pointer-events: auto;
+}
+
+.slide-card{
+  background:#fff;
+  border-radius:15px;
+  width:120px;
+  padding:0;
+  box-shadow:0 8px 20px rgba(0,0,0,0.12);
+  text-align:center;
+  overflow:hidden;
+  flex-shrink:0;
+  position: relative;
+}
+
+.slide-card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+  display:block;
+}
+
+.card-title{
+  color:#fff;
+  font-size:12px;
+  padding:8px;
+  background:linear-gradient(transparent, rgba(0,0,0,0.7));
+  position:absolute;
+  bottom:0;
+  width:100%;
+  border-radius:0 0 15px 15px;
+  text-align: left;
+  font-weight: 500;
+}
+
+/* Featured Slideshow Navigation Dots */
+.slideshow-dots {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.dot {
+  cursor: pointer;
+  height: 10px;
+  width: 10px;
+  margin: 0 6px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.dot.active, .dot:hover {
+  background-color: #5a7bd4;
+  transform: scale(1.2);
+}
+
+/* Slideshow Progress Bar */
+.slide-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #5a7bd4, #7494ec);
+  width: 0%;
+  transition: width 0.1s linear;
+  border-radius: 0 0 15px 15px;
+}
+
+/* Featured Image Full Width Style */
+.featured-slide {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius:15px;
+  overflow:hidden;
+}
+
+.featured-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.featured-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.featured-content h3 {
+  margin-bottom: 5px;
+  font-size: 20px;
+}
+
+.featured-content p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.section-title{
+  font-size:19px;
+  margin-bottom:14px;
+  color:#333;
+}
+
+/* FOCUS PROGRESS CARD - CUSTOM YELLOW THEME */
+.focus-card{
+  margin-top:22px;
+  background:#ffffff;
+  border-radius:22px;
+  padding:22px;
+  color:#333;
+  border: 2px solid #F8DE8C;
+}
+
+.focus-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.focus-header h3{
+  font-size:18px;
+  color:#333;
+}
+
+.level-badge{
+  background:#F8DE8C;
+  padding:5px 14px;
+  border-radius:18px;
+  font-size:13px;
+  color:#333;
+  font-weight:600;
+}
+
+.progress-info{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin:10px 0 7px;
+  color:#666;
+}
+
+.progress-bar{
+  width:100%;
+  height:16px;
+  background:#f0f0f0;
+  border-radius:18px;
+  overflow:hidden;
+}
+
+.progress-fill{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#F8DE8C,#F5D88A);
+  border-radius:18px;
+  transition:width 0.6s ease;
+}
+
+.stats{
+  display:flex;
+  gap:18px;
+  margin-top:14px;
+}
+
+.stat-box{
+  flex:1;
+  background:#FFF9E6;
+  border-radius:18px;
+  padding:12px;
+  text-align:center;
+  color:#333;
+  border: 1px solid #F8DE8C;
+}
+
+.stat-box h3{
+  font-size:20px;
+  margin-bottom:4px;
+  color:#333;
+}
+
+.stat-box p{
+  font-size:11px;
+  color:#666;
+}
+
+.complete-btn{
+  margin-top:14px;
+  padding:10px;
+  border:none;
+  border-radius:18px;
+  background:#F8DE8C;
+  color:#333;
+  cursor:pointer;
+  transition:0.3s;
+  width:100%;
+  font-size:13px;
+  font-weight:600;
+}
+
+.complete-btn:hover{
+  transform:scale(1.02);
+  background:#E8C97A;
+}
+
+/* ===== RIGHT ===== */
+.right{
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile{
+  text-align:center;
+  background: #fff;
+  border-radius: 20px;
+  padding: 25px 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+}
+
+.avatar{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background-image: url('AVATARICON.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin:0 auto 10px;
+  border: 3px solid #dee7ff;
+}
+
+#profile-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.mini-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 15px 0 5px;
+}
+
+.mini-stats div {
+  background:#f6f8fc;
+  padding:10px;
+  border-radius:15px;
+  font-size:13px;
+  min-width: 70px;
+}
+
+/* right side slideshow (featured images) already inside .card */
+.right .slideshow {
+  height: 320px; /* adjusted for better fit */
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Apply animations */
+.sidebar {
+  animation: slideInLeft 0.8s ease-out 0.3s both;
+}
+
+.card, .profile, .focus-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover, .profile:hover, .focus-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){
+  .content{
+    flex-direction:column;
+  }
+  .right .slideshow {
+    height: 250px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">
+      <button id="back-btn" onclick="window.location.href='MINDSPARKKK.html';">←</button>
+      <span style="color:#7494ec;">Focus</span>
+    </div>
+    <div class="menu">
+      <a id="menu-dashboard" class="active">📊 Dashboard</a>
+      <a>📁 Collections</a>
+      <a>📈 Analytics</a>
+      <a>⚙️ Settings</a>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- LEFT -->
+    <div class="left">
+
+      <!-- Featured Collections Slideshow with YOUR local images -->
+      <div class="card">
+        <div class="section-title">✨ Featured Collections</div>
+        <div class="slideshow" id="slideshowTop">
+          <!-- First slide with your Screenshot (77) -->
+          <div class="slide active">
+            <div class="slide-card">
+              <img src="MINDSPARK%20(4).jpg" alt="Screenshot 77">
+              <div class="card-title">Collection 1</div>
+            </div>
+            <div class="slide-card">
+              <img src="MINDSPARK.jpg" alt="Screenshot 78">
+              <div class="card-title">Collection 2</div>
+            </div>
+            <div class="slide-card">
+              <img src="https://picsum.photos/200/150?3" alt="placeholder">
+              <div class="card-title">Collection 3</div>
+            </div>
+            <div class="slide-progress" id="progress1"></div>
+          </div>
+
+          <!-- Second slide (you can add your own images here later) -->
+          <div class="slide">
+            <div class="slide-card">
+              <img src="https://picsum.photos/200/150?4" alt="nft">
+              <div class="card-title">NFT A</div>
+            </div>
+            <div class="slide-card">
+              <img src="https://picsum.photos/200/150?5" alt="nft">
+              <div class="card-title">NFT B</div>
+            </div>
+            <div class="slide-card">
+              <img src="https://picsum.photos/200/150?6" alt="nft">
+              <div class="card-title">NFT C</div>
+            </div>
+            <div class="slide-progress" id="progress2"></div>
+          </div>
+        </div>
+        <div class="slideshow-dots">
+          <span class="dot active" onclick="currentSlide(1)"></span>
+          <span class="dot" onclick="currentSlide(2)"></span>
+        </div>
+      </div>
+
+      <!-- Focus Progress Card -->
+      <div class="focus-card">
+        <div class="focus-header">
+          <h3>🎯 Focus Progress</h3>
+          <div class="level-badge">Level 3</div>
+        </div>
+
+        <div class="progress-info">
+          <span>Daily Goal</span>
+          <span id="percentText">0%</span>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="stats">
+          <div class="stat-box">
+            <h3 id="tasksDone">0</h3>
+            <p>Tasks Done</p>
+          </div>
+          <div class="stat-box">
+            <h3 id="xpPoints">0</h3>
+            <p>XP Points</p>
+          </div>
+        </div>
+
+        <button class="complete-btn" onclick="completeTask()">
+          ✅ + Complete Task
+        </button>
+      </div>
+
+    </div>
+
+    <!-- RIGHT - Featured Image Slideshow + Profile -->
+    <div class="right">
+
+      <!-- user profile card -->
+      <div class="profile">
+        <div class="avatar"></div>
+        <div id="profile-name">Student</div>
+        <div class="mini-stats">
+          <div>🔥 3 day streak</div>
+          <div>🏆 rank #42</div>
+        </div>
+      </div>
+
+      <!-- Featured Images slideshow -->
+      <div class="card">
+        <div class="section-title">🌟 Featured Images</div>
+        <div class="slideshow" style="height: 280px;" id="slideshowRight">
+          <div class="slide active">
+            <div class="featured-slide">
+              <img src="https://picsum.photos/400/280?random=10" alt="Featured 1">
+              <div class="featured-content">
+                <h3>Welcome Back!</h3>
+                <p>Continue your learning journey</p>
+              </div>
+            </div>
+            <div class="slide-progress" id="progA"></div>
+          </div>
+
+          <div class="slide">
+            <div class="featured-slide">
+              <img src="https://picsum.photos/400/280?random=11" alt="Featured 2">
+              <div class="featured-content">
+                <h3>Daily Challenge</h3>
+                <p>Complete tasks to earn XP</p>
+              </div>
+            </div>
+            <div class="slide-progress" id="progB"></div>
+          </div>
+
+          <div class="slide">
+            <div class="featured-slide">
+              <img src="https://picsum.photos/400/280?random=12" alt="Featured 3">
+              <div class="featured-content">
+                <h3>Track Progress</h3>
+                <p>View your achievements</p>
+              </div>
+            </div>
+            <div class="slide-progress" id="progC"></div>
+          </div>
+
+          <div class="slide">
+            <div class="featured-slide">
+              <img src="https://picsum.photos/400/280?random=13" alt="Featured 4">
+              <div class="featured-content">
+                <h3>Stay Focused</h3>
+                <p>Reach your daily goals</p>
+              </div>
+            </div>
+            <div class="slide-progress" id="progD"></div>
+          </div>
+
+          <div class="slide">
+            <div class="featured-slide">
+              <img src="https://picsum.photos/400/280?random=14" alt="Featured 5">
+              <div class="featured-content">
+                <h3>Have Fun!</h3>
+                <p>Learning is an adventure</p>
+              </div>
+            </div>
+            <div class="slide-progress" id="progE"></div>
+          </div>
+        </div>
+        <div class="slideshow-dots">
+          <span class="dot active" onclick="goToSlide(1)"></span>
+          <span class="dot" onclick="goToSlide(2)"></span>
+          <span class="dot" onclick="goToSlide(3)"></span>
+          <span class="dot" onclick="goToSlide(4)"></span>
+          <span class="dot" onclick="goToSlide(5)"></span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---- Initialize profile name ----
+    const username = localStorage.getItem('username') || 'Student';
+    const profileNameEl = document.getElementById('profile-name');
+    if (profileNameEl) profileNameEl.textContent = username;
+
+    // ---- GLOBAL SLIDESHOW VARIABLES (two independent slideshows) ----
+    // top slideshow (collections)
+    const topSlides = document.querySelectorAll('#slideshowTop .slide');
+    const topDots = document.querySelectorAll('#slideshowTop ~ .slideshow-dots .dot');
+    // right slideshow (featured)
+    const rightSlides = document.querySelectorAll('#slideshowRight .slide');
+    const rightDots = document.querySelectorAll('#slideshowRight ~ .slideshow-dots .dot');
+
+    let topIndex = 0;
+    let rightIndex = 0;
+    let topInterval, rightInterval;
+    let topProgressInterval, rightProgressInterval;
+
+    // ---- helper: reset and start top slideshow ----
+    function startTopSlideshow() {
+      if (topInterval) clearInterval(topInterval);
+      if (topProgressInterval) clearInterval(topProgressInterval);
+
+      function advanceTop() {
+        topSlides[topIndex]?.classList.remove('active');
+        topDots[topIndex]?.classList.remove('active');
+        topIndex = (topIndex + 1) % topSlides.length;
+        topSlides[topIndex]?.classList.add('active');
+        topDots[topIndex]?.classList.add('active');
+        resetTopProgress();
+      }
+
+      function resetTopProgress() {
+        if (topProgressInterval) clearInterval(topProgressInterval);
+        const activeSlide = topSlides[topIndex];
+        if (!activeSlide) return;
+        const progBar = activeSlide.querySelector('.slide-progress');
+        if (progBar) progBar.style.width = '0%';
+
+        let w = 0;
+        topProgressInterval = setInterval(() => {
+          w += 1;  // 4 seconds total (100 steps of 40ms)
+          if (w >= 100) {
+            w = 100;
+            clearInterval(topProgressInterval);
+          }
+          if (progBar) progBar.style.width = w + '%';
+        }, 40); // 40ms * 100 = 4000ms
+      }
+
+      topInterval = setInterval(advanceTop, 4000);
+      resetTopProgress();
+    }
+
+    // top manual control
+    window.currentSlide = function(n) {
+      if (topSlides.length === 0) return;
+      clearInterval(topInterval);
+      clearInterval(topProgressInterval);
+      topSlides[topIndex]?.classList.remove('active');
+      topDots[topIndex]?.classList.remove('active');
+      topIndex = n - 1;
+      if (topIndex < 0) topIndex = topSlides.length-1;
+      if (topIndex >= topSlides.length) topIndex = 0;
+      topSlides[topIndex]?.classList.add('active');
+      topDots[topIndex]?.classList.add('active');
+      startTopSlideshow();
+    };
+
+    // ---- right slideshow ----
+    function startRightSlideshow() {
+      if (rightInterval) clearInterval(rightInterval);
+      if (rightProgressInterval) clearInterval(rightProgressInterval);
+
+      function advanceRight() {
+        rightSlides[rightIndex]?.classList.remove('active');
+        rightDots[rightIndex]?.classList.remove('active');
+        rightIndex = (rightIndex + 1) % rightSlides.length;
+        rightSlides[rightIndex]?.classList.add('active');
+        rightDots[rightIndex]?.classList.add('active');
+        resetRightProgress();
+      }
+
+      function resetRightProgress() {
+        if (rightProgressInterval) clearInterval(rightProgressInterval);
+        const activeSlide = rightSlides[rightIndex];
+        if (!activeSlide) return;
+        const progBar = activeSlide.querySelector('.slide-progress');
+        if (progBar) progBar.style.width = '0%';
+
+        let w = 0;
+        rightProgressInterval = setInterval(() => {
+          w += 1;
+          if (w >= 100) {
+            w = 100;
+            clearInterval(rightProgressInterval);
+          }
+          if (progBar) progBar.style.width = w + '%';
+        }, 40);
+      }
+
+      rightInterval = setInterval(advanceRight, 4000);
+      resetRightProgress();
+    }
+
+    window.goToSlide = function(n) {
+      if (rightSlides.length === 0) return;
+      clearInterval(rightInterval);
+      clearInterval(rightProgressInterval);
+      rightSlides[rightIndex]?.classList.remove('active');
+      rightDots[rightIndex]?.classList.remove('active');
+      rightIndex = n - 1;
+      if (rightIndex < 0) rightIndex = rightSlides.length-1;
+      if (rightIndex >= rightSlides.length) rightIndex = 0;
+      rightSlides[rightIndex]?.classList.add('active');
+      rightDots[rightIndex]?.classList.add('active');
+      startRightSlideshow();
+    };
+
+    // Initialize slideshows if elements exist
+    if (topSlides.length) startTopSlideshow();
+    if (rightSlides.length) startRightSlideshow();
+
+    // ---- FOCUS PROGRESS (starts at zero) ----
+    let progress = 0;
+    let tasks = 0;
+    let xp = 0;
+
+    window.completeTask = function() {
+      if (progress >= 100) return;
+
+      progress = Math.min(progress + 10, 100);
+      tasks += 1;
+      xp += 10;
+
+      document.getElementById("progressFill").style.width = progress + "%";
+      document.getElementById("percentText").innerText = progress + "%";
+      document.getElementById("tasksDone").innerText = tasks;
+      document.getElementById("xpPoints").innerText = xp;
+    };
+
+    // optional: expose to global for button
+  })();
+</script>
+
+<!-- ensure back button works even if file protocol blocks some links -->
+</body>
+</html>
+
+
+
+
+
+

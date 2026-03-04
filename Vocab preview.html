@@ -1,0 +1,648 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Word of the Day</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background-image: url('mindsparkbg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.app{
+  max-width:1400px;
+  height:90vh;
+  margin:30px auto;
+  background: rgba(255,255,255,0.5);
+  border-radius:30px;
+  display:flex;
+  overflow:hidden;
+  box-shadow:0 25px 50px rgba(0,0,0,.1);
+  opacity: 0;
+  animation: fadeIn 1s ease-in-out 0.1s forwards;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:230px;
+  background: rgba(255,255,255,0.5);
+  padding:30px 20px;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:600;
+  margin-bottom:40px;
+}
+
+.menu a{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 15px;
+  margin-bottom:10px;
+  text-decoration:none;
+  color:#666;
+  border-radius:12px;
+  font-size:14px;
+}
+
+.menu a.active,
+.menu a:hover{
+  background:#dee7ff;
+  color:#5a7bd4;
+}
+
+/* ===== CONTENT ===== */
+.content{
+  flex:1;
+  padding:30px 40px;
+}
+
+/* ===== LEFT ===== */
+.left{
+  width:100%;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.header h2 span{
+  color:#5a7bd4;
+}
+
+.card{
+  background:#fff;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,.05);
+  margin-bottom:25px;
+}
+
+/* ===== WORD CARD ===== */
+.word-card{
+  width:100%;
+  background:rgba(255,255,255,0.7);
+  border-radius:30px;
+  padding:40px;
+  display:flex;
+  gap:30px;
+}
+
+/* CENTER CONTENT */
+.center{
+  flex:2;
+}
+
+/* Ribbon */
+.ribbon{
+  display:inline-block;
+  background:#3f5875;
+  color:white;
+  padding:8px 25px;
+  font-weight:600;
+  border-radius:6px;
+  letter-spacing:1px;
+}
+
+.date{
+  margin-top:6px;
+  color:#555;
+  font-size:14px;
+}
+
+.word-row{
+  margin-top:15px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.word{
+  font-size:36px;
+  font-weight:700;
+  color:#2f4058;
+}
+
+.audio{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#c9d6ea;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.definition{
+  margin-top:10px;
+  font-size:16px;
+  color:#333;
+}
+
+.example{
+  margin-top:8px;
+  font-style:italic;
+  color:#555;
+}
+
+/* STREAKS */
+.streaks{
+  margin-top:30px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  width:300px;
+  position: relative;
+}
+
+.streak{
+  background:#6c83a8;
+  color:white;
+  padding:16px;
+  border-radius:16px;
+  text-align:center;
+  font-weight:600;
+  letter-spacing:1px;
+  cursor:pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  position: relative;
+}
+
+.streak:hover{
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(108, 131, 168, 0.4);
+}
+
+.streak.light{
+  background:#8fa6c9;
+  cursor:pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+}
+
+.streak.light:hover{
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(143, 166, 201, 0.4);
+}
+
+/* Hover button tooltip styling */
+.streak .tooltip {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2c3e50;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  z-index: 100;
+  max-width: 250px;
+  text-align: center;
+  margin-bottom: 10px;
+  white-space: normal;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  line-height: 1.4;
+}
+
+.streak .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #2c3e50;
+}
+
+.streak:hover .tooltip {
+  display: block;
+  animation: tooltipFadeIn 0.3s ease;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Button click effect */
+.streak:active {
+  transform: scale(0.95) !important;
+}
+
+.streak.light:active {
+  transform: scale(0.95) !important;
+}
+
+/* RIGHT PANEL */
+.right{
+  flex:1.8;
+  background:#d7e2ea;
+  border-radius:20px;
+  padding:25px;
+  min-width: 350px;
+}
+
+/* ===== ACHIEVEMENT PROGRESS ===== */
+.progress-card{
+  background:#f4f7fb;
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:18px;
+  box-shadow:0 6px 15px rgba(0,0,0,.08);
+}
+
+.progress-header{
+  display:flex;
+  justify-content:space-between;
+  font-weight:600;
+  font-size:14px;
+  margin-bottom:8px;
+}
+
+.progress-bar{
+  height:10px;
+  background:#e0e0e0;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:10px;
+  transition: width 1s ease-in-out;
+}
+
+.progress-fill.gold{ background:linear-gradient(90deg,#f7c948,#f4b400); }
+.progress-fill.red{ background:linear-gradient(90deg,#8b1e3f,#c0392b); }
+.progress-fill.blue{ background:linear-gradient(90deg,#3c6e91,#5dade2); }
+
+.progress-card small{
+  display:block;
+  margin-top:6px;
+  font-size:11px;
+  color:#555;
+}
+
+/* ===== ACHIEVEMENT ITEM STYLES ===== */
+.achievement {
+  margin-bottom: 20px;
+}
+
+.achievement-progress {
+  margin-top: 10px;
+}
+
+.achievement-progress-bar {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.achievement-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 8px;
+  transition: width 0.5s ease-in-out;
+}
+
+.achievement-progress-fill.gold { background: linear-gradient(90deg, #f7c948, #f4b400); }
+.achievement-progress-fill.red { background: linear-gradient(90deg, #8b1e3f, #c0392b); }
+.achievement-progress-fill.blue { background: linear-gradient(90deg, #3c6e91, #5dade2); }
+
+.achievement-progress-text {
+  font-size: 11px;
+  color: #555;
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* Achievement Titles */
+.achievement h4 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.achievement p {
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Apply animations */
+.sidebar {
+  animation: slideInLeft 0.8s ease-out 0.3s both;
+}
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.word-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.word-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){
+  .content{
+    flex-direction:column;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo"><button id="back-btn" style="background:#7494ec; color:white; border:none; border-radius:5px; padding:8px 12px; cursor:pointer; margin-right: 10px;">&larr;</button> <span style="color:#7494ec;">Vocab</span></div>
+    <div class="menu">
+      <a id="menu-vocab" class="active">Vocab Preview</a>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- LEFT -->
+    <div class="left">
+
+
+      <div class="card">
+        <div class="word-card">
+
+          <div class="center">
+            <div class="ribbon">WORD OF THE DAY</div>
+            <div class="date" id="date"></div>
+
+            <div class="word-row">
+              <div class="word" id="word">Loading...</div>
+              <div class="audio" onclick="speakWord()">🔊</div>
+            </div>
+
+            <div class="definition" id="definition">
+              Loading...
+            </div>
+
+            <div class="example" id="example">
+              Loading...
+            </div>
+
+            <div class="streaks">
+              <div class="streak" id="streakDays">🔥 0-DAY STREAK</div>
+              <div class="streak" id="wordsLearned">📘 0 WORDS LEARNED</div>
+              <div class="streak light">WORD WIZARD</div>
+            </div>
+          </div>
+
+          <div class="right">
+            <div class="achievement">
+              <div class="achievement-icon gold">🏆</div>
+              <div>
+                <h4>CONSISTENCY CHAMPION</h4>
+                <p>Unlocked after 7 consecutive days.</p>
+              </div>
+              <div class="achievement-progress">
+                <div class="achievement-progress-bar">
+                  <div class="achievement-progress-fill gold" id="progress-consistency"></div>
+                </div>
+                <div class="achievement-progress-text" id="progress-consistency-text">0/7 days</div>
+              </div>
+            </div>
+
+            <div class="achievement">
+              <div class="achievement-icon red">📅</div>
+              <div>
+                <h4>STREAK MASTER</h4>
+                <p>Unlocked after 30-day streak.</p>
+              </div>
+              <div class="achievement-progress">
+                <div class="achievement-progress-bar">
+                  <div class="achievement-progress-fill red" id="progress-streak-master"></div>
+                </div>
+                <div class="achievement-progress-text" id="progress-streak-master-text">0/30 days</div>
+              </div>
+            </div>
+
+            <div class="achievement">
+              <div class="achievement-icon blue">📘</div>
+              <div>
+                <h4>WORD WIZARD</h4>
+                <p>Unlocked after learning 100 words.</p>
+              </div>
+              <div class="achievement-progress">
+                <div class="achievement-progress-bar">
+                  <div class="achievement-progress-fill blue" id="progress-word-wizard"></div>
+                </div>
+                <div class="achievement-progress-text" id="progress-word-wizard-text">0/100 words</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.getElementById('back-btn').addEventListener('click', () => {
+      // Try to go back in browser history first
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        // Fallback to the main page if no history
+        window.location.href = 'MINDSPARKKK.html';
+      }
+    });
+  // Menu functionality
+  const menuItems = document.querySelectorAll('.menu a');
+  menuItems.forEach(item => {
+    item.addEventListener('click', function() {
+      menuItems.forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  /* ===== VOCABULARY ARRAY ===== */
+  const vocabulary = [
+    { word: "PERSEVERANCE", definition: "persistence in doing something despite difficulty or delay in achieving success.", example: "his perseverance with the technique illustrates his single-mindedness" },
+    { word: "ELOQUENT", definition: "fluent or persuasive in speaking or writing.", example: "an eloquent speech" },
+    { word: "RESILIENCE", definition: "the capacity to recover quickly from difficulties; toughness.", example: "her resilience to bounce back from injuries" },
+    { word: "AMBITION", definition: "a strong desire to do or achieve something, typically requiring determination and hard work.", example: "his ambition to become a doctor" },
+    { word: "INTEGRITY", definition: "the quality of being honest and having strong moral principles.", example: "a person of great integrity" },
+    { word: "COMPASSION", definition: "sympathetic concern for the sufferings of others, coupled with a desire to help.", example: "show compassion for those in need" },
+    { word: "CREATIVITY", definition: "the use of imagination or original ideas to create something.", example: "her creativity in solving problems" },
+    { word: "HUMILITY", definition: "a modest or low view of one's own importance; humbleness.", example: "his humility despite his success" },
+    { word: "DISCIPLINE", definition: "the practice of training to obey rules or a code of behavior.", example: "military discipline" },
+    { word: "GRATITUDE", definition: "the quality of being thankful; readiness to show appreciation.", example: "express gratitude for help" },
+    { word: "TENACITY", definition: "the quality of holding something firmly; persistence.", example: "her tenacity in pursuing goals" },
+    { word: "SINCERITY", definition: "the quality of being free from pretense or deceit; genuineness.", example: "speak with sincerity" },
+    { word: "WISDOM", definition: "the quality of having experience, knowledge, and good judgment.", example: "the wisdom of age" },
+    { word: "COURAGE", definition: "the ability to do something that frightens one; bravery.", example: "show courage in difficult times" },
+    { word: "PATIENCE", definition: "the capacity to accept or tolerate delay, trouble, or suffering without getting angry.", example: "have patience with slow learners" },
+    { word: "KINDNESS", definition: "the quality of being friendly, generous, and considerate.", example: "act with kindness toward others" },
+    { word: "CURIOSITY", definition: "a strong desire to know or learn something.", example: "his curiosity about science" },
+    { word: "HONESTY", definition: "the quality of being honest; truthfulness.", example: "honesty is the best policy" },
+    { word: "LEADERSHIP", definition: "the action of leading a group of people or an organization.", example: "demonstrate strong leadership" },
+    { word: "DEDICATION", definition: "the quality of being committed to a task or purpose.", example: "her dedication to teaching" },
+    { word: "EMPATHY", definition: "the ability to understand and share the feelings of another.", example: "show empathy for others" },
+    { word: "MOTIVATION", definition: "the reason or reasons for acting or behaving in a particular way.", example: "lack of motivation" },
+    { word: "OPTIMISM", definition: "hopefulness and confidence about the future.", example: "maintain optimism despite challenges" },
+    { word: "ADVENTURE", definition: "an unusual and exciting experience.", example: "embrace new adventures" },
+    { word: "GENEROSITY", definition: "the quality of being kind and generous.", example: "her generosity to others" },
+    { word: "RELIABILITY", definition: "the quality of being trustworthy or dependable.", example: "the reliability of the service" },
+    { word: "ACHIEVEMENT", definition: "a thing accomplished by great effort, skill, or courage.", example: "a remarkable achievement" },
+    { word: "EXCELLENCE", definition: "the quality of being outstanding or extremely good.", example: "strive for excellence" },
+    { word: "INNOVATION", definition: "a new method, idea, or product.", example: "technological innovation" },
+    { word: "MAGNANIMOUS", definition: "generous or forgiving, especially toward a rival or less powerful person.", example: "a magnanimous gesture of peace" }
+  ];
+
+  /* ===== GET TODAY'S WORD BASED ON DATE ===== */
+  function getTodayWord() {
+    const today = new Date();
+    const startDate = new Date('2024-01-01'); // Reference date
+    const diffTime = today - startDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const index = diffDays % vocabulary.length;
+    return vocabulary[index];
+  }
+
+  /* ===== DISPLAY TODAY'S WORD ===== */
+  const todayWord = getTodayWord();
+  document.getElementById('word').textContent = todayWord.word;
+  document.getElementById('definition').textContent = todayWord.definition;
+  document.getElementById('example').textContent = '"' + todayWord.example + '"';
+
+  /* ===== DATE ===== */
+  document.getElementById('date').textContent =
+    new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  /* ===== AUDIO (REAL SPEECH) ===== */
+  function speakWord(){
+    const word = document.getElementById('word').textContent;
+    const utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.8;
+    speechSynthesis.speak(utterance);
+  }
+
+  /* ===== STREAK LOGIC (Per User) ===== */
+  const username = localStorage.getItem('username');
+  
+  // Use user-specific keys for streak storage
+  const streakKey = username ? `streak_${username}` : 'streak';
+  const lastVisitKey = username ? `lastLogin_${username}` : 'lastVisit';
+  const wordsKey = username ? `words_${username}` : 'words';
+  
+  const today = new Date().toDateString();
+  const lastVisit = localStorage.getItem(lastVisitKey);
+  let streak = Number(localStorage.getItem(streakKey)) || 0;
+  let words = Number(localStorage.getItem(wordsKey)) || 0;
+
+  if(lastVisit !== today){
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate()-1);
+
+    if(lastVisit === yesterday.toDateString()){
+      streak++;
+    } else {
+      streak = 1;
+    }
+
+    words++;
+    localStorage.setItem(lastVisitKey, today);
+    localStorage.setItem(streakKey, streak);
+    localStorage.setItem(wordsKey, words);
+  }
+
+  document.getElementById('streakDays').textContent = '🔥 ' + streak + '-DAY STREAK';
+  document.getElementById('wordsLearned').textContent = '📘 ' + words + ' WORDS LEARNED';
+
+  /* ===== ACHIEVEMENT PROGRESS BARS ===== */
+  // Initialize progress bars at 0
+  document.getElementById('progress-consistency').style.width = '0%';
+  document.getElementById('progress-streak-master').style.width = '0%';
+  document.getElementById('progress-word-wizard').style.width = '0%';
+
+  // Animate progress bars on page load
+  setTimeout(() => {
+    // CONSISTENCY CHAMPION - 7 days
+    const consistencyProgress = Math.min((streak / 7) * 100, 100);
+    document.getElementById('progress-consistency').style.width = consistencyProgress + '%';
+    document.getElementById('progress-consistency-text').textContent = streak + '/7 days';
+  }, 100);
+
+  setTimeout(() => {
+    // STREAK MASTER - 30 days
+    const streakMasterProgress = Math.min((streak / 30) * 100, 100);
+    document.getElementById('progress-streak-master').style.width = streakMasterProgress + '%';
+    document.getElementById('progress-streak-master-text').textContent = streak + '/30 days';
+  }, 300);
+
+  setTimeout(() => {
+    // WORD WIZARD - 100 words
+    const wordWizardProgress = Math.min((words / 100) * 100, 100);
+    document.getElementById('progress-word-wizard').style.width = wordWizardProgress + '%';
+    document.getElementById('progress-word-wizard-text').textContent = words + '/100 words';
+  }, 500);
+</script>
+
+</body>
+</html>
+
+
+
+

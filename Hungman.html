@@ -1,0 +1,329 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hangman – Icon Style</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#000;
+  font-family:Arial, sans-serif;
+}
+
+.game{
+  position:relative;
+  width:1280px;
+  height:720px;
+  background:url("homepage.bg.jpg") center/cover no-repeat;
+  overflow:hidden;
+}
+
+.title{
+  position:absolute;
+  top:40px;
+  left:60px;
+  font-size:64px;
+  color:white;
+  font-weight:300;
+  text-shadow:2px 2px 0 #1e2f3f;
+}
+
+.scoreBoard{
+  position:absolute;
+  top:120px;
+  left:65px;
+  color:white;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.categoryBox{
+  position:absolute;
+  top:160px;
+  left:65px;
+}
+
+.categoryBox select{
+  padding:8px 14px;
+  font-size:18px;
+  border-radius:8px;
+}
+
+/* BUTTONS (UNCHANGED POSITION) */
+.btn{
+  position:absolute;
+  top:60px;
+  background:#e6edf3;
+  color:#7b8794;
+  padding:12px 32px;
+  border-radius:12px;
+  font-size:22px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 4px 0 #aaa;
+}
+#reveal{right:300px}
+#hint{right:140px}
+
+/* LETTER GRID */
+.letters{
+  position:absolute;
+  top:200px;
+  right:120px;
+  display:grid;
+  grid-template-columns:repeat(8,70px);
+  gap:14px;
+}
+
+.letter{
+  background:#fff;
+  color:#3a4a5a;
+  font-size:32px;
+  font-weight:700;
+  text-align:center;
+  padding:16px 0;
+  border-radius:10px;
+  cursor:pointer;
+  box-shadow:0 4px 0 #aaa;
+}
+.letter.used{
+  background:#c8d2dc;
+  pointer-events:none;
+}
+
+/* WORD DISPLAY */
+.word{
+  position:absolute;
+  bottom:110px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:30px;
+}
+.slot{
+  width:70px;
+  border-bottom:6px solid white;
+  text-align:center;
+  font-size:56px;
+  font-weight:700;
+  color:white;
+  text-transform:uppercase;
+  text-shadow:3px 3px 0 #1e2f3f;
+}
+
+/* GALLOWS */
+.line{position:absolute;background:#000;border-radius:6px;}
+.base{left:70px;bottom:90px;width:260px;height:10px}
+.pole{left:120px;bottom:90px;width:10px;height:420px}
+.top{left:120px;top:110px;width:220px;height:10px}
+.rope{left:330px;top:110px;width:6px;height:60px;background:#000;border-radius:6px;}
+
+/* ===== ICON STYLE STICKMAN ===== */
+.part{
+  position:absolute;
+  display:none;
+  background:#000;
+  border-radius:50px;
+}
+
+/* HEAD (rounded outline style) */
+.head{
+  width:52px;
+  height:52px;
+  border:8px solid #000;
+  background:transparent;
+  border-radius:50%;
+  left:302px;
+  top:165px;
+}
+
+/* BODY */
+.body{
+  width:8px;
+  height:95px;
+  left:328px;
+  top:220px;
+}
+
+/* LEFT ARM */
+.armL{
+  width:70px;
+  height:8px;
+  left:260px;
+  top:255px;
+  transform:rotate(-35deg);
+  transform-origin:right center;
+}
+
+/* RIGHT ARM */
+.armR{
+  width:70px;
+  height:8px;
+  left:330px;
+  top:255px;
+  transform:rotate(35deg);
+  transform-origin:left center;
+}
+
+/* LEFT LEG */
+.legL{
+  width:75px;
+  height:8px;
+  left:255px;
+  top:310px;
+  transform:rotate(35deg);
+  transform-origin:right center;
+}
+
+/* RIGHT LEG */
+.legR{
+  width:75px;
+  height:8px;
+  left:330px;
+  top:310px;
+  transform:rotate(-35deg);
+  transform-origin:left center;
+}
+
+/* Falling animation */
+.fall{
+  animation:drop 1s forwards ease-in;
+}
+@keyframes drop{
+  0%{transform:translateY(0);}
+  100%{transform:translateY(600px);opacity:0;}
+}
+</style>
+</head>
+
+<body>
+<div class="game">
+<div class="title">Hangman</div>
+<div class="scoreBoard">Score: <span id="score">0</span></div>
+
+<div class="categoryBox">
+<select id="categorySelect" onchange="startGame()">
+<option value="animals">Animals</option>
+<option value="body">Body Parts</option>
+<option value="science">Science</option>
+</select>
+</div>
+
+<div id="reveal" class="btn" onclick="reveal()">REVEAL</div>
+<div id="hint" class="btn" onclick="hint()">HINT</div>
+
+<div class="line base"></div>
+<div class="line pole"></div>
+<div class="line top"></div>
+<div class="line rope"></div>
+
+<div class="part head"></div>
+<div class="part body"></div>
+<div class="part armL"></div>
+<div class="part armR"></div>
+<div class="part legL"></div>
+<div class="part legR"></div>
+
+<div class="letters" id="letters"></div>
+<div class="word" id="word"></div>
+</div>
+
+<script>
+const categories={
+animals:["TIGER","ZEBRA","MONKEY","PANDA","EAGLE"],
+body:["KAMAY","PAA","HITA","BRASO","ULNAR"],
+science:["ATOM","GRAVITY","FORCE","ENERGY","CELL"]
+};
+
+let word, guessed, mistakes, score=0, gameOver=false;
+const parts=document.querySelectorAll(".part");
+
+/* 6 STEP ICON STYLE */
+const hangmanOrder=[[0],[1],[2],[3],[4],[5]];
+
+function startGame(){
+  const cat=document.getElementById("categorySelect").value;
+  word=categories[cat][Math.floor(Math.random()*categories[cat].length)];
+  guessed=[];mistakes=0;gameOver=false;
+  parts.forEach(p=>{p.style.display="none";p.classList.remove("fall");});
+  drawWord();drawLetters();
+}
+
+function drawWord(){
+  const w=document.getElementById("word");
+  w.innerHTML="";
+  [...word].forEach(l=>{
+    const d=document.createElement("div");
+    d.className="slot";
+    d.textContent=guessed.includes(l)?l:"";
+    w.appendChild(d);
+  });
+}
+
+function drawLetters(){
+  const l=document.getElementById("letters");
+  l.innerHTML="";
+  for(let i=65;i<=90;i++){
+    const c=String.fromCharCode(i);
+    const b=document.createElement("div");
+    b.className="letter";
+    b.textContent=c;
+    if(guessed.includes(c)) b.classList.add("used");
+    b.onclick=()=>guess(c);
+    l.appendChild(b);
+  }
+}
+
+function guess(l){
+  if(gameOver||guessed.includes(l))return;
+  guessed.push(l);
+
+  if(!word.includes(l)){
+    if(mistakes<hangmanOrder.length){
+      hangmanOrder[mistakes].forEach(i=>parts[i].style.display="block");
+      mistakes++;
+    }
+  }
+
+  drawWord();drawLetters();
+
+  if([...word].every(x=>guessed.includes(x))){
+    score+=10;
+    document.getElementById("score").textContent=score;
+    gameOver=true;
+    setTimeout(()=>{alert("🎉 You Win! +10 Points");startGame();},300);
+  }
+
+  if(mistakes===hangmanOrder.length){
+    gameOver=true;
+    parts.forEach(p=>p.classList.add("fall"));
+    setTimeout(()=>{alert("💀 Game Over! Word was "+word);startGame();},1200);
+  }
+}
+
+function hint(){
+  if(gameOver)return;
+  const hidden=[...word].filter(l=>!guessed.includes(l));
+  if(hidden.length){
+    guessed.push(hidden[Math.floor(Math.random()*hidden.length)]);
+    drawWord();drawLetters();
+  }
+}
+
+function reveal(){
+  if(gameOver)return;
+  word.split('').forEach(l=>{if(!guessed.includes(l))guessed.push(l);});
+  drawWord();drawLetters();
+}
+
+startGame();
+</script>
+</body>
+</html>
+

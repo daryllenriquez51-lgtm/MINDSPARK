@@ -1,0 +1,421 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>4 Pics 1 Word — 20 Levels</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --panel: #ffffff;
+    --tile-border: #e6eef8;
+    --accent: #2b8a4b;
+    --shadow: rgba(6,24,50,0.18);
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: "Rubik", sans-serif;
+    background: url('4 pic 1 wrd bg.png') center/cover no-repeat fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wrap {
+    width: 1100px;
+    max-width: 95%;
+    display: grid;
+    grid-template-columns: 600px 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+
+  .card {
+    background: var(--panel);
+    border-radius: 28px;
+    padding: 28px;
+    box-shadow: 0 6px 18px var(--shadow);
+  }
+
+  .grid4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 22px;
+    height: 520px;
+  }
+
+  .answerCard {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(245,255,250,0.85));
+    box-shadow: 0 6px 12px rgba(6,24,50,0.06);
+  }
+
+  .controlCard {
+    width: 100%;
+    max-width: 360px;
+    padding: 18px;
+    border-radius: 18px;
+    background: var(--panel);
+    box-shadow: 0 8px 22px rgba(6,24,50,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .poolHeader {
+    font-family: "Montserrat";
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--accent);
+    background: #e8fff0;
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 2px solid rgba(160,207,160,0.6);
+  }
+
+  .cell {
+    border: 4px solid #dfe9f6;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .slots {
+    display: flex;
+    gap: 14px;
+  }
+
+  .slot {
+    width: 72px;
+    height: 72px;
+    background: #f5faff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-family: "Montserrat";
+    font-size: 34px;
+    box-shadow: 0 6px 8px rgba(30,60,120,0.12);
+    border: 2px solid var(--tile-border);
+    user-select: none;
+  }
+
+  .slot.empty {
+    background: #fff;
+    border: 2px dashed var(--tile-border);
+    box-shadow: 0 4px 8px rgba(6,24,50,0.04);
+    color: transparent;
+  }
+
+  .pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .letter {
+    width: 64px;
+    height: 64px;
+    background: #fff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-family: "Montserrat";
+    font-size: 26px;
+    box-shadow: 0 8px 14px rgba(40,60,120,0.12);
+    border: 6px solid var(--tile-border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: .4s;
+  }
+
+  .overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .celebrate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+  }
+
+  .congrats {
+    font-family: "Montserrat";
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    animation: pop .5s ease;
+  }
+
+  .congrats-sub {
+    font-family: "Rubik";
+    font-weight: 700;
+    font-size: 14px;
+    color: #1b3b1b;
+    background: rgba(160,207,160,0.12);
+    padding: 6px 12px;
+    border-radius: 12px;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.6); opacity: 0 }
+    60% { transform: scale(1.06); opacity: 1 }
+    100% { transform: scale(1); opacity: 1 }
+  }
+
+  .final-word {
+    display: flex;
+    gap: 12px;
+  }
+
+  .final-word .slot {
+    width: 90px;
+    height: 90px;
+    font-size: 42px;
+  }
+
+  .nextBtn {
+    background: #a0cfa0;
+    padding: 16px 26px;
+    border-radius: 40px;
+    border: 6px solid #fff;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: "Montserrat";
+  }
+
+  .level-display {
+    font-weight: 700;
+    font-size: 20px;
+    color: #1b3b1b;
+    background: #e8ffe8;
+    border: 3px solid #a0cfa0;
+    padding: 6px 16px;
+    border-radius: 40px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="grid4" id="imageGrid"></div>
+      <div class="answerCard">
+        <div class="level-display" id="levelDisplay"></div>
+        <div class="slots" id="slots"></div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="controlCard">
+        <div class="poolHeader">Available Letters</div>
+        <div class="pool" id="pool"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="celebrate">
+      <div class="congrats">Congratulations!</div>
+      <div class="congrats-sub" id="congratsSub">You solved the puzzle</div>
+      <div class="final-word" id="finalWord"></div>
+      <div class="nextBtn" id="nextBtn">NEXT ▶</div>
+    </div>
+  </div>
+
+<script>
+const levels = [
+  {word:"MOUSE",imgs:["mouse1.jpg","mouse2.jpg","mouse3.jpg","mouse4.jpg"]},
+  {word:"APPLE",imgs:["apple1.jpg","apple2.jpg","apple3.jpg","apple4.jpg"]},
+  {word:"CLOUD",imgs:["cloud1.jpg","cloud2.jpg","cloud3.jpg","cloud4.jpg"]},
+  {word:"TRAIN",imgs:["train1.jpg","train2.jpg","train3.jpg","train4.jpg"]},
+  {word:"HOUSE",imgs:["house1.jpg","house2.jpg","house3.jpg","house4.jpg"]},
+  {word:"WATER",imgs:["water1.jpg","water2.jpg","water3.jpg","water4.jpg"]},
+  {word:"CHAIR",imgs:["chair1.jpg","chair2.jpg","chair3.jpg","chair4.jpg"]},
+  {word:"BREAD",imgs:["bread1.jpg","bread2.jpg","bread3.jpg","bread4.jpg"]},
+  {word:"PLANT",imgs:["plant1.jpg","plant2.jpg","plant3.jpg","plant4.jpg"]},
+  {word:"SNAKE",imgs:["snake1.jpg","snake2.jpg","snake3.jpg","snake4.jpg"]},
+  {word:"LIGHT",imgs:["light1.jpg","light2.jpg","light3.jpg","light4.jpg"]},
+  {word:"SPOON",imgs:["spoon1.jpg","spoon2.jpg","spoon3.jpg","spoon4.jpg"]},
+  {word:"RIVER",imgs:["river1.jpg","river2.jpg","river3.jpg","river4.jpg"]},
+  {word:"CLOCK",imgs:["clock1.jpg","clock2.jpg","clock3.jpg","clock4.jpg"]},
+  {word:"HORSE",imgs:["horse1.jpg","horse2.jpg","horse3.jpg","horse4.jpg"]},
+  {word:"SMILE",imgs:["smile1.jpg","smile2.jpg","smile3.jpg","smile4.jpg"]},
+  {word:"PIZZA",imgs:["pizza1.jpg","pizza2.jpg","pizza3.jpg","pizza4.jpg"]},
+  {word:"SHOES",imgs:["shoes1.jpg","shoes2.jpg","shoes3.jpg","shoes4.jpg"]},
+  {word:"BRUSH",imgs:["brush1.jpg","brush2.jpg","brush3.jpg","brush4.jpg"]},
+  {word:"FLOOR",imgs:["floor1.jpg","floor2.jpg","floor3.jpg","floor4.jpg"]}
+];
+
+const slots = document.getElementById("slots");
+const pool = document.getElementById("pool");
+const overlay = document.getElementById("overlay");
+const finalWord = document.getElementById("finalWord");
+const nextBtn = document.getElementById("nextBtn");
+const imageGrid = document.getElementById("imageGrid");
+const levelDisplay = document.getElementById("levelDisplay");
+
+let level = 0;
+let slotState = [];
+let poolState = [];
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+
+function loadLevel(){
+  const current = levels[level];
+  levelDisplay.textContent = `Level ${level+1} / ${levels.length}`;
+  slotState = new Array(current.word.length).fill(null);
+  const allLetters = generateLetters(current.word);
+  createSlots(current.word);
+  createPool(allLetters);
+  showImages(current.imgs);
+}
+
+function showImages(imgs){
+  imageGrid.innerHTML="";
+  imgs.forEach(src=>{
+    const div=document.createElement("div");
+    div.className="cell";
+    div.innerHTML=`<img src="${src}" alt="">`;
+    imageGrid.appendChild(div);
+  });
+}
+
+function createSlots(word){
+  slots.innerHTML="";
+  for(let i=0;i<word.length;i++){
+    const s=document.createElement("div");
+    s.className="slot empty";s.dataset.i=i;
+    s.onclick=()=>removeFromSlot(i);
+    slots.appendChild(s);
+  }
+}
+
+function generateLetters(word){
+  const alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const letters=word.split("");
+  while(letters.length<10){
+    const r=alphabet[Math.floor(Math.random()*alphabet.length)];
+    if(!letters.includes(r))letters.push(r);
+  }
+  shuffle(letters);
+  return letters;
+}
+
+function createPool(arr){
+  pool.innerHTML="";poolState=[];
+  arr.forEach(L=>{
+    const el=document.createElement("div");
+    el.className="letter";el.textContent=L;el.dataset.letter=L;
+    el.onclick=()=>placeLetter(L,el);
+    pool.appendChild(el);
+    poolState.push({L,el});
+  });
+}
+
+function placeLetter(L,el){
+  const idx=slotState.findIndex(x=>x===null);
+  if(idx===-1)return;
+  slotState[idx]=L;
+  const s=slots.children[idx];
+  s.textContent=L;s.classList.remove("empty");
+  el.style.visibility="hidden";
+  checkAuto();
+}
+
+function removeFromSlot(i){
+  if(!slotState[i])return;
+  const L=slotState[i];
+  const s=slots.children[i];
+  s.textContent="";s.classList.add("empty");
+  const found=poolState.find(p=>p.L===L && p.el.style.visibility==="hidden");
+  if(found)found.el.style.visibility="visible";
+  slotState[i]=null;
+}
+
+function checkAuto(){
+  if(slotState.includes(null))return;
+  const word=slotState.join("");
+  const correct=levels[level].word;
+  if(word===correct)showWin();
+  else flashWrong();
+}
+
+function flashWrong(){
+  slots.animate([{transform:"translateX(0)"},{transform:"translateX(-8px)"},{transform:"translateX(8px)"},{transform:"translateX(0)"}],{duration:400});
+  setTimeout(()=>resetWrong(),500);
+}
+
+function resetWrong(){
+  for(let i=0;i<slotState.length;i++){removeFromSlot(i);}
+}
+
+function showWin(){
+  finalWord.innerHTML="";
+  levels[level].word.split("").forEach(ch=>{
+    const d=document.createElement("div");
+    d.className="slot";d.textContent=ch;
+    finalWord.appendChild(d);
+  });
+  const sub = document.getElementById('congratsSub');
+  if(sub) sub.textContent = `Level ${level+1} Completed!`;
+  overlay.classList.add("show");
+}
+
+nextBtn.onclick=()=>{
+  overlay.classList.remove("show");
+  level++;
+  if(level>=levels.length){
+    alert("🎉 You finished all 20 levels!");
+    level=0;
+  }
+  loadLevel();
+}
+
+loadLevel();
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,252 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fruit Basket Connect Game</title>
+
+<!-- Pixel font -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  background: url('mindsparkbg.jpg') center/cover no-repeat; /* 👈 Replace with your background image */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  color: #fffaf0;
+  user-select: none;
+}
+
+/* ---------- UI BAR ---------- */
+#ui-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12px;
+  gap: 30px;
+}
+
+.ui-box {
+  background-color: #b69b77;
+  border: 4px solid #f3e8d3;
+  border-radius: 25px;
+  padding: 10px 20px;
+  min-width: 110px;
+  text-align: center;
+}
+
+.ui-box.center {
+  background-color: #f3e8d3;
+  color: #6b5437;
+  border: none;
+  font-size: 18px;
+  padding: 12px 30px;
+  border-radius: 25px;
+}
+
+.ui-box.left,
+.ui-box.right {
+  font-size: 14px;
+  color: #fffaf0;
+  background-color: #8a6b4f;
+  border: 3px solid #f3e8d3;
+  border-radius: 20px;
+}
+
+/* ---------- GAME BOARD ---------- */
+#game-container {
+  position: relative;
+  margin-top: 20px;
+}
+
+#game {
+  display: grid;
+  grid-template-columns: repeat(5, 90px);
+  grid-template-rows: repeat(5, 90px);
+  gap: 2px;
+  border: 3px solid #5b432a;
+  background-color: rgba(255,255,255,0.1);
+  position: relative;
+}
+
+.cell {
+  width: 90px;
+  height: 90px;
+  border: 1px solid rgba(91,67,42,0.3);
+  position: relative;
+}
+
+/* ---------- CIRCLES ---------- */
+.circle {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  background-size: 65%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.purple { background-color: #7b4fc2; background-image: url('AVATARICON.png'); }
+.blue   { background-color: #3b75d1; background-image: url('CARD.png'); }
+.red    { background-color: #d13b3b; background-image: url('YEY.png'); }
+
+/* ---------- BASKET ---------- */
+#basket {
+  position: absolute;
+  left: -150px;
+  bottom: -80px;
+  width: 200px;
+  height: 200px;
+  background: url('CARD.png') center/contain no-repeat;
+  z-index: 5;
+}
+
+/* ---------- PATH LINE ---------- */
+.path {
+  position: absolute;
+  background: rgba(255,255,255,0.4);
+  height: 12px;
+  border-radius: 6px;
+  z-index: 1;
+}
+</style>
+</head>
+
+<body>
+<!-- UI BAR -->
+<div id="ui-bar">
+  <div class="ui-box left">🕒 1:00</div>
+  <div class="ui-box center">LEVEL 1</div>
+  <div class="ui-box right">FILL: 0%</div>
+</div>
+
+<!-- GAME AREA -->
+<div id="game-container">
+  <div id="game"></div>
+  <div id="basket"></div>
+</div>
+
+<script>
+const gridSize = 5;
+const game = document.getElementById('game');
+
+// Layout of the grid
+const grid = [
+  [null, null, 'blue', null, null],
+  ['purple', null, null, null, null],
+  [null, null, 'red', null, null],
+  [null, null, null, null, 'blue'],
+  [null, 'purple', null, null, 'red']
+];
+
+// Draw the grid and circles
+function drawGrid() {
+  game.innerHTML = '';
+  for (let r = 0; r < gridSize; r++) {
+    for (let c = 0; c < gridSize; c++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      if (grid[r][c]) {
+        const circle = document.createElement('div');
+        circle.classList.add('circle', grid[r][c]);
+        circle.dataset.color = grid[r][c];
+        cell.appendChild(circle);
+      }
+      game.appendChild(cell);
+    }
+  }
+}
+drawGrid();
+
+/* ---------- DRAG CONNECTION ---------- */
+let isDrawing = false;
+let startColor = null;
+let startPos = null;
+let pathEl = null;
+
+game.addEventListener('mousedown', e => {
+  const circle = e.target.closest('.circle');
+  if (circle) {
+    isDrawing = true;
+    startColor = circle.dataset.color;
+    startPos = circle.getBoundingClientRect();
+    pathEl = document.createElement('div');
+    pathEl.classList.add('path');
+    pathEl.style.background =
+      startColor === 'purple' ? '#a45bff88' :
+      startColor === 'blue' ? '#4fa8ff88' :
+      '#ff686888';
+    game.appendChild(pathEl);
+  }
+});
+
+game.addEventListener('mousemove', e => {
+  if (!isDrawing) return;
+  const rect = game.getBoundingClientRect();
+  const x1 = startPos.left + startPos.width / 2 - rect.left;
+  const y1 = startPos.top + startPos.height / 2 - rect.top;
+  const x2 = e.clientX - rect.left;
+  const y2 = e.clientY - rect.top;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  pathEl.style.left = ${x1}px;
+  pathEl.style.top = ${y1}px;
+  pathEl.style.width = ${dist}px;
+  pathEl.style.transformOrigin = '0 50%';
+  pathEl.style.transform = rotate(${Math.atan2(dy, dx)}rad);
+});
+
+game.addEventListener('mouseup', e => {
+  if (!isDrawing) return;
+  const circle = e.target.closest('.circle');
+  if (circle && circle.dataset.color === startColor && circle !== startPos) {
+    // successful connection
+    sendToBasket(startColor);
+  } else {
+    // cancel line
+    pathEl.remove();
+  }
+  isDrawing = false;
+  startColor = null;
+  startPos = null;
+  pathEl = null;
+});
+
+/* ---------- SEND TO BASKET ANIMATION ---------- */
+function sendToBasket(color) {
+  const basket = document.getElementById('basket');
+  const item = document.createElement('img');
+  item.src = images/${color}.png;
+  item.style.width = '60px';
+  item.style.position = 'absolute';
+  item.style.left = '50%';
+  item.style.top = '50%';
+  item.style.transform = 'translate(-50%, -50%)';
+  item.style.zIndex = 10;
+  document.body.appendChild(item);
+
+  const basketRect = basket.getBoundingClientRect();
+
+  item.animate([
+    { transform: 'translate(0,0) scale(1)', opacity: 1 },
+    { transform: translate(${basketRect.left - window.innerWidth/2 + 80}px, ${basketRect.top - window.innerHeight/2 + 100}px) scale(0.3), opacity: 0 }
+  ], { duration: 1200, fill: 'forwards' });
+
+  setTimeout(() => item.remove(), 1200);
+}
+</script>
+</body>
+</html>
+
+
+

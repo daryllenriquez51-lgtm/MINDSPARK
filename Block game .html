@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Falling Block Game</title>
+<style>
+  body {
+    margin: 0;
+    background: #0b0f1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+
+  .container {
+    position: relative;
+    width: 720px;
+    height: 420px;
+    background: #05060a;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .score {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    color: white;
+    font-size: 18px;
+  }
+
+  canvas {
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="score">Score: <span id="score">0</span></div>
+  <canvas id="game" width="720" height="420"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const scoreText = document.getElementById("score");
+
+let score = 0;
+
+// Paddle
+const paddle = {
+  w: 110,
+  h: 10,
+  x: canvas.width / 2 - 55,
+  y: canvas.height - 20,
+  speed: 7
+};
+
+// Ball
+const ball = {
+  x: canvas.width / 2,
+  y: canvas.height - 40,
+  r: 6,
+  dx: 3,
+  dy: -3
+};
+
+// Falling blocks
+const colors = ["#38bdf8", "#a855f7", "#22c55e", "#f43f5e", "#eab308"];
+const blocks = [];
+const blockSpeed = 1.2;
+
+function spawnBlock() {
+  blocks.push({
+    x: Math.random() * (canvas.width - 70),
+    y: -20,
+    w: 60,
+    h: 14,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    active: true
+  });
+}
+
+// Controls
+let left = false;
+let right = false;
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft") left = true;
+  if (e.key === "ArrowRight") right = true;
+});
+
+document.addEventListener("keyup", e => {
+  if (e.key === "ArrowLeft") left = false;
+  if (e.key === "ArrowRight") right = false;
+});
+
+canvas.addEventListener("mousemove", e => {
+  const rect = canvas.getBoundingClientRect();
+  paddle.x = e.clientX - rect.left - paddle.w / 2;
+});
+
+// Draw
+function drawPaddle() {
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+}
+
+function drawBall() {
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+}
+
+function drawBlocks() {
+  blocks.forEach(b => {
+    if (b.active) {
+      ctx.fillStyle = b.color;
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+    }
+  });
+}
+
+// Collision
+function collision() {
+  // Walls
+  if (ball.x + ball.r > canvas.width || ball.x - ball.r < 0) ball.dx *= -1;
+  if (ball.y - ball.r < 0) ball.dy *= -1;
+
+  // Paddle
+  if (
+    ball.y + ball.r >= paddle.y &&
+    ball.x > paddle.x &&
+    ball.x < paddle.x + paddle.w
+  ) {
+    ball.dy *= -1;
+  }
+
+  // Blocks
+  blocks.forEach(b => {
+    if (
+      b.active &&
+      ball.x > b.x &&
+      ball.x < b.x + b.w &&
+      ball.y > b.y &&
+      ball.y < b.y + b.h
+    ) {
+      b.active = false;
+      ball.dy *= -1;
+      score++;
+      scoreText.textContent = score;
+    }
+  });
+}
+
+// Update
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (left && paddle.x > 0) paddle.x -= paddle.speed;
+  if (right && paddle.x + paddle.w < canvas.width) paddle.x += paddle.speed;
+
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  // Move blocks downward
+  blocks.forEach(b => {
+    if (b.active) b.y += blockSpeed;
+  });
+
+  collision();
+
+  // Game over
+  if (ball.y > canvas.height) {
+    alert("Game Over!");
+    location.reload();
+  }
+
+  drawBlocks();
+  drawPaddle();
+  drawBall();
+
+  requestAnimationFrame(update);
+}
+
+// Spawn blocks continuously
+setInterval(spawnBlock, 700);
+
+update();
+</script>
+
+</body>
+</html>

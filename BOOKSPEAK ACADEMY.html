@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOOKSPEAK ACADEMY</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(180deg, #dbe3f8 0%, #f4f6fb 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background: white;
+      border: 2px solid #a5b7da;
+      color: #5a6c8e;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 24px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+    .back-btn:hover {
+      background: #e4ebfb;
+      transform: scale(1.05);
+    }
+
+    .container {
+      background: white;
+      width: 900px;
+      height: 520px;
+      border-radius: 20px;
+      box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+      position: relative;
+      padding: 40px 60px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #2b3b63;
+      margin-top: 0;
+      margin-bottom: 35px;
+    }
+
+    .voiceover {
+      position: absolute;
+      top: 45px;
+      right: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .voiceover label {
+      font-weight: 600;
+      color: #3c4c73;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    select {
+      width: 180px;
+      background: white;
+      border: 1px solid #cfd8ec;
+      border-radius: 30px;
+      padding: 6px 12px;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      text-align: left;
+      color: #3c4c73;
+      box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    textarea {
+      width: 100%;
+      height: 260px;
+      border: none;
+      border-radius: 15px;
+      padding: 25px;
+      font-size: 16px;
+      resize: none;
+      color: #2c3b60;
+      outline: none;
+      box-sizing: border-box;
+      background: #f7f9fe;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .word-counter {
+      font-size: 13px;
+      color: #6d7ba0;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .generate-btn {
+      width: 220px;
+      background: #f0d3d3;
+      border: none;
+      color: #7a4d4d;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 30px;
+      padding: 12px 0;
+      margin-top: 25px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .generate-btn:hover {
+      background: #e8bcbc;
+    }
+  </style>
+</head>
+<body>
+  <a href="MINDSPARKKK.html" class="back-btn">←</a>
+  
+  <div class="container">
+    <h1>BOOKSPEAK ACADEMY</h1>
+
+    <div class="voiceover">
+      <label for="voiceSelect">VOICEOVER</label>
+      <select id="voiceSelect">
+        <option value="">Loading voices...</option>
+      </select>
+    </div>
+
+    <textarea id="textInput" maxlength="100" placeholder="Type your text here..."></textarea>
+    <div class="word-counter" id="wordCounter">Word counter: 0/100</div>
+
+    <button class="generate-btn" id="generateBtn">GENERATE</button>
+  </div>
+
+  <script>
+    const textarea = document.getElementById("textInput");
+    const counter = document.getElementById("wordCounter");
+    const generateBtn = document.getElementById("generateBtn");
+    const voiceSelect = document.getElementById("voiceSelect");
+
+    // Word counter
+    textarea.addEventListener("input", () => {
+      const words = textarea.value.trim().split(/\s+/).filter(Boolean);
+      counter.textContent = `Word counter: ${words.length}/100`;
+    });
+
+    // Voice setup
+    let voices = [];
+
+    function populateVoices() {
+      voices = speechSynthesis.getVoices();
+      voiceSelect.innerHTML = "";
+
+      if (voices.length === 0) {
+        const option = document.createElement("option");
+        option.textContent = "No voices available yet";
+        option.disabled = true;
+        voiceSelect.appendChild(option);
+        return;
+      }
+
+      const defaultOption = document.createElement("option");
+      defaultOption.textContent = "Select a voice";
+      defaultOption.value = "";
+      voiceSelect.appendChild(defaultOption);
+
+      voices.forEach((voice, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        voiceSelect.appendChild(option);
+      });
+    }
+
+    if (typeof speechSynthesis !== "undefined") {
+      populateVoices();
+      speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    // Speak text
+    generateBtn.addEventListener("click", () => {
+      const text = textarea.value.trim();
+      if (!text) {
+        alert("Please type something first!");
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      const selectedIndex = parseInt(voiceSelect.value);
+
+      if (!isNaN(selectedIndex) && voices[selectedIndex]) {
+        utterance.voice = voices[selectedIndex];
+      }
+
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  < title>Student Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #eef1f7;
+    }
+
+    .container {
+      display: flex;
+      max-width: 1400px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 25px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      background: #f7f9fc;
+      padding: 25px;
+    }
+
+    .logo {
+      font-weight: 600;
+      font-size: 22px;
+      margin-bottom: 40px;
+    }
+
+    .menu a {
+      display: block;
+      padding: 12px;
+      color: #555;
+      text-decoration: none;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .menu a.active,
+    .menu a:hover {
+      background: #ffe3dc;
+      color: #ff6b4a;
+    }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .header h2 span {
+      color: #ff6b4a;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 25px;
+    }
+
+    /* TIMETABLE */
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .lesson {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-radius: 15px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .geo { background: #eef0ff; }
+    .phy { background: #ffe8e3; }
+    .chem { background: #e6fbf1; }
+    .pe { background: #fff6da; }
+    .math { background: #e8f7ff; }
+
+    /* RIGHT PANEL */
+    .profile {
+      text-align: center;
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #ffd6cc;
+      margin: 0 auto 10px;
+    }
+
+    .stats {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .stats div {
+      margin-bottom: 10px;
+      background: #f7f9fc;
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    /* CALENDAR */
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .calendar div {
+      padding: 10px;
+      border-radius: 50%;
+      font-size: 12px;
+    }
+
+    .today {
+      background: #ff6b4a;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">astrum</div>
+    <nav class="menu">
+      <a class="active">Dashboard</a>
+      <a>Marks</a>
+      <a>Attendance</a>
+      <a>Messages</a>
+      <a>Timetable</a>
+      <a>Homework</a>
+      <a>Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="header">
+      <h2>Hello, <span>Anna!</span></h2>
+      <div>📅 July 19, 2020</div>
+    </div>
+
+    <div class="content">
+
+      <!-- LEFT -->
+      <div>
+        <div class="card">
+          <h3>Timetable</h3>
+
+          <div class="lesson geo">
+            <span>Geography</span>
+            <span>07:30 – 08:15</span>
+          </div>
+
+          <div class="lesson phy">
+            <span>Physics</span>
+            <span>08:25 – 09:10</span>
+          </div>
+
+          <div class="lesson phy">
+            <span>Physics</span>
+            <span>09:20 – 10:05</span>
+          </div>
+
+          <div class="lesson chem">
+            <span>Chemistry</span>
+            <span>10:15 – 11:00</span>
+          </div>
+
+          <div class="lesson pe">
+            <span>Physical Education</span>
+            <span>11:15 – 12:00</span>
+          </div>
+
+          <div class="lesson math">
+            <span>Math</span>
+            <span>12:10 – 12:55</span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <h3>Homework & Tests</h3>
+          <div class="calendar">
+            <div>1</div><div>2</div><div>3</div><div>4</div>
+            <div>5</div><div>6</div><div class="today">7</div>
+            <div>8</div><div>9</div><div>10</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div>
+        <div class="card profile">
+          <div class="avatar"></div>
+          <strong>Anna Kowalska</strong>
+          <p>Student</p>
+
+          <div class="stats">
+            <div>🎯 Lucky Number: <strong>27</strong></div>
+            <div>⭐ Average Mark: <strong>4.82</strong></div>
+            <div>🏆 Class Rank: <strong>2</strong></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+</body>
+</html>

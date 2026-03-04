@@ -1,0 +1,420 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Visual Story Sequencing Game</title>
+<style>
+    body {
+        background-image: url('word%20connectttt.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        color: #000;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    @keyframes backgroundMove {
+        0% { background-position: 0% 0%; }
+        50% { background-position: 100% 100%; }
+        100% { background-position: 0% 0%; }
+    }
+
+    .game {
+        width: 850px;
+        background: rgba(255, 255, 255, 0.5);
+        padding: 20px;
+        border-radius: 14px;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .game.glow {
+        animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes glow {
+        from { box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
+        to { box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+    }
+
+    h1 {
+        margin: 0 0 5px;
+    }
+
+    .level {
+        color: #3a3838;
+        margin-bottom: 10px;
+    }
+
+    .board {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 15px;
+        min-height: 150px;
+    }
+
+    .card {
+        width: 160px;
+        background: #1f1f1f;
+        border-radius: 10px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 1px solid #333;
+        transition: 0.2s;
+    }
+
+    .card:hover {
+        transform: scale(1.04);
+    }
+
+    .card img {
+        width: 100%;
+        height: 90px;
+        object-fit: cover;
+    }
+
+    .info {
+        padding: 6px;
+        font-size: 12px;
+        text-align: center;
+        color: #fff;
+    }
+
+    .step {
+        font-weight: bold;
+        color: #ffd369;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: #fff;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .result {
+        text-align: center;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<div class="game">
+    <h1>Visual Story Sequencing</h1>
+    <div class="level" id="levelText">Level 1: Morning Routine</div>
+
+    <h3>Scrambled Cards</h3>
+    <div class="board" id="scrambled"></div>
+
+    <h3>Your Order</h3>
+    <div class="board" id="answer"></div>
+
+    <button onclick="checkOrder()">Check Answer</button>
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+const levels = [
+    {
+        title: "Level 1: Morning Routine",
+        cards: [
+            { order: 1, text: "Wake up", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 2, text: "Brush teeth", img: "https://images.unsplash.com/photo-1588776814546-1b00b3d06a8b?w=400&h=300&fit=crop" },
+            { order: 3, text: "Eat breakfast", img: "https://images.unsplash.com/photo-1493770348161-369560ae357d?w=400&h=300&fit=crop" },
+            { order: 4, text: "Go to school", img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 2: Plant Growth",
+        cards: [
+            { order: 1, text: "Plant seed", img: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=400&h=300&fit=crop" },
+            { order: 2, text: "Water plant", img: "https://images.unsplash.com/photo-1524594154908-edd6e8d54f30?w=400&h=300&fit=crop" },
+            { order: 3, text: "Plant grows", img: "https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=400&h=300&fit=crop" },
+            { order: 4, text: "Flower blooms", img: "https://images.unsplash.com/photo-1501973801540-537f08ccae7b?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 3: Baking a Cake",
+        cards: [
+            { order: 1, text: "Mix ingredients", img: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop" },
+            { order: 2, text: "Bake in oven", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop" },
+            { order: 3, text: "Let it cool", img: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=400&h=300&fit=crop" },
+            { order: 4, text: "Decorate", img: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 4: Butterfly Life Cycle",
+        cards: [
+            { order: 1, text: "Egg", img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop" },
+            { order: 2, text: "Larva (Caterpillar)", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
+            { order: 3, text: "Pupa (Chrysalis)", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 4, text: "Adult Butterfly", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 5: Getting Dressed",
+        cards: [
+            { order: 1, text: "Put on underwear", img: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=300&fit=crop" },
+            { order: 2, text: "Wear shirt", img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop" },
+            { order: 3, text: "Put on pants", img: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=400&h=300&fit=crop" },
+            { order: 4, text: "Wear shoes", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 6: Washing Dishes",
+        cards: [
+            { order: 1, text: "Rinse dishes", img: "https://images.unsplash.com/photo-1556909114-4c36e03d1b3f?w=400&h=300&fit=crop" },
+            { order: 2, text: "Apply soap", img: "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&h=300&fit=crop" },
+            { order: 3, text: "Scrub clean", img: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop" },
+            { order: 4, text: "Dry and put away", img: "https://images.unsplash.com/photo-1556909114-4c36e03d1b3f?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 7: Number Sequence (1-4)",
+        cards: [
+            { order: 1, text: "One", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 2, text: "Two", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 3, text: "Three", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 4, text: "Four", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 8: Alphabet (A-D)",
+        cards: [
+            { order: 1, text: "A", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 2, text: "B", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 3, text: "C", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 4, text: "D", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 9: Seasons",
+        cards: [
+            { order: 1, text: "Spring", img: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=300&fit=crop" },
+            { order: 2, text: "Summer", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop" },
+            { order: 3, text: "Autumn", img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop" },
+            { order: 4, text: "Winter", img: "https://images.unsplash.com/photo-1517299321609-52687d1bc55a?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 10: Days of the Week",
+        cards: [
+            { order: 1, text: "Monday", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 2, text: "Tuesday", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 3, text: "Wednesday", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 4, text: "Thursday", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 11: Months of the Year",
+        cards: [
+            { order: 1, text: "January", img: "https://images.unsplash.com/photo-1517299321609-52687d1bc55a?w=400&h=300&fit=crop" },
+            { order: 2, text: "February", img: "https://images.unsplash.com/photo-1517299321609-52687d1bc55a?w=400&h=300&fit=crop" },
+            { order: 3, text: "March", img: "https://images.unsplash.com/photo-1517299321609-52687d1bc55a?w=400&h=300&fit=crop" },
+            { order: 4, text: "April", img: "https://images.unsplash.com/photo-1517299321609-52687d1bc55a?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 12: Traffic Light",
+        cards: [
+            { order: 1, text: "Red - Stop", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
+            { order: 2, text: "Yellow - Slow", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
+            { order: 3, text: "Green - Go", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
+            { order: 4, text: "Walk", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 13: Recycling Process",
+        cards: [
+            { order: 1, text: "Sort materials", img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&h=300&fit=crop" },
+            { order: 2, text: "Clean items", img: "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&h=300&fit=crop" },
+            { order: 3, text: "Recycle", img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&h=300&fit=crop" },
+            { order: 4, text: "Reuse", img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 14: Building a House",
+        cards: [
+            { order: 1, text: "Lay foundation", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop" },
+            { order: 2, text: "Build walls", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop" },
+            { order: 3, text: "Add roof", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop" },
+            { order: 4, text: "Finish interior", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 15: Frog Life Cycle",
+        cards: [
+            { order: 1, text: "Egg", img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop" },
+            { order: 2, text: "Tadpole", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
+            { order: 3, text: "Froglet", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 4, text: "Adult Frog", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 16: Making Tea",
+        cards: [
+            { order: 1, text: "Boil water", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop" },
+            { order: 2, text: "Add tea bag", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop" },
+            { order: 3, text: "Add milk", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop" },
+            { order: 4, text: "Stir and serve", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 17: Solar System Planets",
+        cards: [
+            { order: 1, text: "Mercury", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 2, text: "Venus", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 3, text: "Earth", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" },
+            { order: 4, text: "Mars", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop" }
+        ]
+    },
+    {
+        title: "Level 18: Food Chain",
+        cards: [
+            { order: 1, text: "Plant", img: "https://images.unsplash.com/photo-1468327768560-75b778cbb551" },
+            { order: 2, text: "Herbivore", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643" },
+            { order: 3, text: "Carnivore", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643" },
+            { order: 4, text: "Decomposer", img: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6" }
+        ]
+    },
+    {
+        title: "Level 19: Water Cycle",
+        cards: [
+            { order: 1, text: "Evaporation", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 2, text: "Condensation", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 3, text: "Precipitation", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 4, text: "Collection", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" }
+        ]
+    },
+    {
+        title: "Level 20: Photosynthesis",
+        cards: [
+            { order: 1, text: "Sunlight", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 2, text: "Water", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 3, text: "Carbon Dioxide", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 4, text: "Glucose", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" }
+        ]
+    },
+    {
+        title: "Level 21: Cinderella Story",
+        cards: [
+            { order: 1, text: "Go to ball", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 2, text: "Midnight strikes", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 3, text: "Lose shoe", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 4, text: "Prince finds her", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" }
+        ]
+    },
+    {
+        title: "Level 22: Little Red Riding Hood",
+        cards: [
+            { order: 1, text: "Take basket", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 2, text: "Meet wolf", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 3, text: "Visit grandma", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 4, text: "Woodsman saves", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" }
+        ]
+    },
+    {
+        title: "Level 23: Soccer Game",
+        cards: [
+            { order: 1, text: "Kick ball", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 2, text: "Pass to teammate", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 3, text: "Dribble", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" },
+            { order: 4, text: "Score goal", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" }
+        ]
+    },
+    {
+        title: "Level 24: Cooking Pasta",
+        cards: [
+            { order: 1, text: "Boil water", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643" },
+            { order: 2, text: "Add pasta", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643" },
+            { order: 3, text: "Drain water", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643" },
+            { order: 4, text: "Add sauce", img: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643" }
+        ]
+    },
+    {
+        title: "Level 25: Brushing Teeth",
+        cards: [
+            { order: 1, text: "Wet toothbrush", img: "https://images.unsplash.com/photo-1588776814546-1b00b3d06a8b" },
+            { order: 2, text: "Apply toothpaste", img: "https://images.unsplash.com/photo-1588776814546-1b00b3d06a8b" },
+            { order: 3, text: "Brush teeth", img: "https://images.unsplash.com/photo-1588776814546-1b00b3d06a8b" },
+            { order: 4, text: "Rinse mouth", img: "https://images.unsplash.com/photo-1588776814546-1b00b3d06a8b" }
+        ]
+    }
+];
+
+let currentLevel = 0;
+const scrambled = document.getElementById("scrambled");
+const answer = document.getElementById("answer");
+
+function loadLevel() {
+    scrambled.innerHTML = "";
+    answer.innerHTML = "";
+    document.getElementById("result").textContent = "";
+    document.getElementById("levelText").textContent = levels[currentLevel].title;
+
+    [...levels[currentLevel].cards]
+        .sort(() => Math.random() - 0.5)
+        .forEach(c => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.dataset.order = c.order;
+            card.innerHTML = `
+                <img src="${c.img}">
+                <div class="info">
+                    ${c.text}
+                </div>`;
+            scrambled.appendChild(card);
+        });
+}
+
+scrambled.addEventListener("click", e => {
+    const card = e.target.closest(".card");
+    if (card) answer.appendChild(card);
+});
+
+answer.addEventListener("click", e => {
+    const card = e.target.closest(".card");
+    if (card) scrambled.appendChild(card);
+});
+
+function checkOrder() {
+    const cards = answer.querySelectorAll(".card");
+    let correct = true;
+
+    cards.forEach((card, i) => {
+        if (parseInt(card.dataset.order) !== i + 1) correct = false;
+    });
+
+    if (correct) {
+        document.getElementById("result").textContent = "✅ Correct! Moving to next level...";
+        setTimeout(() => {
+            currentLevel++;
+            if (currentLevel < levels.length) loadLevel();
+            else document.getElementById("result").textContent = "🎉 All levels completed!";
+        }, 1200);
+    } else {
+        document.getElementById("result").textContent = "❌ Try again!";
+    }
+}
+
+loadLevel();
+</script>
+
+</body>
+</html>
+

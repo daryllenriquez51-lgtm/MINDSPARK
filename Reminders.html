@@ -1,0 +1,308 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lectures & Reminders · circle back</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: "Arial Rounded MT Bold", Arial, sans-serif;
+  }
+
+  body {
+    background: linear-gradient(180deg, #ffe49b, #fff3cc);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 20px 0;
+    margin: 0;
+    /* relative to anchor the absolute back button */
+    position: relative;
+  }
+
+  /* ✅ CIRCLE back button – white, outside, top-left, perfect circle */
+  .back-circle {
+    position: absolute;
+    top: 28px;               /* sa gilid at taas */
+    left: 28px;              /* left side */
+    width: 56px;
+    height: 56px;
+    background-color: white;
+    border-radius: 50%;       /* perfect circle – as requested */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.15s ease, box-shadow 0.2s;
+    font-size: 34px;
+    font-weight: 500;
+    color: #b47d28;           /* matches theme */
+    text-decoration: none;
+    line-height: 1;
+    /* subtle inner glow to lift the circle */
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+
+  .back-circle:hover {
+    transform: scale(1.07);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+  }
+
+  .back-circle:active {
+    transform: scale(0.96);
+  }
+
+  /* main card – nice spacing from the button (button is absolute) */
+  .card {
+    background: #fffdf4;
+    width: 680px;
+    padding: 36px;
+    border-radius: 32px;
+    box-shadow: 0 14px 35px rgba(0,0,0,0.15);
+    position: relative;
+    /* no extra margin needed – button sits outside on the left */
+  }
+
+  h1 {
+    color: #555;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    margin-top: 12px;
+    font-size: 45px;
+  }
+
+  .sun {
+    position: absolute;
+    top: 28px;
+    right: 34px;
+    font-size: 56px;
+  }
+
+  .input-main {
+    font-size: 22px;
+    border: none;
+    outline: none;
+    width: 100%;
+    background: transparent;
+    border-bottom: 3px solid #eee;
+    padding: 14px 6px;
+    margin-bottom: 18px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    color: #aaa;
+    font-size: 18px;
+  }
+
+  .row input,
+  .row textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 18px;
+    border-bottom: 2px solid #eee;
+    padding: 10px 4px;
+    color: #555;
+  }
+
+  textarea {
+    resize: none;
+    height: 80px;
+  }
+
+  .add-btn {
+    margin-top: 22px;
+    width: 100%;
+    background: #ffd54f;
+    border: none;
+    border-radius: 18px;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .task {
+    margin-top: 24px;
+    background: #fff;
+    border-radius: 22px;
+    padding: 20px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .left {
+    flex: 1;
+  }
+
+  .right {
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .task-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .task small {
+    display: block;
+    font-size: 16px;
+    color: #777;
+    margin-bottom: 6px;
+  }
+
+  .time {
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 14px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .controls button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #ffecb3;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- 🔴 PERFECT WHITE CIRCLE – outside, left, top, exactly as specified: circle -->
+<div class="back-circle" onclick="goBackToMindspark()" title="Back to MINDSPARKKK.html">←</div>
+
+<div class="card">
+  <div class="sun">☀️</div>
+  <h1>REMINDERS</h1>
+
+  <!-- BIG REMINDER INPUT -->
+  <input class="input-main" id="title" placeholder="Type your reminder">
+
+  <div class="row">
+    ⏱
+    <input type="number" id="mins" placeholder="Estimated time (mins)">
+  </div>
+
+  <div class="row">
+    📅
+    <input type="date" id="date">
+  </div>
+
+  <div class="row">
+    📝
+    <textarea id="notes" placeholder="Extra notes..."></textarea>
+  </div>
+
+  <button class="add-btn" onclick="addReminder()">ADD REMINDER</button>
+  <div id="list"></div>
+</div>
+
+<script>
+let timers = [];
+
+function addReminder() {
+  const title = document.getElementById("title").value;
+  const mins = parseInt(document.getElementById("mins").value);
+  const date = document.getElementById("date").value;
+  const notes = document.getElementById("notes").value;
+
+  if (!title) return alert("Please type a reminder");
+  if (!mins || mins <= 0) return alert("Please enter a valid estimated time in minutes");
+
+  const initialSeconds = mins * 60;
+  const i = timers.length;
+  timers.push({ title: title, remaining: initialSeconds, initial: initialSeconds, int: null });
+
+  const task = document.createElement("div");
+  task.className = "task";
+  task.innerHTML = `
+    <div class="left">
+      <div class="task-title">${title}</div>
+      <small>📅 ${date || "No date set"}</small>
+      <small>📝 ${notes || "No notes"}</small>
+
+      <div class="controls">
+        <button onclick="start(${i})">▶ Start</button>
+        <button onclick="pause(${i})">⏸ Pause</button>
+        <button onclick="reset(${i})">⏹ Reset</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="time" id="time-${i}"></div>
+    </div>
+  `;
+
+  document.getElementById("list").appendChild(task);
+  update(i);
+
+  document.getElementById("title").value = "";
+  document.getElementById("mins").value = "";
+  document.getElementById("date").value = "";
+  document.getElementById("notes").value = "";
+}
+
+function start(i) {
+  if (timers[i].int || timers[i].remaining <= 0) return;
+  timers[i].int = setInterval(() => {
+    timers[i].remaining--;
+    update(i);
+    if (timers[i].remaining <= 0) {
+      clearInterval(timers[i].int);
+      timers[i].int = null;
+      alert("Time's up for " + timers[i].title);
+    }
+  }, 1000);
+}
+
+function pause(i) {
+  clearInterval(timers[i].int);
+  timers[i].int = null;
+}
+
+function reset(i) {
+  pause(i);
+  timers[i].remaining = timers[i].initial;
+  update(i);
+}
+
+function update(i) {
+  const m = String(Math.floor(timers[i].remaining / 60)).padStart(2, "0");
+  const s = String(timers[i].remaining % 60).padStart(2, "0");
+  document.getElementById(`time-${i}`).innerText = `${m}:${s}`;
+}
+
+/* ===== BACK BUTTON FUNCTION – exactly as specified ===== */
+function goBackToMindspark() {
+  window.location.href = "MINDSPARKKK.html";
+}
+</script>
+
+</body>
+</html>
+

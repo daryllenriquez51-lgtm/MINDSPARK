@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lectures and Reading</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:#ffe6a3;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+/* OUTER CARD (same Canva proportion) */
+.wrapper{
+  background:#ffe6a3;
+  padding:40px;
+}
+
+.card{
+  background:#fffdf4;
+  width:880px;
+  height:430px;
+  border-radius:28px;
+  padding:36px 40px;
+  position:relative;
+}
+
+/* TITLE */
+h1{
+  margin:0 0 22px;
+  font-size:28px;
+  letter-spacing:1px;
+  color:#6b6b6b;
+}
+
+/* SUN IMAGE */
+.sun{
+  position:absolute;
+  top:28px;
+  right:36px;
+  width:95px;
+}
+
+/* CONTENT GRID */
+.content{
+  display:grid;
+  grid-template-columns: 1fr 240px;
+  gap:24px;
+}
+
+/* LEFT SIDE */
+.tasks{
+  margin-bottom:10px;
+}
+
+.task{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.task input[type="checkbox"]{
+  width:18px;
+  height:18px;
+}
+
+.task input[type="text"]{
+  border:none;
+  background:transparent;
+  border-bottom:2px solid #eee;
+  font-size:16px;
+  width:260px;
+}
+
+.task input:focus{
+  outline:none;
+  border-color:#f2c94c;
+}
+
+.add-more{
+  font-size:14px;
+  color:#bcbcbc;
+  cursor:pointer;
+  margin-bottom:18px;
+}
+
+.add-more:hover{
+  color:#f2c94c;
+}
+
+/* ICON FIELDS */
+.field{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.icon{
+  font-size:18px;
+  color:#f2c94c;
+}
+
+.field input,
+.field textarea{
+  flex:1;
+  border:none;
+  background:transparent;
+  border-bottom:2px solid #eee;
+  padding:6px 4px;
+  font-size:15px;
+}
+
+.field textarea{
+  resize:none;
+  height:40px;
+}
+
+.field input:focus,
+.field textarea:focus{
+  outline:none;
+  border-color:#f2c94c;
+}
+
+/* ESTIMATED TIME BOX */
+.time-box{
+  position:absolute;
+  bottom:32px;
+  right:36px;
+  width:220px;
+  height:130px;
+  background:#f6edc3;
+  border-radius:22px;
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+.time-box p{
+  margin:0;
+  font-size:14px;
+  color:#b5b5b5;
+}
+
+.time-box span{
+  font-size:56px;
+  font-weight:700;
+  color:#b6af8a;
+}
+
+/* POPUP */
+.popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.popup-box{
+  background:#fff;
+  padding:30px;
+  border-radius:22px;
+  width:300px;
+  text-align:center;
+}
+
+.popup-box button{
+  margin-top:20px;
+  background:#f2c94c;
+  border:none;
+  padding:10px 26px;
+  border-radius:20px;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+  <div class="card">
+
+    <h1>LECTURES AND READING</h1>
+
+    <!-- SUN IMAGE -->
+    <img src="sun.png" class="sun" alt="Sun">
+
+    <div class="content">
+      <div>
+        <div class="tasks" id="taskList"></div>
+
+        <div class="add-more" onclick="addTask()">+ Add more</div>
+
+        <div class="field">
+          <div class="icon">⏰</div>
+          <input type="number" id="minutes" placeholder="Estimated time (mins)">
+        </div>
+
+        <div class="field">
+          <div class="icon">📅</div>
+          <input type="date" id="date">
+          <input type="time" id="time">
+        </div>
+
+        <div class="field">
+          <div class="icon">📝</div>
+          <textarea placeholder="Note"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTIMATED TIME -->
+    <div class="time-box" id="timeBox">
+      <p>Estimated time (mins)</p>
+      <span id="timeValue">0</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="popup" id="popup">
+  <div class="popup-box">
+    <h3>⏰ Time’s up!</h3>
+    <p>Your scheduled task is done.</p>
+    <button onclick="closePopup()">Okay</button>
+  </div>
+</div>
+
+<script>
+const taskList = document.getElementById("taskList");
+const minutesInput = document.getElementById("minutes");
+const dateInput = document.getElementById("date");
+const timeInput = document.getElementById("time");
+const timeBox = document.getElementById("timeBox");
+const timeValue = document.getElementById("timeValue");
+const popup = document.getElementById("popup");
+
+let timeout;
+
+function addTask(){
+  const div = document.createElement("div");
+  div.className = "task";
+  div.innerHTML = `
+    <input type="checkbox">
+    <input type="text" placeholder="Type lecture or reading">
+  `;
+  taskList.appendChild(div);
+}
+
+timeInput.addEventListener("change", scheduleReminder);
+dateInput.addEventListener("change", scheduleReminder);
+
+function scheduleReminder(){
+  clearTimeout(timeout);
+
+  if(!minutesInput.value || !timeInput.value || !dateInput.value) return;
+
+  const [y,m,d] = dateInput.value.split("-");
+  const [hh,mm] = timeInput.value.split(":");
+
+  const target = new Date(y, m-1, d, hh, mm, 0);
+  const now = new Date();
+  const delay = target - now;
+
+  if(delay <= 0) return;
+
+  timeout = setTimeout(()=>{
+    timeValue.textContent = minutesInput.value;
+    timeBox.style.display="flex";
+    popup.style.display="flex";
+  }, delay);
+}
+
+function closePopup(){
+  popup.style.display="none";
+}
+</script>
+
+</body>
+</html>
+

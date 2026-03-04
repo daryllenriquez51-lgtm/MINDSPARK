@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>Falling Puzzle Game</title>
+  <meta charset="UTF-8">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background-image: url('563694218_811834468372464_4692376660128424019_n.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-attachment: fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    #scoreBoard {
+      color: white;
+      font-family: "Poppins", sans-serif;
+      font-size: 28px;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 5px black;
+    }
+
+    canvas {
+      border: 2px solid white;
+      box-shadow: 0 0 15px rgba(255,255,255,0.5);
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+<div id="scoreBoard">Score: 0</div>
+<canvas width="318" height="647" id="game"></canvas>
+
+<script>
+const canvas = document.getElementById('game');
+const context = canvas.getContext('2d');
+const grid = 32;
+let score = 0;
+let count = 0;
+
+// Tetromino shapes
+const tetrominos = {
+  'I': [[1,1,1,1]],
+  'J': [[1,0,0],[1,1,1]],
+  'L': [[0,0,1],[1,1,1]],
+  'O': [[1,1],[1,1]],
+  'S': [[0,1,1],[1,1,0]],
+  'Z': [[1,1,0],[0,1,1]],
+  'T': [[0,1,0],[1,1,1]]
+};
+
+// Colors
+const colors = {
+  'I': 'cyan', 'O': 'yellow', 'T': 'purple',
+  'S': 'green', 'Z': 'red', 'J': 'blue', 'L': 'blue'
+};
+
+const sequence = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
+
+function getRandomTetromino() {
+  const name = sequence[Math.floor(Math.random() * sequence.length)];
+  const matrix = tetrominos[name];
+  const col = Math.floor(Math.random() * (10 - matrix[0].length));
+  return { name, matrix, row: 0, col };
+}
+
+let tetromino = getRandomTetromino();
+
+// Game loop
+function loop() {
+  requestAnimationFrame(loop);
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  count++;
+
+  // Make the piece fall every few frames
+  if (count > 20) {
+    tetromino.row++;
+    count = 0;
+
+    // If it hits the bottom, reset and add score
+    if (tetromino.row + tetromino.matrix.length * grid / grid >= 20) {
+      score += 10;
+      document.getElementById("scoreBoard").textContent = "Score: " + score;
+      tetromino = getRandomTetromino();
+    }
+  }
+
+  // Draw falling piece
+  context.fillStyle = colors[tetromino.name];
+  for (let row = 0; row < tetromino.matrix.length; row++) {
+    for (let col = 0; col < tetromino.matrix[row].length; col++) {
+      if (tetromino.matrix[row][col]) {
+        context.fillRect(
+          (tetromino.col + col) * grid,
+          (tetromino.row + row) * grid,
+          grid - 1,
+          grid - 1
+        );
+      }
+    }
+  }
+}
+
+// Optional controls: move left/right
+document.addEventListener('keydown', e => {
+  if (e.key === "ArrowLeft" && tetromino.col > 0) {
+    tetromino.col--;
+  }
+  if (e.key === "ArrowRight" && tetromino.col + tetromino.matrix[0].length < 10) {
+    tetromino.col++;
+  }
+});
+
+loop();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,621 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Maze – blurred transparent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            /* animated GIF background (public domain-ish style) */
+            background: url('gggffff.gif') center/cover fixed no-repeat;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        /* back button: solid white circle with blur (but white stands out) */
+        .back-button {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            width: 54px;
+            height: 54px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(255, 105, 180, 0.5), 0 0 0 2px rgba(255,215,0,0.6);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            z-index: 2000;
+            border: 2px solid rgba(255,255,240,0.9);
+        }
+
+        .back-button:hover {
+            transform: scale(1.12);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 10px 30px #ff69b4, 0 0 25px gold;
+        }
+
+        .back-button svg {
+            width: 30px;
+            height: 30px;
+            fill: none;
+            stroke: #ff1493;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .back-button:hover svg {
+            stroke: #b0306e;
+        }
+
+        /* ----- MAIN WRAPPER : fully transparent + heavy blur ----- */
+        .game-wrapper {
+            background: rgba(0, 0, 0, 0.2);           /* very light tint, mostly see-through */
+            backdrop-filter: blur(18px) saturate(180%); /* strong blur for glass effect */
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border-radius: 60px;
+            padding: 30px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(255,255,255,0.4);
+            max-width: 920px;
+            width: 100%;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+        }
+
+        .game-container {
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: white;
+            padding: 0 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 25px;
+            background: rgba(255, 255, 255, 0.1);    /* extra transparency */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+        }
+
+        .stat {
+            font-size: 1.2em;
+            color: white;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+        }
+
+        .stat span {
+            background: linear-gradient(135deg, #ffd700, #ff69b4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            margin-left: 8px;
+            font-size: 1.5em;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        }
+
+        .level-info {
+            background: rgba(20, 20, 30, 0.3);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.4em;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
+            position: relative;
+            overflow: hidden;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .level-info::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            20% { transform: translateX(100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .difficulty-badge {
+            font-size: 0.6em;
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        canvas {
+            border: 4px solid rgba(255, 255, 255, 0.5);
+            border-radius: 40px;
+            background: linear-gradient(135deg, #1a0f1f, #2d1a2d);
+            box-shadow: 0 20px 50px rgba(255, 105, 180, 0.5), 0 0 40px rgba(255,215,0,0.3);
+            display: block;
+            margin: 0 auto;
+            cursor: none;
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+        }
+
+        .controls {
+            margin-top: 25px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(20, 20, 30, 0.25);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        .instruction {
+            font-size: 1em;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .instruction kbd {
+            background: linear-gradient(135deg, #ffd700, #ff69b4);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 10px;
+            margin: 0 5px;
+            font-size: 0.9em;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 0 #b2456e;
+            font-weight: bold;
+        }
+
+        button {
+            background: linear-gradient(135deg, #ffd700 0%, #ff69b4 100%);
+            border: none;
+            color: white;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 105, 180, 0.7), 0 0 30px gold;
+        }
+
+        .level-transition {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 60px 120px;
+            border-radius: 80px;
+            color: white;
+            font-size: 4em;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 30px 80px rgba(255, 105, 180, 0.6), 0 0 60px gold;
+            animation: levelPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: none;
+            text-align: center;
+            border: 4px solid rgba(255, 255, 255, 0.6);
+            text-shadow: 2px 2px 8px black;
+        }
+
+        .level-transition small {
+            font-size: 0.35em;
+            display: block;
+            margin-top: 20px;
+            opacity: 0.9;
+            letter-spacing: 4px;
+        }
+
+        @keyframes levelPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: rgba(10, 10, 15, 0.3);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .message.success {
+            background: rgba(255, 215, 0, 0.25);
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 215, 0, 0.7);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 5px;
+            margin: 20px 0 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff69b4);
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 5px;
+            box-shadow: 0 0 20px #ffd700;
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .level-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            font-weight: bold;
+        }
+
+        .level-dot.active {
+            background: linear-gradient(135deg, #ffd700, #ff69b4);
+            transform: scale(1.2);
+            box-shadow: 0 0 30px #ff69b4;
+            border-color: white;
+        }
+
+        .level-dot.completed {
+            background: rgba(255, 215, 0, 0.7);
+            border-color: #ff69b4;
+        }
+
+        .level-dot:hover {
+            transform: scale(1.1);
+            border-color: white;
+            background: rgba(255, 105, 180, 0.6);
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            color: white;
+            font-size: 1em;
+            text-shadow: 1px 1px 3px black;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+
+        @media (max-width: 600px) {
+            .game-wrapper { padding: 15px; }
+            .level-transition { padding: 30px 60px; font-size: 2.5em; }
+            .stats { padding: 10px 15px; gap: 15px; }
+            .level-info { font-size: 1.1em; padding: 10px 25px; }
+            .level-dot { width: 30px; height: 30px; font-size: 0.8em; }
+            .back-button { width: 44px; height: 44px; top: 15px; left: 15px; }
+            .back-button svg { width: 26px; height: 26px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- white blurred back circle -->
+    <div class="back-button" onclick="goBack()">
+        <svg viewBox="0 0 24 24">
+            <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2.5"/>
+        </svg>
+    </div>
+
+    <div class="game-wrapper">
+        <div class="game-container">
+            <div class="header">
+                <div class="stats">
+                    <div class="stat">⭐ TOTAL <span id="score">0</span></div>
+                    <div class="stat">📦 <span id="collected">0</span>/<span id="total-numbers">5</span></div>
+                </div>
+                <div class="level-info" id="level">
+                    Level 1
+                    <span class="difficulty-badge" id="difficulty">NOVICE</span>
+                </div>
+            </div>
+
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+            <div class="level-selector" id="levelSelector"></div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="controls">
+                <div class="instruction">
+                    <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
+                </div>
+                <button onclick="resetGame()">🔄 NEW GAME</button>
+            </div>
+
+            <div id="message" class="message"></div>
+            
+            <div class="footer">
+                <span>🏆 15 EPIC LEVELS</span>
+                <span>🎯 MASTER THE MAZE</span>
+                <span>✨ YELLOW 💗 PINK</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="level-transition" id="levelTransition">
+        <span id="transitionText">Level 2</span>
+        <small id="transitionDifficulty">BEGINNER</small>
+    </div>
+
+    <script>
+        // ---------- BACK BUTTON ----------
+        window.goBack = function() {
+            window.location.href = "Recommend.html";
+        };
+
+        // ---------- MAZE GAME (preserved full logic, condensed where safe) ----------
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let player = { x: 1, y: 1 };
+        let numbers = [];
+        let walls = [];
+        let score = 0;
+        let currentLevel = 1;
+        let gameRunning = true;
+        const cellSize = 40;
+        const cols = 15;
+        const rows = 15;
+        let collectedCount = 0;
+        let totalNumbersInLevel = 0;
+        let completedLevels = new Array(15).fill(false);
+        
+        const levels = [
+            { name: "NOVICE", difficulty: 1, color: "#4ecdc4", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 3, y: 3}, {x: 4, y: 3}, {x: 5, y: 3}, {x: 10, y: 10}, {x: 11, y: 10}, {x: 12, y: 10} ], numbers: [ {x: 7, y: 7, value: 1}, {x: 3, y: 10, value: 2}, {x: 12, y: 4, value: 3}, {x: 8, y: 12, value: 4} ] },
+            { name: "BEGINNER", difficulty: 2, color: "#6ec4b4", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 3, y: 2}, {x: 3, y: 3}, {x: 3, y: 4}, {x: 3, y: 5}, {x: 7, y: 8}, {x: 7, y: 9}, {x: 7, y: 10}, {x: 7, y: 11}, {x: 11, y: 3}, {x: 11, y: 4}, {x: 11, y: 5}, {x: 11, y: 6} ], numbers: [ {x: 5, y: 3, value: 1}, {x: 10, y: 9, value: 2}, {x: 13, y: 12, value: 3}, {x: 2, y: 8, value: 4}, {x: 9, y: 5, value: 5} ] },
+            { name: "BASIC", difficulty: 3, color: "#7ec4a4", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 4, y: 4}, {x: 4, y: 5}, {x: 4, y: 6}, {x: 5, y: 6}, {x: 6, y: 6}, {x: 9, y: 9}, {x: 9, y: 10}, {x: 9, y: 11}, {x: 10, y: 9}, {x: 11, y: 9} ], numbers: [ {x: 2, y: 2, value: 1}, {x: 13, y: 2, value: 2}, {x: 2, y: 13, value: 3}, {x: 13, y: 13, value: 4}, {x: 7, y: 7, value: 5} ] },
+            { name: "EASY", difficulty: 4, color: "#8ec494", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 3, y: 3}, {x: 3, y: 4}, {x: 3, y: 5}, {x: 4, y: 5}, {x: 5, y: 5}, {x: 8, y: 8}, {x: 8, y: 9}, {x: 8, y: 10}, {x: 9, y: 8}, {x: 10, y: 8}, {x: 12, y: 3}, {x: 12, y: 4}, {x: 12, y: 5}, {x: 11, y: 5}, {x: 10, y: 5} ], numbers: [ {x: 5, y: 2, value: 1}, {x: 10, y: 12, value: 2}, {x: 3, y: 10, value: 3}, {x: 12, y: 8, value: 4}, {x: 7, y: 4, value: 5}, {x: 9, y: 11, value: 6} ] },
+            { name: "INTERMEDIATE", difficulty: 5, color: "#9ec484", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 2, y: 2}, {x: 3, y: 2}, {x: 4, y: 2}, {x: 5, y: 2}, {x: 5, y: 3}, {x: 5, y: 4}, {x: 9, y: 9}, {x: 10, y: 9}, {x: 11, y: 9}, {x: 12, y: 9}, {x: 12, y: 10}, {x: 12, y: 11} ], numbers: [ {x: 2, y: 5, value: 1}, {x: 13, y: 8, value: 2}, {x: 5, y: 13, value: 3}, {x: 8, y: 2, value: 4}, {x: 11, y: 12, value: 5}, {x: 4, y: 8, value: 6} ] },
+            { name: "MODERATE", difficulty: 6, color: "#aeb474", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 3, y: 3}, {x: 3, y: 4}, {x: 3, y: 5}, {x: 4, y: 5}, {x: 5, y: 5}, {x: 5, y: 4}, {x: 5, y: 3}, {x: 6, y: 3}, {x: 7, y: 3}, {x: 7, y: 4}, {x: 7, y: 5}, {x: 7, y: 6}, {x: 6, y: 6}, {x: 5, y: 6}, {x: 4, y: 6} ], numbers: [ {x: 2, y: 2, value: 1}, {x: 12, y: 12, value: 2}, {x: 8, y: 8, value: 3}, {x: 3, y: 12, value: 4}, {x: 12, y: 3, value: 5}, {x: 6, y: 10, value: 6} ] },
+            { name: "CHALLENGING", difficulty: 7, color: "#bea464", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 2, y: 2}, {x: 2, y: 3}, {x: 2, y: 4}, {x: 3, y: 4}, {x: 4, y: 4}, {x: 4, y: 3}, {x: 4, y: 2}, {x: 5, y: 2}, {x: 6, y: 2}, {x: 6, y: 3}, {x: 6, y: 4}, {x: 7, y: 4}, {x: 8, y: 4}, {x: 8, y: 3}, {x: 8, y: 2}, {x: 9, y: 2}, {x: 10, y: 2}, {x: 10, y: 3}, {x: 10, y: 4} ], numbers: [ {x: 3, y: 10, value: 1}, {x: 12, y: 5, value: 2}, {x: 5, y: 12, value: 3}, {x: 9, y: 8, value: 4}, {x: 7, y: 11, value: 5}, {x: 11, y: 9, value: 6}, {x: 4, y: 7, value: 7} ] },
+            { name: "DIFFICULT", difficulty: 8, color: "#ce9454", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 2, y: 3}, {x: 3, y: 3}, {x: 4, y: 3}, {x: 5, y: 3}, {x: 6, y: 3}, {x: 8, y: 6}, {x: 9, y: 6}, {x: 10, y: 6}, {x: 11, y: 6}, {x: 12, y: 6}, {x: 4, y: 9}, {x: 5, y: 9}, {x: 6, y: 9}, {x: 7, y: 9}, {x: 8, y: 9}, {x: 10, y: 2}, {x: 10, y: 3}, {x: 10, y: 4}, {x: 10, y: 5}, {x: 5, y: 10}, {x: 5, y: 11}, {x: 5, y: 12}, {x: 5, y: 13} ], numbers: [ {x: 2, y: 2, value: 1}, {x: 13, y: 2, value: 2}, {x: 2, y: 13, value: 3}, {x: 13, y: 13, value: 4}, {x: 7, y: 7, value: 5}, {x: 9, y: 4, value: 6}, {x: 4, y: 11, value: 7} ] },
+            { name: "HARD", difficulty: 9, color: "#de8444", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 3, y: 3}, {x: 3, y: 4}, {x: 3, y: 5}, {x: 3, y: 6}, {x: 3, y: 7}, {x: 3, y: 8}, {x: 4, y: 8}, {x: 5, y: 8}, {x: 6, y: 8}, {x: 7, y: 8}, {x: 7, y: 7}, {x: 7, y: 6}, {x: 7, y: 5}, {x: 7, y: 4}, {x: 6, y: 4}, {x: 5, y: 4}, {x: 5, y: 5}, {x: 5, y: 6}, {x: 6, y: 6}, {x: 10, y: 10}, {x: 10, y: 11}, {x: 10, y: 12}, {x: 11, y: 10}, {x: 12, y: 10} ], numbers: [ {x: 2, y: 2, value: 1}, {x: 13, y: 2, value: 2}, {x: 2, y: 13, value: 3}, {x: 13, y: 13, value: 4}, {x: 8, y: 3, value: 5}, {x: 4, y: 10, value: 6}, {x: 11, y: 5, value: 7}, {x: 6, y: 11, value: 8} ] },
+            { name: "VERY HARD", difficulty: 10, color: "#ee7434", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 2, y: 2}, {x: 2, y: 3}, {x: 2, y: 4}, {x: 3, y: 4}, {x: 4, y: 4}, {x: 4, y: 3}, {x: 4, y: 2}, {x: 5, y: 2}, {x: 6, y: 2}, {x: 6, y: 3}, {x: 6, y: 4}, {x: 7, y: 4}, {x: 8, y: 4}, {x: 8, y: 3}, {x: 8, y: 2}, {x: 9, y: 2}, {x: 10, y: 2}, {x: 10, y: 3}, {x: 10, y: 4}, {x: 11, y: 4}, {x: 12, y: 4}, {x: 12, y: 3}, {x: 12, y: 2}, {x: 13, y: 2}, {x: 3, y: 9}, {x: 4, y: 9}, {x: 5, y: 9}, {x: 6, y: 9}, {x: 7, y: 9}, {x: 7, y: 10}, {x: 7, y: 11}, {x: 6, y: 11}, {x: 5, y: 11}, {x: 4, y: 11}, {x: 4, y: 12}, {x: 4, y: 13}, {x: 5, y: 13}, {x: 6, y: 13}, {x: 7, y: 13} ], numbers: [ {x: 3, y: 3, value: 1}, {x: 12, y: 12, value: 2}, {x: 5, y: 7, value: 3}, {x: 10, y: 8, value: 4}, {x: 8, y: 11, value: 5}, {x: 2, y: 10, value: 6}, {x: 13, y: 5, value: 7}, {x: 7, y: 3, value: 8} ] },
+            { name: "EXPERT", difficulty: 11, color: "#fa6434", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 2, y: 2}, {x: 3, y: 2}, {x: 4, y: 2}, {x: 5, y: 2}, {x: 5, y: 3}, {x: 5, y: 4}, {x: 4, y: 4}, {x: 3, y: 4}, {x: 2, y: 4}, {x: 2, y: 5}, {x: 2, y: 6}, {x: 3, y: 6}, {x: 4, y: 6}, {x: 5, y: 6}, {x: 6, y: 6}, {x: 6, y: 5}, {x: 6, y: 4}, {x: 7, y: 4}, {x: 8, y: 4}, {x: 8, y: 5}, {x: 8, y: 6}, {x: 8, y: 7}, {x: 7, y: 7}, {x: 6, y: 7}, {x: 5, y: 7}, {x: 4, y: 7}, {x: 4, y: 8}, {x: 4, y: 9}, {x: 5, y: 9}, {x: 6, y: 9}, {x: 7, y: 9}, {x: 8, y: 9}, {x: 9, y: 9}, {x: 9, y: 8}, {x: 9, y: 7} ], numbers: [ {x: 3, y: 12, value: 1}, {x: 12, y: 3, value: 2}, {x: 8, y: 12, value: 3}, {x: 5, y: 5, value: 4}, {x: 11, y: 8, value: 5}, {x: 7, y: 2, value: 6}, {x: 2, y: 8, value: 7}, {x: 13, y: 10, value: 8} ] },
+            { name: "MASTER", difficulty: 12, color: "#ff5434", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 2, y: 2}, {x: 3, y: 2}, {x: 4, y: 2}, {x: 4, y: 3}, {x: 4, y: 4}, {x: 3, y: 4}, {x: 2, y: 4}, {x: 2, y: 5}, {x: 2, y: 6}, {x: 3, y: 6}, {x: 4, y: 6}, {x: 5, y: 6}, {x: 6, y: 6}, {x: 6, y: 5}, {x: 6, y: 4}, {x: 6, y: 3}, {x: 7, y: 3}, {x: 8, y: 3}, {x: 8, y: 4}, {x: 8, y: 5}, {x: 8, y: 6}, {x: 9, y: 6}, {x: 10, y: 6}, {x: 10, y: 5}, {x: 10, y: 4}, {x: 10, y: 3}, {x: 11, y: 3}, {x: 12, y: 3}, {x: 12, y: 4}, {x: 12, y: 5}, {x: 12, y: 6}, {x: 12, y: 7}, {x: 11, y: 7}, {x: 10, y: 7}, {x: 9, y: 7} ], numbers: [ {x: 3, y: 12, value: 1}, {x: 12, y: 12, value: 2}, {x: 7, y: 2, value: 3}, {x: 2, y: 9, value: 4}, {x: 13, y: 5, value: 5}, {x: 5, y: 10, value: 6}, {x: 10, y: 9, value: 7}, {x: 8, y: 8, value: 8} ] },
+            { name: "GRAND MASTER", difficulty: 13, color: "#ff4424", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 2, y: 2}, {x: 2, y: 3}, {x: 2, y: 4}, {x: 2, y: 5}, {x: 2, y: 6}, {x: 3, y: 6}, {x: 4, y: 6}, {x: 5, y: 6}, {x: 6, y: 6}, {x: 6, y: 5}, {x: 6, y: 4}, {x: 6, y: 3}, {x: 6, y: 2}, {x: 7, y: 2}, {x: 8, y: 2}, {x: 8, y: 3}, {x: 8, y: 4}, {x: 8, y: 5}, {x: 8, y: 6}, {x: 9, y: 6}, {x: 10, y: 6}, {x: 10, y: 5}, {x: 10, y: 4}, {x: 10, y: 3}, {x: 10, y: 2}, {x: 11, y: 2}, {x: 12, y: 2}, {x: 12, y: 3}, {x: 12, y: 4}, {x: 12, y: 5}, {x: 12, y: 6}, {x: 12, y: 7}, {x: 11, y: 7}, {x: 10, y: 7}, {x: 9, y: 7}, {x: 8, y: 7}, {x: 7, y: 7}, {x: 6, y: 7}, {x: 5, y: 7}, {x: 4, y: 7} ], numbers: [ {x: 3, y: 3, value: 1}, {x: 13, y: 13, value: 2}, {x: 4, y: 12, value: 3}, {x: 12, y: 4, value: 4}, {x: 7, y: 9, value: 5}, {x: 9, y: 5, value: 6}, {x: 5, y: 8, value: 7}, {x: 11, y: 10, value: 8} ] },
+            { name: "LEGEND", difficulty: 14, color: "#ff3414", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 3, y: 3}, {x: 3, y: 4}, {x: 3, y: 5}, {x: 3, y: 6}, {x: 3, y: 7}, {x: 3, y: 8}, {x: 4, y: 8}, {x: 5, y: 8}, {x: 6, y: 8}, {x: 7, y: 8}, {x: 8, y: 8}, {x: 8, y: 7}, {x: 8, y: 6}, {x: 8, y: 5}, {x: 8, y: 4}, {x: 8, y: 3}, {x: 9, y: 3}, {x: 10, y: 3}, {x: 11, y: 3}, {x: 11, y: 4}, {x: 11, y: 5}, {x: 11, y: 6}, {x: 11, y: 7}, {x: 11, y: 8}, {x: 10, y: 8}, {x: 9, y: 8}, {x: 9, y: 9}, {x: 9, y: 10}, {x: 9, y: 11}, {x: 10, y: 11}, {x: 11, y: 11}, {x: 12, y: 11}, {x: 12, y: 10}, {x: 12, y: 9}, {x: 12, y: 8} ], numbers: [ {x: 2, y: 2, value: 1}, {x: 13, y: 2, value: 2}, {x: 2, y: 13, value: 3}, {x: 13, y: 13, value: 4}, {x: 5, y: 5, value: 5}, {x: 10, y: 10, value: 6}, {x: 7, y: 12, value: 7}, {x: 12, y: 7, value: 8}, {x: 4, y: 9, value: 9} ] },
+            { name: "MYTHIC", difficulty: 15, color: "#ff2400", walls: [ ...Array(rows).fill().map((_, i) => ({x: 0, y: i})), ...Array(rows).fill().map((_, i) => ({x: cols-1, y: i})), ...Array(cols).fill().map((_, i) => ({x: i, y: 0})), ...Array(cols).fill().map((_, i) => ({x: i, y: rows-1})), {x: 2, y: 2}, {x: 2, y: 3}, {x: 2, y: 4}, {x: 2, y: 5}, {x: 2, y: 6}, {x: 2, y: 7}, {x: 3, y: 7}, {x: 4, y: 7}, {x: 5, y: 7}, {x: 6, y: 7}, {x: 7, y: 7}, {x: 7, y: 6}, {x: 7, y: 5}, {x: 7, y: 4}, {x: 7, y: 3}, {x: 7, y: 2}, {x: 8, y: 2}, {x: 9, y: 2}, {x: 10, y: 2}, {x: 10, y: 3}, {x: 10, y: 4}, {x: 10, y: 5}, {x: 10, y: 6}, {x: 10, y: 7}, {x: 11, y: 7}, {x: 12, y: 7}, {x: 12, y: 6}, {x: 12, y: 5}, {x: 12, y: 4}, {x: 12, y: 3}, {x: 12, y: 2}, {x: 13, y: 2}, {x: 13, y: 3}, {x: 13, y: 4}, {x: 13, y: 5}, {x: 13, y: 6}, {x: 4, y: 4}, {x: 4, y: 5}, {x: 5, y: 5}, {x: 5, y: 4}, {x: 9, y: 9}, {x: 9, y: 10}, {x: 10, y: 10}, {x: 10, y: 9}, {x: 3, y: 11}, {x: 3, y: 12}, {x: 4, y: 12}, {x: 4, y: 11}, {x: 11, y: 11}, {x: 11, y: 12}, {x: 12, y: 12}, {x: 12, y: 11}, {x: 6, y: 9}, {x: 6, y: 10}, {x: 8, y: 4}, {x: 8, y: 5}, {x: 5, y: 8}, {x: 9, y: 6} ], numbers: [ {x: 3, y: 3, value: 1}, {x: 13, y: 13, value: 2}, {x: 3, y: 13, value: 3}, {x: 13, y: 3, value: 4}, {x: 8, y: 2, value: 5}, {x: 2, y: 8, value: 6}, {x: 8, y: 13, value: 7}, {x: 13, y: 8, value: 8}, {x: 5, y: 5, value: 9}, {x: 10, y: 10, value: 10} ] }
+        ];
+
+        // ---------- helper functions ----------
+        function initLevelSelector() {
+            const selector = document.getElementById('levelSelector');
+            selector.innerHTML = '';
+            for (let i = 1; i <= 15; i++) {
+                const dot = document.createElement('div');
+                dot.className = `level-dot ${i === currentLevel ? 'active' : ''} ${completedLevels[i-1] ? 'completed' : ''}`;
+                dot.textContent = i;
+                dot.onclick = () => jumpToLevel(i);
+                selector.appendChild(dot);
+            }
+        }
+
+        function jumpToLevel(level) {
+            if (level >= 1 && level <= 15) {
+                currentLevel = level;
+                showLevelTransition(level);
+                initLevel(level);
+                updateLevelSelector();
+            }
+        }
+
+        function updateLevelSelector() {
+            const dots = document.querySelectorAll('.level-dot');
+            dots.forEach((dot, index) => {
+                dot.className = `level-dot ${index + 1 === currentLevel ? 'active' : ''} ${completedLevels[index] ? 'completed' : ''}`;
+            });
+        }
+
+        function showLevelTransition(levelNum) {
+            const transition = document.getElementById('levelTransition');
+            const transitionText = document.getElementById('transitionText');
+            const transitionDifficulty = document.getElementById('transitionDifficulty');
+            const level = levels[levelNum - 1];
+            transitionText.textContent = `Level ${levelNum}`;
+            transitionDifficulty.textContent = level.name;
+            transition.style.display = 'block';
+            setTimeout(() => { transition.style.display = 'none'; }, 1500);
+        }
+
+        function initLevel(levelIndex) {
+            const level = levels[levelIndex - 1];
+            walls = level.walls;
+            numbers = level.numbers.map(num => ({ ...num, color: `hsl(${30 + num.value * 20}, 100%, 65%)` }));
+            player = { x: 1, y: 1 };
+            gameRunning = true;
+            totalNumbersInLevel = numbers.length;
+            collectedCount = 0;
+            document.getElementById('total-numbers').textContent = totalNumbersInLevel;
+            document.getElementById('collected').textContent = collectedCount;
+            document.getElementById('level').innerHTML = `Level ${levelIndex} <span class="difficulty-badge">${level.name}</span>`;
+            document.getElementById('difficulty').textContent = level.name;
+            document.getElementById('progressFill').style.width = '0%';
+            draw();
+        }
+
+        function draw() {
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#1a0f1f'); gradient.addColorStop(0.5, '#2d1a2d'); gradient.addColorStop(1, '#1a0f1f');
+            ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i <= cols; i++) {
+                ctx.beginPath(); ctx.strokeStyle = i % 5 === 0 ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 105, 180, 0.1)';
+                ctx.moveTo(i * cellSize, 0); ctx.lineTo(i * cellSize, canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i * cellSize); ctx.lineTo(canvas.width, i * cellSize); ctx.stroke();
+            }
+            const level = levels[currentLevel - 1];
+            walls.forEach(wall => {
+                const g = ctx.createRadialGradient(wall.x * cellSize + cellSize/2, wall.y * cellSize + cellSize/2, 5, wall.x * cellSize + cellSize/2, wall.y * cellSize + cellSize/2, cellSize/2);
+                g.addColorStop(0, level.color); g.addColorStop(1, '#ff69b4');
+                ctx.fillStyle = g; ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 10;
+                ctx.fillRect(wall.x * cellSize + 2, wall.y * cellSize + 2, cellSize - 4, cellSize - 4);
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.fillRect(wall.x * cellSize + 5, wall.y * cellSize + 5, 3, 3);
+                ctx.fillRect(wall.x * cellSize + cellSize - 10, wall.y * cellSize + cellSize - 10, 3, 3);
+            });
+            numbers.forEach(num => {
+                ctx.shadowColor = num.color; ctx.shadowBlur = 25;
+                ctx.fillStyle = num.color;
+                ctx.beginPath(); ctx.arc(num.x * cellSize + cellSize/2, num.y * cellSize + cellSize/2, cellSize/3, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 35; ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.beginPath(); ctx.arc(num.x * cellSize + cellSize/2 - 3, num.y * cellSize + cellSize/2 - 3, cellSize/6, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 0; ctx.fillStyle = '#0f0f1f';
+                ctx.font = 'bold ' + (cellSize/3) + 'px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(num.value, num.x * cellSize + cellSize/2, num.y * cellSize + cellSize/2);
+            });
+            ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 30;
+            const pg = ctx.createRadialGradient(player.x * cellSize + cellSize/2, player.y * cellSize + cellSize/2, 5, player.x * cellSize + cellSize/2, player.y * cellSize + cellSize/2, cellSize/2);
+            pg.addColorStop(0, '#ffd700'); pg.addColorStop(1, '#ff69b4');
+            ctx.fillStyle = pg;
+            ctx.beginPath(); ctx.arc(player.x * cellSize + cellSize/2, player.y * cellSize + cellSize/2, cellSize/2.5, 0, Math.PI*2); ctx.fill();
+            ctx.shadowBlur = 0; ctx.fillStyle = 'white';
+            ctx.beginPath(); ctx.arc(player.x * cellSize + cellSize/2 - 5, player.y * cellSize + cellSize/2 - 5, 4, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(player.x * cellSize + cellSize/2 + 5, player.y * cellSize + cellSize/2 - 5, 4, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#ff69b4';
+            ctx.beginPath(); ctx.arc(player.x * cellSize + cellSize/2 - 5, player.y * cellSize + cellSize/2 - 5, 2, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(player.x * cellSize + cellSize/2 + 5, player.y * cellSize + cellSize/2 - 5, 2, 0, Math.PI*2); ctx.fill();
+        }
+
+        function isWall(x, y) { return walls.some(w => w.x === x && w.y === y); }
+
+        function movePlayer(dx, dy) {
+            if (!gameRunning) return;
+            const nx = player.x + dx, ny = player.y + dy;
+            if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !isWall(nx, ny)) {
+                player.x = nx; player.y = ny;
+                const idx = numbers.findIndex(n => n.x === player.x && n.y === player.y);
+                if (idx !== -1) {
+                    const val = numbers[idx].value;
+                    score += val * 10; numbers.splice(idx, 1); collectedCount++;
+                    document.getElementById('score').textContent = score;
+                    document.getElementById('collected').textContent = collectedCount;
+                    showMessage(`✨ +${val * 10} points! ✨`, 'success');
+                    document.getElementById('progressFill').style.width = (collectedCount / totalNumbersInLevel) * 100 + '%';
+                    if (numbers.length === 0) levelComplete();
+                }
+                draw();
+            }
+        }
+
+        function levelComplete() {
+            gameRunning = false; completedLevels[currentLevel - 1] = true;
+            showMessage(`🏆 Level ${currentLevel} Complete! 🏆`, 'success');
+            if (currentLevel < levels.length) {
+                ctx.shadowBlur = 50; ctx.fillStyle = 'rgba(255, 215, 0, 0.2)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                setTimeout(() => { currentLevel++; showLevelTransition(currentLevel); initLevel(currentLevel); updateLevelSelector(); }, 1500);
+            } else {
+                showMessage('🎉 CONGRATULATIONS! YOU BEAT ALL 15 LEVELS! 🎉', 'success');
+                ctx.font = 'bold 40px Arial'; ctx.fillStyle = 'rgba(255, 215, 0, 0.8)'; ctx.shadowColor = '#ff69b4'; ctx.shadowBlur = 30;
+                ctx.fillText('VICTORY!', canvas.width/2, canvas.height/2);
+                ctx.font = 'bold 20px Arial'; ctx.fillText('✨ MASTER OF THE MAZE ✨', canvas.width/2, canvas.height/2 + 50);
+            }
+            updateLevelSelector();
+        }
+
+        function resetGame() { currentLevel = 1; score = 0; completedLevels.fill(false); document.getElementById('score').textContent = '0'; showLevelTransition(1); initLevel(1); updateLevelSelector(); }
+        function showMessage(text, type) { const m = document.getElementById('message'); m.textContent = text; m.className = `message ${type}`; setTimeout(() => { m.textContent = ''; m.className = 'message'; }, 2000); }
+
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            const k = e.key.toLowerCase();
+            if (k === 'arrowup' || k === 'w') { movePlayer(0, -1); e.preventDefault(); }
+            else if (k === 'arrowdown' || k === 's') { movePlayer(0, 1); e.preventDefault(); }
+            else if (k === 'arrowleft' || k === 'a') { movePlayer(-1, 0); e.preventDefault(); }
+            else if (k === 'arrowright' || k === 'd') { movePlayer(1, 0); e.preventDefault(); }
+        });
+        window.addEventListener('keydown', (e) => { if (e.key.startsWith('Arrow')) e.preventDefault(); });
+
+        initLevelSelector(); showLevelTransition(1); initLevel(1);
+        window.resetGame = resetGame; window.jumpToLevel = jumpToLevel;
+    </script>
+</body>
+</html>
+
+

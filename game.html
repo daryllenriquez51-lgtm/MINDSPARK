@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animal Memory Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('mindsparkbg.jpg') no-repeat center/cover;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .game-container {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      position: relative;
+    }
+
+    /* Score Circle */
+    .score {
+      position: absolute;
+      top: -50px;
+      left: -60px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: linear-gradient(to bottom, #fff2b0, #ffd75f);
+      border: 6px solid #ffce00;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: #ff6c00;
+      font-weight: bold;
+      font-size: 28px;
+    }
+
+    /* Giraffe + Speech */
+    .giraffe-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .giraffe {
+      width: 180px;
+    }
+
+    .speech-bubble {
+      position: absolute;
+      top: 70px;
+      left: 130px;
+      background: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 14px;
+      border: 2px solid #000;
+      transform: rotate(-5deg);
+    }
+
+    /* Card Grid */
+    .card-board {
+      background: rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: repeat(4, 120px);
+      grid-template-rows: repeat(2, 160px);
+      gap: 20px;
+    }
+
+    /* Card Flip Style */
+    .card {
+      width: 120px;
+      height: 160px;
+      perspective: 1000px;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      cursor: pointer;
+    }
+
+    .card:hover .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      backface-visibility: hidden;
+    }
+
+    .card-back {
+      background: url('Untitled91.png') no-repeat center/cover;
+    }
+
+    .card-front {
+      background: #fff;
+      transform: rotateY(180deg);
+    }
+
+    .card-front img {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      object-fit: contain;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="game-container">
+
+    <div class="score">64</div>
+
+    <!-- Giraffe & Speech -->
+    <div class="giraffe-area">
+      <img src="GIRAFFE (1).png" alt="Giraffe" class="giraffe">
+      <div class="speech-bubble">Help me find<br>my friends!</div>
+    </div>
+
+    <!-- Memory Cards -->
+    <div class="card-board">
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-front"><img src="FROGIE.png" alt="Frog"></div>
+          <div class="card-back"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-front"><img src="ELEPANT.png" alt="Elephant"></div>
+          <div class="card-back"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-front"><img src="panda.png" alt="Panda"></div>
+          <div class="card-back"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-front"><img src="FROGIE.png" alt="Frog"></div>
+          <div class="card-back"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-front"><img src="LEON.png" alt="Lion"></div>
+          <div class="card-back"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-front"><img src="panda.png" alt="Panda"></div>
+          <div class="card-back"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-front"><img src="ELEPANT.png" alt="Elephant"></div>
+          <div class="card-back"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-front"><img src="LEON.png" alt="Lion"></div>
+          <div class="card-back"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+

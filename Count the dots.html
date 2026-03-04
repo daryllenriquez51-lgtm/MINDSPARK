@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Count the Dots · back button outside</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --blue:#4e73a1;
+  --panel:rgba(255,255,255,.75);
+}
+
+*{
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(180deg,#9ecbff 0%,#dff1ff 100%);
+  position:relative; /* to allow absolute positioning of button relative to viewport */
+}
+
+/* back button: pure white circle, placed OUTSIDE the game panel (on background) */
+.back-home {
+  position:absolute;   /* relative to body */
+  top:25px;            /* distance from top edge */
+  left:25px;           /* distance from left edge */
+  width:52px;
+  height:52px;
+  background:white;
+  border-radius:50%;   /* perfect circle */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 5px 12px rgba(0,0,0,0.15);
+  text-decoration:none;
+  color:#2f4b73;       /* darker arrow for contrast */
+  font-size:32px;
+  font-weight:500;
+  line-height:1;
+  z-index:20;          /* stay above everything */
+  transition:background 0.2s, transform 0.1s;
+  border:2px solid rgba(255,255,255,0.8); /* subtle definition */
+}
+
+.back-home:hover {
+  background:#eef5ff;
+  transform:scale(1.05);
+  box-shadow:0 8px 16px rgba(0,0,0,0.2);
+}
+
+/* left arrow – simple and bold */
+.back-home span {
+  transform:translateX(-1px);
+}
+
+.game{
+  width:900px;
+  max-width:95%;
+  padding:30px;
+  border-radius:25px;
+  background:var(--panel);
+  box-shadow:0 20px 40px rgba(0,0,0,.15);
+  text-align:center;
+  /* no relative positioning needed, button is outside */
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  /* no left margin needed now, button is completely outside */
+}
+
+.score{
+  background:#fff;
+  padding:10px 25px;
+  border-radius:20px;
+  color:#4e73a1;
+  font-weight:700;
+}
+
+.buttons button{
+  margin-left:10px;
+  border:none;
+  border-radius:20px;
+  padding:10px 20px;
+  font-weight:600;
+  cursor:pointer;
+  background:#e9f2ff;
+  color:#4e73a1;
+}
+
+h1{
+  margin:20px 0;
+  color:#4e73a1;
+}
+
+.dots-wrap{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:30px;
+  margin:25px 0;
+}
+
+.dot-box{
+  width:280px;
+  height:100px;
+  background:#fff;
+  border-radius:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+  padding:0 10px;
+}
+
+.dot{
+  width:20px;
+  height:20px;
+  background:#3c5c87;
+  border-radius:50%;
+  flex-shrink:0;
+}
+
+.divide{
+  font-size:42px;
+  font-weight:700;
+  color:#3c5c87;
+}
+
+.instruction{
+  color:#5c7aa5;
+  margin-bottom:20px;
+}
+
+.numbers{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:10px;
+  max-width:350px;
+  margin:0 auto;
+}
+
+.numbers button{
+  padding:15px 0;
+  border-radius:12px;
+  border:2px solid #d8e7ff;
+  background:#fff;
+  font-size:18px;
+  font-weight:600;
+  color:#4e73a1;
+  cursor:pointer;
+}
+
+.numbers button:hover{
+  background:#edf4ff;
+}
+</style>
+</head>
+
+<body>
+
+  <!-- back button: placed on background, outside rounded game panel -->
+  <a href="Count%20The%20Dots%20Homepage.html" class="back-home">
+    <span>←</span>
+  </a>
+
+  <div class="game">
+
+    <div class="top">
+      <div class="score">Score: <span id="score">0</span></div>
+      <div class="buttons">
+        <button onclick="next()">⏭ Skip</button>
+        <button onclick="alert('Count all dots on both sides')">💡 Hint</button>
+      </div>
+    </div>
+
+    <h1>Count the Dots</h1>
+
+    <div class="dots-wrap">
+      <div class="dot-box" id="left"></div>
+      <div class="divide">=</div>
+      <div class="dot-box" id="right"></div>
+    </div>
+
+    <div class="instruction">
+      Determine the number of dots and select a number below to answer.
+    </div>
+
+    <div class="numbers" id="numbers"></div>
+
+  </div>
+
+<script>
+let score = 0;
+let answer = 0;
+
+function generateDots(){
+  const left = document.getElementById('left');
+  const right = document.getElementById('right');
+  left.innerHTML='';
+  right.innerHTML='';
+
+  const a = Math.floor(Math.random()*6)+1;
+  const b = Math.floor(Math.random()*6)+1;
+  answer = a + b;
+
+  for(let i=0;i<a;i++){
+    left.innerHTML += '<div class="dot"></div>';
+  }
+  for(let i=0;i<b;i++){
+    right.innerHTML += '<div class="dot"></div>';
+  }
+}
+
+function createButtons(){
+  const wrap = document.getElementById('numbers');
+  wrap.innerHTML='';
+  for(let i=1;i<=12;i++){
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.onclick = ()=>check(i);
+    wrap.appendChild(btn);
+  }
+}
+
+function check(val){
+  if(val === answer){
+    score++;
+    document.getElementById('score').textContent = score;
+  }
+  next();
+}
+
+function next(){
+  generateDots();
+}
+
+createButtons();
+generateDots();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,408 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Me Find My Friends · back button</title>
+
+<style>
+:root{
+  --bg:#c89a62;
+  --board:#e7d6c6;
+  --card:#e9a36c;
+  --accent:#ffd966;
+  --text:#4b2e1e;
+}
+
+*{
+  box-sizing:border-box;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html{
+  background-image:url('matchingbg.jpg');
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+}
+
+body{
+  margin:0;
+  font-family: "Comic Sans MS", system-ui, sans-serif;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  min-height:100vh;
+  color:var(--text);
+  overflow:hidden;
+  position:relative; /* for absolute back button */
+}
+
+/* ===== BACK BUTTON – white circle, top left ===== */
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 58px;
+  height: 58px;
+  background-color: white;
+  border-radius: 50%;      /* perfectly round */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  z-index: 200;            /* above everything */
+  border: 2px solid #f0f0f0;
+  text-decoration: none;   /* if we use <a> we remove underline */
+}
+
+.back-button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+.back-button:active {
+  transform: scale(0.97);
+}
+
+/* simple arrow – bigger and bold */
+.back-arrow {
+  font-size: 40px;
+  font-weight: bold;
+  color: #4b2e1e;         /* dark brown matches text */
+  line-height: 1;
+  margin-top: -4px;       /* fine-tune vertical */
+  font-family: 'Segoe UI', 'Comic Sans MS', sans-serif;
+}
+
+/* ===== GAME WRAPPER ===== */
+.game{
+  width:100%;
+  max-width:1200px;
+  padding:16px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:20px;
+}
+
+/* ===== LEFT PANEL ===== */
+.left{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+
+/* COIN */
+.coin{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  background:radial-gradient(circle,#ffe88a,#f4b400);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  font-weight:bold;
+  color:white;
+  box-shadow:0 6px 0 #c18a00;
+}
+
+/* GIRAFFE */
+.giraffe{
+  position:relative;
+  width: 120px;
+}
+
+.giraffe img{
+  width:100%;
+}
+
+.speech{
+  position:absolute;
+  top:-10px;
+  right:-18px;
+  background:white;
+  padding:10px 14px;
+  border-radius:12px;
+  font-size:14px;
+  box-shadow:0 3px 0 #ccc;
+}
+
+.speech::after{
+  content:"";
+  position:absolute;
+  bottom:-10px;
+  left:18px;
+  border:10px solid transparent;
+  border-top-color:white;
+}
+
+/* ===== BOARD ===== */
+.board{
+  background:rgba(255,255,255,0.4);
+  padding:18px;
+  border-radius:22px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+/* ===== CARD ===== */
+.card{
+  background:var(--card);
+  border-radius:16px;
+  height: 300px;
+  perspective:800px;
+  cursor:pointer;
+}
+
+.card-inner{
+  width:100%;
+  height:100%;
+  position:relative;
+  transition:transform 0.4s ease;
+  transform-style:preserve-3d;
+}
+
+.card.flipped .card-inner{
+  transform:rotateY(180deg);
+}
+
+.card-face{
+  position:absolute;
+  width:100%;
+  height:100%;
+  border-radius:16px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  backface-visibility:hidden;
+}
+
+.card-front{
+  background-image:url('CARD.png');
+  background-size:150%;
+  background-position:center;
+}
+
+.card-back{
+  background:#fff;
+  transform:rotateY(180deg);
+}
+
+.card-back img{
+  width:120%;
+}
+
+/* ===== MATCHED ===== */
+.card.matched{
+  opacity:0.6;
+  pointer-events:none;
+}
+
+.card.matched img[src*="LEON.png"]{
+  opacity:1;
+}
+
+/* ===== UPPER GIRAFFE ===== */
+.upper-giraffe{
+  position:absolute;
+  bottom:0px;
+  left:20px;
+  width:330px;
+  z-index:10;
+}
+
+.upper-giraffe img{
+  width:100%;
+  animation: wiggle 3s ease-in-out infinite;
+}
+
+.chatbox{
+  position:absolute;
+  top:-40px;
+  right: -70px;
+  width: 160px;
+  z-index:11;
+  animation: float 2s ease-in-out infinite;
+}
+
+.chatbox img{
+  width:100%;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+/* ===== YEY POPUP ===== */
+.yey-popup{
+  position:fixed;
+  top:50%;
+  left: 50%;
+  transform:translate(-50%, -50%) translateY(50px) scale(0);
+  width: 1px;
+  z-index:20;
+  opacity:0;
+  transition:opacity 0.2s ease, transform 0.2s ease;
+}
+
+.yey-popup.show{
+  opacity:1;
+  transform:translate(-50%, -50%) translateY(0) scale(1);
+}
+
+.yey-popup img{
+  width: 200px;
+  height:auto;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .game{
+    grid-template-columns:1fr;
+  }
+  .left{
+    flex-direction:row;
+    justify-content:space-between;
+  }
+  .board{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- BACK BUTTON – white circle, hard link to file (will work on your PC) -->
+<a href="Matching%20Type%20Homepage.html" class="back-button" title="Go to homepage">
+  <span class="back-arrow">←</span>
+</a>
+
+<div class="upper-giraffe">
+  <img src="GIRAFFE (1).png" alt="Giraffe">
+  <div class="chatbox">
+    <img src="FINDFRIENDS.png" alt="Chatbox">
+  </div>
+</div>
+
+<!-- YEY Popup -->
+<div id="yey-popup" class="yey-popup">
+  <img src="YEY.png" alt="Yey!">
+</div>
+
+<div class="game">
+
+  <!-- LEFT SIDE -->
+  <div class="left">
+    <div class="coin" id="score">0</div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="board" id="board"></div>
+
+</div>
+
+<script>
+/* ===== ADHD FRIENDLY LOGIC ===== */
+
+// Replace images with your own animals
+const images = [
+  "FROGIE.png", // frogie
+  "ELEPANT.png", // elepant
+  "PANDA.png", // panda
+  "LEON.png"  // leon
+];
+
+// duplicate & shuffle
+let cardsData = [...images, ...images]
+  .sort(() => Math.random() - 0.5);
+
+const board = document.getElementById("board");
+const scoreEl = document.getElementById("score");
+
+let first = null;
+let second = null;
+let lock = false;
+let score = 0;
+
+cardsData.forEach(img => {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  card.innerHTML = `
+    <div class="card-inner">
+      <div class="card-face card-front"></div>
+      <div class="card-face card-back">
+        <img src="${img}">
+      </div>
+    </div>
+  `;
+
+  card.addEventListener("click", () => {
+    if(lock || card === first || card.classList.contains("matched")) return;
+
+    card.classList.add("flipped");
+
+    if(!first){
+      first = card;
+      return;
+    }
+
+    second = card;
+    lock = true;
+
+    const img1 = first.querySelector("img").src;
+    const img2 = second.querySelector("img").src;
+
+    if(img1 === img2){
+      first.classList.add("matched");
+      second.classList.add("matched");
+      score += 10;
+      scoreEl.textContent = score;
+
+      // Show YEY popup
+      const yeyPopup = document.getElementById("yey-popup");
+      yeyPopup.classList.add("show");
+      setTimeout(() => {
+        yeyPopup.classList.remove("show");
+      }, 2000);
+
+      resetTurn();
+    } else {
+      setTimeout(() => {
+        first.classList.remove("flipped");
+        second.classList.remove("flipped");
+        resetTurn();
+      }, 700); // gentle delay
+    }
+  });
+
+  board.appendChild(card);
+});
+
+function resetTurn(){
+  [first, second] = [null, null];
+  lock = false;
+}
+</script>
+
+<!-- tiny extra safety: if user clicks on the link, it will try to open the local file. 
+     The file path is exactly as you requested. -->
+</body>
+</html>
+
+
+

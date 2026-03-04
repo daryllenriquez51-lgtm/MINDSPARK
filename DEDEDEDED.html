@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Equivalence Unlock UI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family: "Comic Sans MS", Arial, sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f3f3f3;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.canvas{
+  width:1200px;
+  height:600px;
+  background: linear-gradient(135deg,#fff1b6,#ffe0a3);
+  border-radius:24px;
+  padding:30px;
+}
+
+/* TOP BAR */
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.user{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.avatar{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+}
+
+.user-info b{ font-size:20px; }
+.user-info small{
+  display:block;
+  font-size:14px;
+  opacity:.7;
+}
+
+.fire{
+  background:#ff914d;
+  color:#fff;
+  padding:10px 16px;
+  border-radius:30px;
+  font-weight:bold;
+}
+
+/* MAIN */
+.content{
+  display:flex;
+  gap:30px;
+  height:480px;
+}
+
+/* LEFT */
+.recommend{
+  flex:1;
+  background:linear-gradient(160deg,#9bd4ff,#7b6cf6);
+  border-radius:30px;
+  padding:40px;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+.recommend .logo-top{
+  width:80px; 
+  height:80px;
+  margin-bottom:15px;
+  object-fit:contain;
+}
+
+.brain{
+  width:120px;
+  height:120px;
+  border-radius:24px;
+  background:rgba(255,255,255,.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:60px;
+  margin-bottom:20px;
+}
+
+.recommend h1{
+  font-size:40px;
+  margin:0;
+  letter-spacing:2px;
+  font-family:"Arial Rounded MT Bold", Arial, sans-serif;
+}
+
+.recommend p{
+  margin-top:12px;
+  font-size:18px;
+  opacity:.9;
+}
+
+/* RIGHT */
+.right{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+/* SLOT BASE */
+.slot{
+  flex:1;
+  border:none;
+  border-radius:26px;
+  font-size:28px;
+  font-weight:bold;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* LOCKED */
+.slot.locked{
+  background:linear-gradient(135deg,#444,#222);
+  color:#bbb;
+  opacity:.45;
+  cursor:not-allowed;
+  box-shadow: inset 0 0 20px rgba(0,0,0,.5);
+}
+
+.slot.locked::after{
+  content:"🔒";
+  position:absolute;
+  bottom:18px;
+  right:22px;
+  font-size:28px;
+  animation: lockPulse 1.5s infinite;
+}
+
+@keyframes lockPulse{
+  0%,100%{ transform:scale(1); opacity:.7; }
+  50%{ transform:scale(1.15); opacity:1; }
+}
+
+/* UNLOCKED */
+.slot.unlocked{
+  background:linear-gradient(135deg,#6c63ff,#3f3bd9);
+  color:#fff;
+  cursor:pointer;
+  animation: unlockPop .6s ease forwards;
+  box-shadow:0 6px 14px rgba(0,0,0,.25);
+}
+
+@keyframes unlockPop{
+  0%{ transform:scale(.8); opacity:0; }
+  60%{ transform:scale(1.08); opacity:1; }
+  100%{ transform:scale(1); }
+}
+
+.slot.unlocked:hover{
+  transform:scale(1.05);
+  box-shadow:0 14px 30px rgba(0,0,0,.35);
+}
+
+.slot img{
+  width:30px;
+  height:30px;
+  object-fit:contain;
+}
+</style>
+</head>
+
+<body>
+
+<div class="canvas">
+
+  <div class="top">
+    <div class="user">
+      <div class="avatar">👤</div>
+      <div class="user-info">
+        <b>ELIEZA</b>
+        <small id="levelText">LEVEL 5</small>
+      </div>
+    </div>
+    <div class="fire">🔥 3</div>
+  </div>
+
+  <div class="content">
+
+    <!-- LEFT CARD -->
+    <div class="recommend">
+      <!-- LOGO IMAGE AT TOP -->
+      <img src="MINDSPARKLOGO.png" alt="Logo" class="logo-top">
+      <h1>RECOMMEND</h1>
+      <p>Personalized to you</p>
+    </div>
+
+    <!-- RIGHT SLOTS -->
+    <div class="right">
+      <button class="slot locked" data-level="3">
+        <img src="MINDSPARKLOGO.png" alt="Logo">
+        EQUIVALENCE
+      </button>
+
+      <button class="slot locked" data-level="6">?</button>
+      <button class="slot locked" data-level="8">?</button>
+      <button class="slot locked" data-level="10">?</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ===== LEVEL PROGRESS ===== */
+const currentLevel = 5; // Change to test progress
+
+document.getElementById("levelText").textContent = "LEVEL " + currentLevel;
+
+document.querySelectorAll(".slot").forEach(slot => {
+  const requiredLevel = parseInt(slot.dataset.level);
+  if(currentLevel >= requiredLevel){
+    slot.classList.remove("locked");
+    slot.classList.add("unlocked");
+  }
+});
+</script>
+
+</body>
+</html>
+
+

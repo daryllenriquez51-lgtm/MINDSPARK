@@ -1,0 +1,2059 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motive Learning Program + Learning Challenges</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      overflow-y: auto;
+      padding: 20px 0;
+
+      /* Background Image */
+      background-image: url('colorfulwww.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .main-container {
+      width: 90%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    /* ----- Motive Learning Program Styles ----- */
+    .program-container {
+      background: rgba(255,255,255,0.5);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .streak-display {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      background-image: url('STREAKICON.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: 2px 3px;
+      border-radius: 10px;
+    }
+
+    .streak-display i {
+      font-size: 24px;
+      animation: flicker 1.5s ease-in-out infinite alternate;
+      text-shadow: 0 0 5px #ff4500, 0 0 10px #ff4500, 0 0 15px #ff4500;
+    }
+
+    #streak-count {
+      color: yellow;
+      text-shadow: 0 0 3px #ff4500;
+    }
+
+    @keyframes flicker {
+      0% { color: #ff6b4a; transform: scale(1); }
+      50% { color: #ff4500; transform: scale(1.1); }
+      100% { color: #ff6b4a; transform: scale(1); }
+    }
+
+    .profile {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .profile h2 {
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .profile-icon {
+      font-size: 16px;
+      color: #333;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* New Motive for Today Box */
+    .motive-container {
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .motive-container h1 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4a5a7c;
+      text-shadow: 2px 2px 0px #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .quote-box {
+      background: linear-gradient(to right, #fdfdfd, #f1f5ff);
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #354259;
+      box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+
+    .motive-container:hover .quote-box {
+      background: linear-gradient(to right, #e0f1ff, #c7e6ff);
+      transform: translateY(-3px);
+      box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .motive-container:active .quote-box {
+      transform: translateY(1px);
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ----- Featured Activities ----- */
+    .featured {
+      margin-bottom: 20px;
+    }
+
+    .featured h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .activities {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .card {
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .recommend {
+      background: linear-gradient(to bottom, #c2d2ff, #b9a3ff);
+    }
+
+    .vocabulary {
+      background: linear-gradient(to bottom, #e9ba73, #ff9823);
+    }
+
+    .focus {
+      background: linear-gradient(to bottom, #91f1c4, #68c485);
+    }
+
+    .card button {
+      margin-top: 20px;
+      padding: 10px 30px;
+      background: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .card button:hover {
+      background: #f4f4f4;
+    }
+
+    .vocabulary .btn {
+      background: #f0c78a;
+    }
+
+    .vocabulary .btn:hover {
+      background: #f5d4a0;
+    }
+
+    .focus .btn {
+      background: #a8e6c9;
+    }
+
+    .focus .btn:hover {
+      background: #b8f0d5;
+    }
+
+    /* anchor styled like the START button */
+    .card .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 30px;
+      background: white;
+      color: #222;
+      text-decoration: none;
+      border-radius: 20px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .card .btn:hover { background: #f4f4f4; }
+
+    /* ----- Recent Games ----- */
+    .recent {
+      margin-top: 20px;
+    }
+
+    .recent h3 {
+      margin-bottom: 10px;
+    }
+
+    /* Flip Card Container */
+    .recent-games {
+      display: flex;
+      justify-content: flex-start;
+      gap: 20px;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+
+
+    /* Flip Card */
+    .recent-game {
+      background: transparent;
+      width: 100%;
+      max-width: 450px;
+      height: 220px;
+      perspective: 1000px;
+      cursor: pointer;
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .recent-game-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+
+    .recent-game:hover .recent-game-inner {
+      transform: rotateY(180deg);
+    }
+
+    /* Front and Back */
+    .recent-game-front, .recent-game-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+      font-weight: bold;
+      color: white;
+      font-size: 16px;
+    }
+
+    /* Front side */
+    .recent-game-front {
+      background: transparent;
+      padding: 0;
+    }
+
+    .recent-game-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+    }
+
+/* Sliding panel wrapper */
+.recent-panel {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.6s ease;
+}
+
+/* When opened */
+.recent-panel.open {
+  max-height: 800px; /* enough to show more cards */
+}
+
+/* View more button */
+.view-more-btn {
+  margin: 15px auto 0;
+  display: block;
+  
+}
+    /* Back side */
+    .recent-game-back {
+      background: rgba(229, 255, 99, 0.85);
+      color: rgb(255, 255, 255);
+      transform: rotateY(180deg);
+    }
+
+    .recent-game-front h2 {
+      margin: 10px 0 5px 0;
+    }
+
+    .recent-game-front p {
+      font-size: 14px;
+    }
+
+    .recent-game-front img {
+      margin-bottom: 10px;
+    }
+
+    /* ----- Learning Challenges Styles ----- */
+    .challenges-container {
+      background: rgba(255,255,255,0.5);
+      border-radius: 20px;
+      padding: 30px 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .challenges-container h2 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #2f2f2f;
+    }
+
+    .cards {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card-challenge {
+      width: 200px;
+      height: 330px;
+      border-radius: 20px;
+      color: white;
+      text-align: center;
+      padding: 20px 10px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .card-challenge:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    .card-challenge h3 {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .card-challenge p {
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    
+    .adhd {
+      background: linear-gradient(to bottom, #f59a1b, #c35f02);
+    }
+
+    .dyslexia {
+      background: linear-gradient(to bottom, #c6f68e, #a0d36a);
+    }
+
+    .dyscalculia {
+      background: linear-gradient(to bottom, #8ecbff, #5899ff);
+    }
+
+    .dysgraphia {
+      background: linear-gradient(to bottom, #6679ff, #273d8f);
+    }
+
+    .card-challenge img {
+      width: 80px;
+      height: auto;
+      margin: 20px auto;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+      z-index: 10000;
+    }
+
+    .back-btn:hover {
+      background: #fff;
+      transform: scale(1.1);
+    }
+
+    .reminder-icon {
+      width: 300x;
+      height: 300px;
+    }
+
+    /* Cool Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bounceIn {
+      0% { opacity: 0; transform: scale(0.3); }
+      50% { opacity: 1; transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+
+
+    .program-container {
+      animation: slideInLeft 1s ease-out 0.3s both;
+    }
+
+    .card {
+      animation: scaleIn 0.8s ease-out both;
+    }
+
+    .card:nth-child(1) { animation-delay: 0.5s; }
+    .card:nth-child(2) { animation-delay: 0.7s; }
+    .card:nth-child(3) { animation-delay: 0.9s; }
+
+    .recent-game {
+      animation: bounceIn 1s ease-out both;
+    }
+
+    .recent-game:nth-child(1) { animation-delay: 1.1s; }
+    .recent-game:nth-child(2) { animation-delay: 1.3s; }
+    .recent-game:nth-child(3) { animation-delay: 1.5s; }
+
+    .challenges-container {
+      animation: fadeInUp 1s ease-out 1.7s both;
+    }
+
+    .card-challenge {
+      animation: bounceIn 1s ease-out both;
+    }
+
+    .card-challenge:nth-child(1) { animation-delay: 2s; }
+    .card-challenge:nth-child(2) { animation-delay: 2.2s; }
+    .card-challenge:nth-child(3) { animation-delay: 2.4s; }
+    .card-challenge:nth-child(4) { animation-delay: 2.6s; }
+
+    .btn, .add-task-btn {
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+
+    <!-- Motive Learning Program -->
+    <div class="program-container">
+      <div class="header">
+        <div class="profile">
+          <h2 id="username-display"><i class='bx bx-user-circle profile-icon'></i> ELIEZA</h2>
+          <span>STUDENT</span>
+        </div>
+
+        <!-- Updated Motive for Today -->
+        <div class="motive-container">
+          <h1>MOTIVE FOR TODAY</h1>
+          <div class="quote-box">
+            "SMALL STEPS EVERY DAY BUILD GIANT DREAMS"
+          </div>
+        </div>
+
+        <!-- Daily Login Streak Display -->
+        <div class="streak-display">
+          <i class="bx bx-flame"></i>
+          <span id="streak-count">0</span>
+          <i class="bx bx-flame"></i>
+        </div>
+      </div>
+
+      <div class="featured">
+        <h3>FEATURED ACTIVITIES</h3>
+        <div class="activities">
+          <div class="card recommend">
+            <img src="Recommend.png" width="200" height="200" alt="Recommend Icon">
+            <h2>RECOMMEND</h2>
+            <p>Personalized to you</p>
+            <a class="btn start-btn" href="Recommend.html">START</a>
+          </div>
+          <div class="card vocabulary">
+            <img src="Vocab.png" width="170" height="200" alt="Vocab Icon">
+            <p>Learn new words</p>
+            <h2>VOCABULARY</h2>
+            <a class="btn preview-btn" href="Vocab preview.html">PREVIEW</a>
+          </div>
+<div class="card focus">
+            <img src="FOCUS%20(1).png" width="280" height="200" alt="Focus Icon">
+            <p>Great for ADHD</p>
+            <h2>FOCUS</h2>
+<a class="btn preview-btn" href="Focus preview.html">PREVIEW</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="recent">
+        <h3>LEARNING CATEGORIES</h3>
+        <div class="recent-games">
+          <div class="recent-game">
+            <div class="recent-game-inner">
+              <div class="recent-game-front">
+                <img src="QUICK.jpg" style="background-size: cover; background-position: center; background-repeat: no-repeat;" alt="Quick Game"> 
+              </div>
+              <div class="recent-game-back" style="padding: 0;">
+                <img src="QUICKback.jpg" alt="Quick Back" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+              </div>
+            </div>
+          </div>
+          <div class="recent-game">
+            <div class="recent-game-inner">
+              <div class="recent-game-front memory">
+                <img src="MEMORY.jpg" width="100" height="100" alt="Memory Game">
+              </div>
+              <div class="recent-game-back" style="padding: 0;">
+                <img src="MEMORYback.jpg" alt="Memory Back" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+              </div>
+            </div>
+          </div>
+          <div class="recent-game">
+            <div class="recent-game-inner">
+              <div class="recent-game-front math">
+                <img src="MATH.jpg" width="125" height="100" alt="Math Game">
+              </div>
+              <div class="recent-game-back" style="padding: 0;">
+                <img src="MATHback.jpg" alt="Math Back" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Learning Challenges -->
+    <div class="challenges-container">
+      <h2>LEARNING CHALLENGES</h2>
+      <div class="cards">
+        <a href="#" class="card-challenge adhd">
+          <h3>ADHD</h3>
+          <img src="adhd.png" width="279" height="80" alt="ADHD Icon">
+          <p style="color:#ff7a00;">.</p>
+        </a>
+        <a href="#" class="card-challenge dyslexia">
+          <h3>DYSLEXIA</h3>
+          <img src="Dyslexiaaa.png" width="125" height="100" alt="Dyslexia Icon">
+          <p style="color:#aacc6b;">.</p>
+        </a>
+        <a href="#" class="card-challenge dyscalculia">
+          <h3>DYSCALCULIA</h3>
+          <img src="dyscalculiaa.png" width="125" height="100" alt="Dyscalculia Icon">
+          <p style="color:#6e9df5;">.</p>
+        </a>
+        <a href="#" class="card-challenge dysgraphia">
+          <h3>DYSGRAPHIA</h3>
+          <img src="dysgraphia.png" width="125" height="100" alt="Dysgraphia Icon">
+          <p style="color:#304477;">.</p>
+        </a>
+      </div>
+    </div>
+  </div>
+
+<!-- ===== ADHD SPA FADE TRANSITION (Left Card with Icon) ===== -->
+<style>
+  /* Fullscreen ADHD page */
+  .adhd-page, .dyslexia-page, .dyscalculia-page, .dysgraphia-page {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, #ffe9b3 0%, #ffd88c 100%);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.05);
+    transition: opacity 0.5s ease, transform 0.6s ease;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px;
+  }
+
+  .adhd-page.active, .dyslexia-page.active, .dyscalculia-page.active, .dysgraphia-page.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  .adhd-container, .dyslexia-container, .dyscalculia-container, .dysgraphia-container {
+    width: 100%;
+    max-width: 1250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeUp 0.7s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .adhd-title, .dyslexia-title, .dyscalculia-title, .dysgraphia-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #333;
+    text-align: center;
+  }
+
+  /* Card layout */
+  .adhd-cards, .dyslexia-cards, .dyscalculia-cards, .dysgraphia-cards {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    height: 550px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  }
+
+  .adhd-card, .dyslexia-card, .dyscalculia-card, .dysgraphia-card {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 22px;
+    cursor: pointer;
+    position: relative;
+    transition: flex 0.5s ease;
+    overflow: hidden;
+    color: #333;
+  }
+
+  .adhd-card.active, .dyslexia-card.active, .dyscalculia-card.active, .dysgraphia-card.active { 
+    flex: 3; 
+  }
+
+  .adhd-card-content, .dyslexia-card-content, .dyscalculia-card-content, .dysgraphia-card-content {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .adhd-card.active .adhd-card-content, .dyslexia-card.active .dyslexia-card-content, 
+  .dyscalculia-card.active .dyscalculia-card-content, .dysgraphia-card.active .dysgraphia-card-content { 
+    opacity: 1; 
+  }
+
+  .adhd-card .label, .dyslexia-card .label, .dyscalculia-card .label, .dysgraphia-card .label {
+    position: absolute;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 22px;
+    font-weight: bold;
+    transition: opacity 0.3s;
+  }
+
+  .adhd-card.active .label, .dyslexia-card.active .label, 
+  .dyscalculia-card.active .label, .dysgraphia-card.active .label { 
+    opacity: 0; 
+  }
+
+  /* ADHD main card (left) */
+  .adhd-card.adhd, .dyslexia-card.dyslexia, .dyscalculia-card.dyscalculia, .dysgraphia-card.dysgraphia {
+    background: linear-gradient(180deg, #ffb84d, #f9a94a);
+    color: #fff;
+    flex: 2;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .adhd-card.adhd h1, .dyslexia-card.dyslexia h1, .dyscalculia-card.dyscalculia h1, .dysgraphia-card.dysgraphia h1 {
+    font-size: 60px;
+    font-weight: 900;
+    letter-spacing: 2px;
+  }
+
+  .adhd-card.adhd img, .dyslexia-card.dyslexia img, .dyscalculia-card.dyscalculia img, .dysgraphia-card.dysgraphia img {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+  }
+
+  /* Other cards */
+  .adhd-card.definition, .dyslexia-card.definition, .dyscalculia-card.definition, .dysgraphia-card.definition { background: linear-gradient(180deg, #f6bf6d, #fdb865); }
+  .adhd-card.games, .dyslexia-card.games, .dyscalculia-card.games, .dysgraphia-card.games { background: linear-gradient(180deg, #fbcb84, #fcc685); }
+  .adhd-card.reminders, .dyslexia-card.reminders, .dyscalculia-card.reminders, .dysgraphia-card.reminders { background: linear-gradient(180deg, #ffe1b4, #ffdaad); }
+
+  .add-task-btn {
+    display: inline-block;
+    background-color: #f4ffcf;
+    color: #e8da49;
+    padding: 14px 46px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 2px;
+    border: 2px solid #f2f4ed;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+    transition: 0.2s ease;
+    cursor: pointer;
+  }
+
+  .add-task-btn:hover {
+    background-color: #eaffb0;
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+  }
+
+</style>
+
+<!-- ADHD EXPANDED PAGE -->
+<div class="adhd-page" id="adhdPage">
+  <button type="button" class="back-btn" onclick="closeADHDPage()" aria-label="Back">&larr;</button>
+  <div class="adhd-container">
+    <div class="adhd-title">LEARNING CHALLENGE: ADHD</div>
+
+    <div class="adhd-cards">
+      <!-- ADHD card on LEFT with icon -->
+      <div class="adhd-card adhd">
+        <h1>ADHD</h1>
+        <img src="Adhd.png" alt="ADHD Icon" width="180" height="180">
+      </div>
+
+      <!-- Definition -->
+      <div class="adhd-card definition" onclick="toggleADHDCard(this)">
+        <div class="label">DEFINITION</div>
+        <div class="adhd-card-content" style="color:#6b4b1e; text-align: left; max-width: 90%; line-height: 1.6;">
+          <h2 style="font-size: 30px; font-weight: 900; margin-bottom: 10px; color:#6b4b1e;">
+            WHAT IS ADHD?
+          </h2>
+          <p style="font-weight:700; margin-bottom: 10px;">
+            (Attention-Deficit/Hyperactivity Disorder)
+          </p>
+          <p style="font-size: 17px; margin-bottom: 15px;">
+            is a neurodevelopmental condition marked by excessive and widespread symptoms of
+            inattention, hyperactivity, impulsivity, and emotional dysregulation.
+            These symptoms can significantly impair functioning across various settings
+            and are not suitable for the individual's developmental stage.
+          </p>
+          <p style="font-size: 16px; margin-bottom: 15px;">
+            Approximately 8% of children and adolescents worldwide are estimated to have ADHD.
+          </p>
+          <h3 style="font-weight: 900; font-size: 22px; text-align:center; color:#c16b1a;">
+            YOU ARE NOT ALONE!
+          </h3>
+        </div>
+      </div>
+
+      <!-- Games -->
+      <div class="adhd-card games" onclick="toggleADHDCard(this)">
+        <div class="label">GAMES</div>
+        <div class="adhd-card-content" 
+             style="display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; padding: 40px 0;">
+
+          <!-- PUZZLES -->
+          <a href="Puzzle Homepage.html" target="_blank"
+             style="background: url('puzzlee.png') center/cover no-repeat; 
+                    width: 80%; height: 90px; border-radius: 15px; 
+                    display: flex; justify-content: center; align-items: center; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a; 
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              PUZZLES
+            </span>
+          </a>
+
+          <!-- MIND MATCH -->
+          <a href="Matching Type Homepage.html" target="_blank"
+             style="background: url('MindMatch.png') center/cover no-repeat; 
+                    width: 80%; height: 90px; border-radius: 15px; 
+                    display: flex; justify-content: center; align-items: center; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a; 
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              MIND MATCH
+            </span>
+          </a>
+
+          <!-- TETRIS -->
+          <a href="Tetris Homepage.html" target="_blank"
+             style="background: url('ColorConnect.png') center/cover no-repeat; 
+                    width: 80%; height: 90px; border-radius: 15px; 
+                    display: flex; justify-content: center; align-items: center; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a; 
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              TETRIS
+            </span>
+          </a>
+
+        </div>
+      </div>    
+
+      <!-- Reminders -->
+      <div class="adhd-card reminders" onclick="toggleADHDCard(this)">
+        <div class="label">REMINDERS</div>
+        <div class="adhd-card-content">
+          <div class="reminders-layout">
+            <div class="reminder-content">
+              <img src="sun.png" alt="Sun Icon" class="reminder-icon" />
+              <h2>LET’S ADD A TASK!</h2>
+              <p>Click on the plus button below</p>
+              <a href="Reminders.html" class="add-task-btn">+</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const adhdPage = document.getElementById("adhdPage");
+
+  // Open ADHD section (fade in)
+  document.querySelector(".card-challenge.adhd").addEventListener("click", e => {
+    e.preventDefault();
+    adhdPage.classList.add("active");
+  });
+
+  // Close ADHD section by clicking outside cards
+  adhdPage.addEventListener("click", e => {
+    if (e.target === adhdPage) {
+      adhdPage.classList.remove("active");
+    }
+  });
+
+  // Expand/collapse inner cards
+  function toggleADHDCard(card) {
+    document.querySelectorAll(".adhd-card").forEach(c => {
+      if (c !== card) c.classList.remove("active");
+    });
+    card.classList.toggle("active");
+  }
+
+  function closeADHDPage() {
+    adhdPage.classList.remove("active");
+  }
+</script>
+<!-- ===== ADHD SPA FADE TRANSITION END ===== -->
+ 
+
+<!-- ===== DYSLEXIA SPA FADE TRANSITION (Left Card with Icon) ===== -->
+<!-- Repeat the same structure as ADHD but replace content for Dyslexia -->
+<style>
+  /* Fullscreen Dyslexia page */
+  .dyslexia-page {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, #e4f3a0 0%, #ffffc0 100%);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.05);
+    transition: opacity 0.5s ease, transform 0.6s ease;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px;
+  }
+
+  .dyslexia-page.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  .dyslexia-container {
+    width: 100%;
+    max-width: 1250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeUp 0.7s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .dyslexia-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #333;
+    text-align: center;
+  }
+
+  /* Card layout */
+  .dyslexia-cards {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    height: 550px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  }
+
+  .dyslexia-card {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 22px;
+    cursor: pointer;
+    position: relative;
+    transition: flex 0.5s ease;
+    overflow: hidden;
+    color: #333;
+  }
+
+  .dyslexia-card.active { flex: 3; }
+
+  .dyslexia-card-content {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .dyslexia-card.active .dyslexia-card-content { opacity: 1; }
+
+  .dyslexia-card .label {
+    position: absolute;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 22px;
+    font-weight: bold;
+    transition: opacity 0.3s;
+  }
+
+  .dyslexia-card.active .label { opacity: 0; }
+
+  /* Dyslexia main card (left) */
+  .dyslexia-card.dyslexia {
+    background: linear-gradient(180deg, #aacc6b, #ccf480);
+    color: #fff;
+    flex: 2;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+  }
+  .dyscalculia-card.reminders { 
+  background: linear-gradient(180deg, #a7d0ff, #bbd9ff);  
+  }
+
+
+  .dyslexia-card.dyslexia h1 {
+    font-size: 60px;
+    font-weight: 900;
+    letter-spacing: 2px;
+  }
+
+  .dyslexia-card.dyslexia img {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+  }
+
+  /* Other cards */
+  .dyslexia-card.definition { background: linear-gradient(180deg, #8ca454, #d2f67e); }
+  .dyslexia-card.games { background: linear-gradient(180deg, #a2bd63, #d6f78b); }
+  .dyslexia-card.workouts { background: #cbeb80; color: #888; }
+
+</style>
+
+<!-- DYSLEXIA EXPANDED PAGE -->
+<div class="dyslexia-page" id="dyslexiaPage">
+  <button type="button" class="back-btn" onclick="closeDyslexiaPage()" aria-label="Back">&larr;</button>
+  <div class="dyslexia-container">
+    <div class="dyslexia-title">LEARNING CHALLENGE: DYSLEXIA</div>
+
+    <div class="dyslexia-cards">
+      <!-- Dyslexia card on LEFT with icon -->
+      <div class="dyslexia-card dyslexia">
+        <h1>DYSLEXIA</h1>
+        <img src="Dyslexiaaa.png" alt="Dyslexia Icon">
+      </div>
+
+      <!-- Definition -->
+      <div class="dyslexia-card definition" onclick="toggleDyslexiaCard(this)">
+        <div class="label">DEFINITION</div>
+        <div class="dyslexia-card-content" style="color:#4e5949; text-align: left; max-width: 90%; line-height: 1.6;">
+          <h2 style="font-size: 30px; font-weight: 900; margin-bottom: 10px; color:#434C3F;">
+            WHAT IS DYSLEXIA?
+          </h2>
+          <p style="font-weight:700; margin-bottom: 10px;">
+            (Dyslexia)
+          </p>
+          <p style="font-size: 17px; margin-bottom: 15px;">
+            Dyslexia is a learning disability that disrupts how your brain processes written language. People with dyslexia have trouble with reading and related skills. It’s very treatable, and it doesn’t have to stand in the way of success.
+          </p>
+          <p style="font-size: 16px; margin-bottom: 15px;">
+           Despite these difficulties, many individuals with dyslexia possess strengths in areas such as creativity, problem-solving, and thinking outside the box.
+          </p>
+          <h3 style="font-weight: 900; font-size: 22px; text-align:center; color:#434C3F;">
+           EVERY CHALLENGE IS AN OPPORTUNITY TO GROW!
+          </h3>
+        </div>
+      </div>
+
+      <!-- Games -->
+      <div class="dyslexia-card games" onclick="toggleDyslexiaCard(this)">
+        <div class="label">GAMES</div>
+        <div class="dyslexia-card-content" 
+             style="display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; padding: 40px 0;">
+
+          <!-- 4 PIC 1 WORD  -->
+          <a href="4 PIC 1 Word homepage.html" target="_blank"
+             style="background: url('4pic1wrd.png') center/cover no-repeat; 
+                    width: 80%; height: 90px; border-radius: 15px; 
+                    display: flex; justify-content: center; align-items: center; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a; 
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              4 PIC 1 WORD 
+            </span>
+          </a>
+
+          <!-- RECALL QUEST -->
+          <a href="Recall quest Home page.html" target="_blank"
+             style="background: url('Recallquesttt.png') center/cover no-repeat; 
+                    width: 80%; height: 90px; border-radius: 15px; 
+                    display: flex; justify-content: center; align-items: center; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a; 
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              RECALL QUEST
+            </span>
+          </a>
+
+          <!-- WORD CONNECT -->
+          <a href="Word connect homepage.html" target="_blank"
+             style="background: url('WordConnecttt.png') center/cover no-repeat; 
+                    width: 80%; height: 90px; border-radius: 15px; 
+                    display: flex; justify-content: center; align-items: center; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a; 
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              WORD CONNECT
+            </span>
+          </a>
+
+        </div>
+      </div>    
+
+  <style>
+  .rr-content {
+    text-align: center;
+  }
+
+  /* TITLE SA TAAS */
+  .quiz-title {
+    margin-bottom: 2px;     /* dikit sa image */
+    font-weight: 800;
+    font-size: 18px;
+  }
+
+  /* IMAGE */
+  .reminder-icon {
+    width: 150px;           /* Canva-like size */
+    display: block;
+    margin: 0 auto 4px auto; /* dikit sa subtitle */
+  }
+
+  /* SUBTITLE */
+  .quiz-subtitle {
+    margin-top: 0;
+    margin-bottom: 22px;
+    font-size: 13px;
+    color: #637e33;
+  }
+
+  /* START BUTTON (CANVA STYLE) */
+  .btn {
+    display: inline-block;
+    background-color: #e1edbb;  /* light yellow/green */
+    color: #6b8e23;             /* olive green text */
+    padding: 14px 46px;         /* MALAKI */
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 2px;
+    border: 2px solid #f2f4ed;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+    transition: 0.2s ease;
+  }
+
+  .btn:hover {
+    background-color: #eaffb0;
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+  }
+  .reminder-icon {
+  width: 230px;
+  height: auto;
+  display: block;
+}
+</style>
+
+<!-- Reminders -->
+<div class="dyslexia-card workouts" onclick="toggleDyslexiaCard(this)">
+  <div class="label">WORKOUTS</div>
+
+  <div class="dyslexia-card-content">
+    <div class="workouts">
+      <div class="rr-content">
+
+        <!-- TEXT SA TAAS NG IMAGE -->
+        <h3 class="quiz-title">BRAIN BOOST QUIZ</h3>
+
+        <!-- IMAGE -->
+        <img src="brainboost.png"  alt="Brain Boost Icon" class="reminder-icon" />
+
+        <!-- TEXT SA ILALIM NG IMAGE -->
+        <p class="quiz-subtitle">A quiz to give your brain a boost!</p>
+
+        <!-- START BUTTON -->
+        <a class="btn" href="Brain boost quiz.html" onclick="event.stopPropagation()">START</a>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const dyslexiaPage = document.getElementById("dyslexiaPage");
+
+  // Open Dyslexia section (fade in)
+  document.querySelector(".card-challenge.dyslexia").addEventListener("click", e => {
+    e.preventDefault();
+    dyslexiaPage.classList.add("active");
+  });
+
+  // Close Dyslexia section by clicking outside cards
+  dyslexiaPage.addEventListener("click", e => {
+    if (e.target === dyslexiaPage) {
+      dyslexiaPage.classList.remove("active");
+    }
+  });
+
+  // Expand/collapse inner cards
+  function toggleDyslexiaCard(card) {
+    document.querySelectorAll(".dyslexia-card").forEach(c => {
+      if (c !== card) c.classList.remove("active");
+    });
+    card.classList.toggle("active");
+  }
+
+  function closeDyslexiaPage() {
+    dyslexiaPage.classList.remove("active");
+  }
+</script>
+<!-- ===== DYSLEXIA SPA FADE TRANSITION END ===== -->
+
+<!-- ===== DYSCALCULIA SPA FADE TRANSITION (Left Card with Icon) ===== -->
+<style>
+  /* Fullscreen Dyscalculia page */
+  .dyscalculia-page {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, #e3f1ff 0%, #b2d8ff 100%);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.05);
+    transition: opacity 0.5s ease, transform 0.6s ease;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px;
+  }
+
+  .dyscalculia-page.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  .dyscalculia-container {
+    width: 100%;
+    max-width: 1250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeUp 0.7s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .dyscalculia-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #333;
+    text-align: center;
+  }
+
+  /* Card layout */
+  .dyscalculia-cards {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    height: 550px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  }
+
+  .dyscalculia-card {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 22px;
+    cursor: pointer;
+    position: relative;
+    transition: flex 0.5s ease;
+    overflow: hidden;
+    color: #333;
+  }
+
+  .dyscalculia-card.active { flex: 3; }
+
+  .dyscalculia-card-content {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .dyscalculia-card.active .dyscalculia-card-content { opacity: 1; }
+
+  .dyscalculia-card .label {
+    position: absolute;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 22px;
+    font-weight: bold;
+    transition: opacity 0.3s;
+  }
+
+  .dyscalculia-card.active .label { opacity: 0; }
+
+  /* Dyscalculia main card (left) */
+  .dyscalculia-card.dyscalculia {
+    background: linear-gradient(180deg, #9dd1ff, #64aaff);
+    color: #fff;
+    flex: 2;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dyscalculia-card.dyscalculia h1 {
+    font-size: 45px;
+    font-weight: 900;
+    letter-spacing: 2px;
+  }
+
+  .dyscalculia-card.dyscalculia img {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+  }
+
+  /* Other cards */
+  .dyscalculia-card.definition { background: linear-gradient(180deg, #9dd1ff, #87b8f8); }
+  .dyscalculia-card.games { background: linear-gradient(180deg, #a7d0ff, #a0c8fc); }
+  .dyscalculia-card.reminders { background: linear-gradient(180deg, #a7d0ff, #bbd9ff);  }
+
+  /* ===== DYSCALCULIA WORKOUTS ===== */
+.dyscalculia-card.workouts {
+  background: linear-gradient(180deg, #b4d3fd, #b8d8ff);
+  color: #2f5fa7;
+}
+
+.dyscalculia-card.workouts .quiz-title {
+  font-weight: 900;
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.dyscalculia-card.workouts .quiz-subtitle {
+  font-size: 17px;
+  margin-bottom: 20px;
+  color: #3f6fb5;
+}
+
+.dyscalculia-card.workouts .reminder-icon {
+  width: 310px;
+  height: auto;
+  display: block;
+  margin: 0 auto 6px auto;
+}
+
+.dyscalculia-card.workouts .btn {
+  display: inline-block;
+  background: #e8f2ff;
+  color: #2f5fa7;
+  padding: 14px 46px;
+  border-radius: 30px;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 2px;
+  text-decoration: none;
+  border: 2px solid #dbeaff;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+}
+
+.dyscalculia-card.workouts .btn:hover {
+  background: #d6e9ff;
+  transform: translateY(2px);
+}
+
+</style>
+
+<!-- DYSCALCULIA EXPANDED PAGE -->
+<div class="dyscalculia-page" id="dyscalculiaPage">
+  <button type="button" class="back-btn" onclick="closeDyscalculiaPage()" aria-label="Back">&larr;</button>
+  <div class="dyscalculia-container">
+    <div class="dyscalculia-title">LEARNING CHALLENGE: DYSCALCULIA</div>
+
+    <div class="dyscalculia-cards">
+      <!-- Dyscalculia card on LEFT with icon -->
+      <div class="dyscalculia-card dyscalculia">
+        <h1>DYSCALCULIA</h1>
+        <img src="dyscalculiaa.png" alt="Dyscalculia Icon">
+      </div>
+
+      <!-- Definition -->
+      <div class="dyscalculia-card definition" onclick="toggleDyscalculiaCard(this)">
+        <div class="label">DEFINITION</div>
+        <div class="dyscalculia-card-content" style="color:#1c4076; text-align: left; max-width: 90%; line-height: 1.6;">
+          <h2 style="font-size: 30px; font-weight: 900; margin-bottom: 10px; color:#132d54;">
+            WHAT IS DYSCALCULIA?
+          </h2>
+          <p style="font-weight:700; margin-bottom: 10px;">
+            (Dyscalculia)
+          </p>
+          <p style="font-size: 17px; margin-bottom: 15px;">
+            is a specific learning disorder that affects the ability to understand numbers and perform basic mathematical operations.
+            Individuals with dyscalculia often struggle with tasks like recognizing patterns, counting, or memorizing math facts.
+          </p>
+          <p style="font-size: 16px; margin-bottom: 15px;">
+            Approximately 5-7% of people are affected by Dyscalculia, making it one of the most common learning disorders.
+          </p>
+          <h3 style="font-weight: 900; font-size: 22px; text-align:center; color:#40669f;">
+            UNDERSTANDING MATTERS MORE THAN SPEED IN MATH.
+          </h3>
+        </div>
+      </div>
+
+      <!-- Games -->
+      <div class="dyscalculia-card games" onclick="toggleDyscalculiaCard(this)">
+        <div class="label">GAMES</div>
+        <div class="dyscalculia-card-content" 
+             style="display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; padding: 40px 0;">
+
+          <!-- SODOKU -->
+          <a href="Sodoku Homepage.html" target="_blank"
+             style="background: url('s0d0k0.png') center/cover no-repeat; 
+                    width: 80%; height: 90px; border-radius: 15px; 
+                    display: flex; justify-content: center; align-items: center; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a; 
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              SODOKU
+            </span>
+          </a>
+
+          <!-- COUNT THE DOTS -->
+          <a href="Count The Dots Homepage.html" target="_blank"
+             style="background: url('C0untthed0ts.png') center/cover no-repeat; 
+                    width: 80%; height: 90px; border-radius: 15px; 
+                    display: flex; justify-content: center; align-items: center; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a; 
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              COUNT THE DOTS
+            </span>
+          </a>
+
+        </div>
+      </div>    
+
+  <!-- WORKOUTS -->
+<div class="dyscalculia-card workouts" onclick="toggleDyscalculiaCard(this)">
+  <div class="label">WORKOUTS</div>
+
+  <div class="dyscalculia-card-content">
+    <div class="rr-content">
+
+      <h3 class="quiz-title">BRAIN BOOST QUIZ</h3>
+
+      <img src="mathblastlogo.png"
+           alt="Brain Boost Icon"
+           class="reminder-icon" />
+
+      <p class="quiz-subtitle">A quiz to sharpen your math thinking!</p>
+
+      <a class="btn"
+         href="mathquizzz.html"
+         onclick="event.stopPropagation()">
+        START
+      </a>
+
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+<script>
+  const dyscalculiaPage = document.getElementById("dyscalculiaPage");
+
+  document.querySelector(".card-challenge.dyscalculia")
+    .addEventListener("click", e => {
+      e.preventDefault();
+      dyscalculiaPage.classList.add("active");
+    });
+
+  dyscalculiaPage.addEventListener("click", e => {
+    if (e.target === dyscalculiaPage) {
+      dyscalculiaPage.classList.remove("active");
+    }
+  });
+
+  function toggleDyscalculiaCard(card) {
+    document.querySelectorAll(".dyscalculia-card").forEach(c => {
+      if (c !== card) c.classList.remove("active");
+    });
+    card.classList.toggle("active");
+  }
+
+  function closeDyscalculiaPage() {
+    dyscalculiaPage.classList.remove("active");
+  }
+</script>
+
+<!-- ===== DYSCALCULIA SPA FADE TRANSITION END ===== -->
+
+<!-- ===== DYSGRAPHIA SPA FADE TRANSITION (Left Card with Icon) ===== -->
+<style>
+  .dysgraphia-page {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, #e3f1ff 0%, #90abf1 100%);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.05);
+    transition: opacity 0.5s ease, transform 0.6s ease;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px;
+  }
+
+  .dysgraphia-page.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  .dysgraphia-container {
+    width: 100%;
+    max-width: 1250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeUp 0.7s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .dysgraphia-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #333;
+    text-align: center;
+  }
+
+  .dysgraphia-cards {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    height: 550px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  }
+
+  .dysgraphia-card {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 22px;
+    cursor: pointer;
+    position: relative;
+    transition: flex 0.5s ease;
+    overflow: hidden;
+    color: #333;
+  }
+
+  .dysgraphia-card.active { flex: 3; }
+
+  .dysgraphia-card-content {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .dysgraphia-card.active .dysgraphia-card-content {
+    opacity: 1;
+  }
+
+  .dysgraphia-card .label {
+    position: absolute;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 22px;
+    font-weight: bold;
+    transition: opacity 0.3s;
+  }
+
+  .dysgraphia-card.active .label { opacity: 0; }
+
+  /* Main card */
+  .dysgraphia-card.dysgraphia {
+    background: linear-gradient(180deg, #435c9c, #5e7bc5);
+    color: #fff;
+    flex: 2;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dysgraphia-card.dysgraphia h1 {
+    font-size: 45px;
+    font-weight: 900;
+    letter-spacing: 2px;
+  }
+
+  .dysgraphia-card.dysgraphia img {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+  }
+
+  .dysgraphia-card.definition { background: linear-gradient(180deg, #5873ba, #7391e0);color:#20395f; }
+  .dysgraphia-card.games { background: linear-gradient(180deg, #5c77bc, #88a6f3); color:#20395f;}
+  .dysgraphia-card.workouts { background: linear-gradient(180deg, #7391dc, #97b0f2); color:#20395f; }
+
+  .quiz-title {
+    font-weight: 900;
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .quiz-subtitle {
+    font-size: 17px;
+    margin-bottom: 20px;
+    color: #3f6fb5;
+  }
+
+  .reminder-icon {
+    width: 230px;
+    margin-bottom: 6px;
+  }
+
+  .btn {
+    display: inline-block;
+    background: #e8f2ff;
+    color: #2f5fa7;
+    padding: 14px 46px;
+    border-radius: 30px;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-decoration: none;
+    border: 2px solid #dbeaff;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+  }
+</style>
+
+<!-- DYSGRAPHIA PAGE -->
+<div class="dysgraphia-page" id="dysgraphiaPage">
+  <button type="button" class="back-btn" onclick="closeDysgraphiaPage()" aria-label="Back">&larr;</button>
+
+  <div class="dysgraphia-container">
+    <div class="dysgraphia-title">LEARNING CHALLENGE: DYSGRAPHIA</div>
+
+    <div class="dysgraphia-cards">
+
+      <div class="dysgraphia-card dysgraphia">
+        <h1>DYSGRAPHIA</h1>
+        <img src="dysgraphia.png">
+      </div>
+
+      <div class="dysgraphia-card definition" onclick="toggleDysgraphiaCard(this)">
+        <div class="label">DEFINITION</div>
+        <div class="dysgraphia-card-content" style="color: #142b4d; text-align: left; max-width: 90%; line-height: 1.6;">
+          <h2 style="font-size: 30px; font-weight: 900; margin-bottom: 10px; color:#0c2141;">
+            WHAT IS DYSGRAPHIA?
+          </h2>
+          <p style="font-weight:700; margin-bottom: 10px;">
+            (Dysgraphia)
+          </p>
+          <p style="font-size: 17px; margin-bottom: 15px;">
+            is a specific learning disorder that affects the ability to write coherently and legibly.
+            Individuals with dysgraphia often struggle with tasks like forming letters, spacing words, or organizing ideas on paper.
+          </p>
+          <p style="font-size: 16px; margin-bottom: 15px;">
+            Approximately 5-10% of children are affected by Dysgraphia.
+          </p>
+          <h3 style="font-weight: 900; font-size: 22px; text-align:center; color: #1e304a;">
+            CLEAR THINKING DOES NOT ALWAYS MEAN NEAT WRITING.
+          </h3>
+        </div>
+      </div>
+
+      <div class="dysgraphia-card games" onclick="toggleDysgraphiaCard(this)">
+        <div class="label">GAMES</div>
+        <div class="dysgraphia-card-content"
+             style="display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; padding: 40px 0;">
+
+          <!-- HANGMAN -->
+          <a href="Hangman Homepage.html" target="_blank"
+             style="background: url('hanggman.png') center/cover no-repeat;
+                    width: 80%; height: 90px; border-radius: 15px;
+                    display: flex; justify-content: center; align-items: center;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a;
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              HANGMAN
+            </span>
+          </a>
+
+          <!-- WORD VOYAGE -->
+          <a href="Word voyage homepage.html" target="_blank"
+             style="background: url('wrdvoyage.png') center/cover no-repeat;
+                    width: 80%; height: 90px; border-radius: 15px;
+                    display: flex; justify-content: center; align-items: center;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                    text-decoration: none; cursor: pointer; transition: transform 0.2s ease;">
+            <span style="font-size: 28px; font-weight: 800; color: #3a2d1a;
+                         text-shadow: 1px 1px 2px rgba(255,255,255,0.6);">
+              WORD VOYAGE
+            </span>
+          </a>
+
+        </div>
+      </div>
+
+      <div class="dysgraphia-card workouts" onclick="toggleDysgraphiaCard(this)">
+        <div class="label">WORKOUTS</div>
+        <div class="dysgraphia-card-content">
+          <h3 class="quiz-title">BOOKSPEAK ACADEMY</h3>
+          <img src="brainboost.png" class="reminder-icon">
+          <p class="quiz-subtitle">Listen to your story books!</p>
+          <a href="BOOKSPEAK ACADEMY.html" class="btn" onclick="event.stopPropagation()">START</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const dysgraphiaPage = document.getElementById("dysgraphiaPage");
+
+  document.querySelector(".card-challenge.dysgraphia").addEventListener("click", e => {
+    e.preventDefault();
+    dysgraphiaPage.classList.add("active");
+  });
+
+  // Close Dysgraphia section by clicking outside cards
+  dysgraphiaPage.addEventListener("click", e => {
+    if (e.target === dysgraphiaPage) {
+      dysgraphiaPage.classList.remove("active");
+    }
+  });
+
+  function toggleDysgraphiaCard(card) {
+    document.querySelectorAll(".dysgraphia-card").forEach(c => {
+      if (c !== card) c.classList.remove("active");
+    });
+    card.classList.toggle("active");
+  }
+
+  function closeDysgraphiaPage() {
+    dysgraphiaPage.classList.remove("active");
+  }
+</script>
+<!-- ===== DYSGRAPHIA SPA FADE TRANSITION END ===== -->
+
+<!-- ===== FOCUS PREVIEW OVERLAY ===== -->
+<style>
+  /* Fullscreen Focus preview page */
+  .focus-preview-page {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, #91f1c4 0%, #68c485 100%);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.05);
+    transition: opacity 0.5s ease, transform 0.6s ease;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px;
+  }
+
+  .focus-preview-page.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  .focus-preview-container {
+    width: 100%;
+    max-width: 1250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeUp 0.7s ease forwards;
+    height: 100%;
+    overflow: auto;
+  }
+
+  @keyframes fadeUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .focus-preview-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #333;
+    text-align: center;
+  }
+
+  .focus-preview-content {
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+  }
+
+  .focus-preview-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 15px;
+    background: white;
+  }
+</style>
+
+<!-- FOCUS PREVIEW PAGE -->
+<div class="focus-preview-page" id="focusPreviewPage">
+  <button type="button" class="back-btn" onclick="closeFocusPreview()" aria-label="Back">&larr;</button>
+  <div class="focus-preview-container">
+    <div class="focus-preview-title">FOCUS PREVIEW</div>
+    <div class="focus-preview-content">
+      <iframe id="focusPreviewFrame" src="Focus preview.html"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Focus Preview Functions
+  function openFocusPreview() {
+    const focusPreviewPage = document.getElementById('focusPreviewPage');
+    focusPreviewPage.classList.add('active');
+  }
+
+  function closeFocusPreview() {
+    const focusPreviewPage = document.getElementById('focusPreviewPage');
+    focusPreviewPage.classList.remove('active');
+  }
+
+  // Close Focus preview when clicking outside
+  document.getElementById('focusPreviewPage').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeFocusPreview();
+    }
+  });
+</script>
+<!-- ===== FOCUS PREVIEW OVERLAY END ===== -->
+
+<script>
+  // Retrieve username from localStorage and update the display
+  const username = localStorage.getItem('username');
+  const usernameDisplay = document.getElementById('username-display');
+  if (username) {
+    usernameDisplay.innerHTML = `<img src="AVATARICON.png" class="profile-icon" alt="User Icon"> ${username}`;
+  } else {
+    // Default if no username
+    usernameDisplay.innerHTML = `<img src="AVATARICON.png" class="profile-icon" alt="User Icon"> Guest`;
+  }
+
+  // Make username clickable to teleport to Accountss.html
+  usernameDisplay.addEventListener('click', () => {
+    window.location.href = 'Accountss.html';
+  });
+
+  // Daily Login Streak Functionality (Per User)
+  function updateStreak() {
+    const username = localStorage.getItem('username');
+    if (!username) return; // No user logged in
+    
+    // Use user-specific keys for streak storage
+    const streakKey = `streak_${username}`;
+    const lastLoginKey = `lastLogin_${username}`;
+    
+    const today = new Date().toDateString();
+    const lastLogin = localStorage.getItem(lastLoginKey);
+    const currentStreak = parseInt(localStorage.getItem(streakKey) || '0');
+
+    if (lastLogin !== today) {
+      // Check if it's the next day
+      const lastLoginDate = new Date(lastLogin);
+      const todayDate = new Date(today);
+      const diffTime = todayDate - lastLoginDate;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 1) {
+        // Consecutive day
+        localStorage.setItem(streakKey, currentStreak + 1);
+      } else if (diffDays > 1) {
+        // Streak broken (more than 1 day gap) - reset to 1
+        localStorage.setItem(streakKey, '1');
+      } else {
+        // First time or different user logging in
+        // Check if this is a new user (no streak data exists)
+        if (!lastLogin) {
+          localStorage.setItem(streakKey, '1');
+        }
+      }
+
+      localStorage.setItem(lastLoginKey, today);
+    }
+
+    // Update display
+    const streakCount = document.getElementById('streak-count');
+    streakCount.textContent = localStorage.getItem(streakKey) || '0';
+  }
+
+  // Initialize streak on page load
+  updateStreak();
+</script>
+
+<!-- ===== ADDED DAILY MOTIVE QUOTE FUNCTIONALITY ===== -->
+<script>
+  // Daily Motive Quote Functionality - Added without changing existing code
+  (function() {
+    // Array of motivational quotes for each day
+    const dailyQuotes = [
+      "SMALL STEPS EVERY DAY BUILD GIANT DREAMS",
+      "EVERY EXPERT WAS ONCE A BEGINNER",
+      "PROGRESS, NOT PERFECTION",
+      "YOU ARE CAPABLE OF AMAZING THINGS",
+      "TODAY IS A GREAT DAY TO LEARN SOMETHING NEW",
+      "BELIEVE YOU CAN AND YOU'RE HALFWAY THERE",
+      "MISTAKES ARE PROOF THAT YOU ARE TRYING",
+      "YOUR ONLY LIMIT IS YOUR MIND",
+      "DREAM BIG. START SMALL. ACT NOW.",
+      "EFFORT IS THE PATH TO MASTERY",
+      "LEARN SOMETHING NEW EVERY DAY",
+      "YOU ARE STRONGER THAN YOU THINK",
+      "EVERY DAY IS A SECOND CHANCE",
+      "MAKE TODAY MATTER",
+      "YOU ARE ENOUGH",
+      "KEEP GOING. EVERYTHING WILL BE OKAY.",
+      "YOUR POTENTIAL IS LIMITLESS",
+      "FOCUS ON THE GOOD",
+      "YOU'VE GOT THIS",
+      "BE BETTER THAN YESTERDAY",
+      "NEVER STOP LEARNING",
+      "THE BEST TIME TO START WAS YESTERDAY. THE NEXT BEST TIME IS TODAY.",
+      "DO WHAT YOU CAN, WITH WHAT YOU HAVE, WHERE YOU ARE",
+      "YOU ARE A WORK IN PROGRESS",
+      "EVERY ACCOMPLISHMENT STARTS WITH THE DECISION TO TRY"
+    ];
+
+    // Function to get quote based on current date
+    function getDailyQuote() {
+      const today = new Date();
+      const dateString = today.toDateString(); // Gets date string like "Tue Mar 02 2026"
+      
+      // Check if we already have a quote for today
+      const lastQuoteDate = localStorage.getItem('motiveLastQuoteDate');
+      const storedQuote = localStorage.getItem('motiveDailyQuote');
+      
+      // If we have a quote from today, use it
+      if (lastQuoteDate === dateString && storedQuote) {
+        return storedQuote;
+      }
+      
+      // Otherwise, generate a new quote based on the day of the year
+      // Get day of year (1-365/366)
+      const start = new Date(today.getFullYear(), 0, 0);
+      const diff = today - start;
+      const oneDay = 1000 * 60 * 60 * 24;
+      const dayOfYear = Math.floor(diff / oneDay);
+      
+      // Use dayOfYear to pick a quote (ensures it cycles through all quotes)
+      const quoteIndex = dayOfYear % dailyQuotes.length;
+      const newQuote = dailyQuotes[quoteIndex];
+      
+      // Store for today
+      localStorage.setItem('motiveLastQuoteDate', dateString);
+      localStorage.setItem('motiveDailyQuote', newQuote);
+      
+      return newQuote;
+    }
+
+    // Update the quote in the DOM when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      const quoteBox = document.querySelector('.quote-box');
+      if (quoteBox) {
+        quoteBox.textContent = `"${getDailyQuote()}"`;
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>
+
+
+
+
+

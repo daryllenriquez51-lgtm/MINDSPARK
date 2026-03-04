@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hard Math Challenge</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:white;
+}
+
+.game-box{
+  background:rgba(0,0,0,0.4);
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+  width:400px;
+  box-shadow:0 0 20px rgba(0,0,0,0.6);
+}
+
+h1{
+  margin-bottom:10px;
+}
+
+.stats{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:20px;
+  font-weight:bold;
+}
+
+.question{
+  font-size:28px;
+  margin:20px 0;
+}
+
+input{
+  padding:10px;
+  font-size:18px;
+  width:100px;
+  text-align:center;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  padding:10px 20px;
+  font-size:16px;
+  border:none;
+  border-radius:8px;
+  background:#00ffae;
+  cursor:pointer;
+  margin-top:10px;
+  font-weight:bold;
+}
+
+button:hover{
+  background:#00cc8a;
+}
+
+.result{
+  margin-top:15px;
+  font-weight:bold;
+}
+
+.hidden{
+  display:none;
+}
+
+.game-over{
+  font-size:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+
+  <h1>Hard Math Challenge</h1>
+
+  <div class="stats">
+    <div>⏳ Time: <span id="time">60</span></div>
+    <div>🎯 Score: <span id="score">0</span></div>
+  </div>
+
+  <div id="gameArea">
+    <div class="question" id="question">Press Start</div>
+    <input type="number" id="answer" disabled>
+    <br>
+    <button onclick="submitAnswer()">Submit</button>
+  </div>
+
+  <button id="startBtn" onclick="startGame()">Start Game</button>
+
+  <div class="result" id="result"></div>
+
+  <div class="game-over hidden" id="gameOver">
+    <p>💀 Game Over!</p>
+    <p>Your Final Score: <span id="finalScore"></span></p>
+  </div>
+
+</div>
+
+<script>
+let score = 0;
+let timeLeft = 60;
+let currentAnswer = 0;
+let timer;
+let difficultyLevel = 1;
+
+function startGame(){
+  score = 0;
+  timeLeft = 60;
+  difficultyLevel = 1;
+  document.getElementById("score").innerText = score;
+  document.getElementById("time").innerText = timeLeft;
+  document.getElementById("answer").disabled = false;
+  document.getElementById("answer").value = "";
+  document.getElementById("gameOver").classList.add("hidden");
+  document.getElementById("result").innerText = "";
+  generateQuestion();
+
+  timer = setInterval(()=>{
+    timeLeft--;
+    document.getElementById("time").innerText = timeLeft;
+
+    if(timeLeft <= 0){
+      clearInterval(timer);
+      endGame();
+    }
+  },1000);
+}
+
+function generateQuestion(){
+  let num1, num2, operator;
+  const operators = ["+","-","*","/"];
+  operator = operators[Math.floor(Math.random()*operators.length)];
+
+  // Increase difficulty
+  num1 = Math.floor(Math.random()*(10 * difficultyLevel)) + 1;
+  num2 = Math.floor(Math.random()*(10 * difficultyLevel)) + 1;
+
+  if(operator === "/"){
+    num1 = num1 * num2; // ensure whole number division
+  }
+
+  switch(operator){
+    case "+": currentAnswer = num1 + num2; break;
+    case "-": currentAnswer = num1 - num2; break;
+    case "*": currentAnswer = num1 * num2; break;
+    case "/": currentAnswer = num1 / num2; break;
+  }
+
+  document.getElementById("question").innerText = 
+    `${num1} ${operator} ${num2} = ?`;
+}
+
+function submitAnswer(){
+  const userAnswer = Number(document.getElementById("answer").value);
+
+  if(userAnswer === currentAnswer){
+    score += 10;
+    difficultyLevel += 0.3; // increase difficulty gradually
+    document.getElementById("result").innerText = "✅ Correct!";
+  } else {
+    score -= 5;
+    document.getElementById("result").innerText = "❌ Wrong!";
+  }
+
+  document.getElementById("score").innerText = score;
+  document.getElementById("answer").value = "";
+  generateQuestion();
+}
+
+function endGame(){
+  document.getElementById("question").innerText = "Time's up!";
+  document.getElementById("answer").disabled = true;
+  document.getElementById("finalScore").innerText = score;
+  document.getElementById("gameOver").classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
+

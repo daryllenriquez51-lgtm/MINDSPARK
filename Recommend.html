@@ -1,0 +1,439 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Recommendation UI – named pills</title>
+  <style>
+    :root {
+      --bg: #fbf2d6;
+      --card-gradient: linear-gradient(180deg, #cfd6eb, #d9b7dd);
+      --pill-gradient: linear-gradient(90deg, #f6c7a1, #f0a0d8);
+      --locked-gradient: linear-gradient(90deg, #bcbcbc, #9f9f9f);
+      --text-dark: #3d3d4f;
+      --icon-bg: rgba(255,255,255,0.3);
+      --pill-text: #1e1e2a;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Inter", system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: url('mindsparkbg.jpg') no-repeat center center fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* BACK BUTTON - White Circle (outside container) */
+    .back-button {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      border: none;
+      text-decoration: none;
+    }
+
+    .back-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      background: #f5f5f5;
+    }
+
+    .back-button:active {
+      transform: scale(0.95);
+    }
+
+    .back-arrow {
+      color: #333;
+      font-size: 32px;
+      font-weight: bold;
+      line-height: 1;
+      margin-right: 2px;
+    }
+
+    .app {
+      width: 1200px;
+      height: 600px;
+      background: rgba(255,255,255,0.55);
+      border-radius: 28px;
+      padding: 32px;
+      display: flex;
+      gap: 32px;
+      animation: popUp 0.5s ease-out;
+      position: relative;
+      margin-top: 20px;
+    }
+
+    @keyframes popUp {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* LEFT CARD */
+    .recommend-card {
+      flex: 1;
+      border-radius: 28px;
+      background: var(--card-gradient);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-dark);
+    }
+
+    .recommend-title {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      font-family: "Inter", system-ui, sans-serif;
+      text-transform: uppercase;
+    }
+
+    .recommend-subtitle {
+      font-size: 20px;
+      opacity: 0.85;
+    }
+
+    /* RIGHT PANEL */
+    .list-panel {
+      flex: 1;
+      display: flex;
+      gap: 24px;
+      height: 100%;
+    }
+
+    /* Scrollbar */
+    .scrollbar-mock {
+      width: 10px;
+      background: #fff;
+      border-radius: 10px;
+      position: relative;
+      height: 100%;
+    }
+
+    .scrollbar-thumb {
+      position: absolute;
+      top: 0;
+      left: 1px;
+      width: 8px;
+      height: 60px;
+      background: #333;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* Scroll container */
+    .items-wrapper {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .items {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      overflow-y: scroll;
+      height: 100%;
+      padding-right: 16px;
+      scrollbar-width: none;
+    }
+
+    .items::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pill {
+      height: 100px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 28px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+      border: none;
+      outline: none;
+      width: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+    }
+
+    .pill:hover {
+      transform: scale(1.05);
+    }
+
+    .pill.locked {
+      background: var(--locked-gradient);
+      justify-content: center;
+    }
+
+    .pill.locked:hover {
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .lock-placeholder {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    /* pill name label - MATCHING RECOMMEND TEXT STYLE (no background shape) */
+    .pill-name {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: white;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+      pointer-events: none;
+      z-index: 2;
+      white-space: nowrap;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: fit-content;
+      font-family: "Inter", system-ui, sans-serif;
+      text-transform: uppercase;
+    }
+
+    /* anchor fills pill, invisible but clickable */
+    .pill.gradient a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      text-decoration: none;
+      opacity: 0;
+      position: relative;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACK BUTTON - White Circle (outside the app container) -->
+  <a href="MINDSPARKKK.html" class="back-button">
+    <span class="back-arrow">←</span>
+  </a>
+
+  <div class="app">
+
+  <!-- LEFT -->
+  <div class="recommend-card">
+    <img src="Recommend.png" alt="Recommend Icon" style="width: 230px; height: 230px">
+    <div class="recommend-title">RECOMMEND</div>
+    <div class="recommend-subtitle">Personalized to you</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="list-panel">
+
+    <div class="scrollbar-mock">
+      <div class="scrollbar-thumb"></div>
+    </div>
+
+    <div class="items-wrapper">
+      <div class="items" id="scrollContent">
+        <!-- pills will be populated by script with unique GIFs, links, and names -->
+        <div class="pill" id="pill-0"></div>
+        <div class="pill locked" id="pill-1"><div class="lock-placeholder">🔒</div></div>
+        <div class="pill locked" id="pill-2"><div class="lock-placeholder">🔒</div></div>
+        <div class="pill locked" id="pill-3"><div class="lock-placeholder">🔒</div></div>
+        <div class="pill locked" id="pill-4"><div class="lock-placeholder">🔒</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- CUSTOMIZABLE GIF LIST (each unlocked pill gets a distinct one) -----
+    const gifUrls = [
+      "sortgif.gif",  // excited (pill 1)
+      "emotion%20gif.gif",  // celebration (pill 2)
+      "ttttttttteee.gif", // cool (pill 3)
+      "gggffff.gif", // star (pill 4)
+      "FORESTYYYYY.gif"  // wonder (pill 5)
+    ];
+
+    // ----- DESTINATION PAGES (unique per pill index) -----
+    const pageLinks = [
+      "Sorting%20game%20.html",  // custom first page
+      "Guess%20The%20Emotion.html",             // page for index 1
+      "Find%20the%20word.html",             // page for index 2
+      "Collect%20the%20numbers.html",            
+      "Animal%20Memory%20Game.html",             // page for index 4
+       ];
+
+    // ----- NAMES FOR EACH PILL (you can edit these) -----
+    const pillNames = [
+      "SORTING GAME",   // first pill
+      "GUESS THE EMOTION",  // updated to match style
+      "FIND THE WORD",  // updated to match style
+      "COLLECT NUMBERS", // updated to match style
+      "MEMORY GAME"     // updated to match style
+    ];
+
+    const content = document.getElementById("scrollContent");
+    const thumb = document.querySelector(".scrollbar-thumb");
+    const track = document.querySelector(".scrollbar-mock");
+
+    function updateThumb() {
+      const ratio = content.scrollTop / (content.scrollHeight - content.clientHeight);
+      const maxThumbTop = track.clientHeight - thumb.clientHeight;
+      thumb.style.top = ratio * maxThumbTop + "px";
+    }
+
+    content.addEventListener("scroll", updateThumb);
+
+    let dragging = false;
+    let startY, startTop;
+
+    thumb.addEventListener("mousedown", e => {
+      dragging = true;
+      startY = e.clientY;
+      startTop = thumb.offsetTop;
+      document.body.style.userSelect = "none";
+    });
+
+    document.addEventListener("mousemove", e => {
+      if (!dragging) return;
+      const delta = e.clientY - startY;
+      const maxTop = track.clientHeight - thumb.clientHeight;
+      let newTop = Math.min(Math.max(0, startTop + delta), maxTop);
+      thumb.style.top = newTop + "px";
+      content.scrollTop = (newTop / maxTop) * (content.scrollHeight - content.clientHeight);
+    });
+
+    document.addEventListener("mouseup", () => {
+      dragging = false;
+      document.body.style.userSelect = "";
+    });
+
+    updateThumb();
+
+    // ----- USER PERSISTENCE & UNLOCK LOGIC -----
+    const currentUsername = localStorage.getItem('username');
+    const lastUsername = localStorage.getItem('lastUsername');
+    if (currentUsername !== lastUsername) {
+      localStorage.setItem('unlockedCount', '1');
+      localStorage.setItem('lastUsername', currentUsername);
+    }
+
+    let unlockedCount = parseInt(localStorage.getItem('unlockedCount') || '1');
+    const allPills = document.querySelectorAll('.pill');
+
+    // Check if returning from a link click (to unlock next)
+    const lastClickedIndex = localStorage.getItem('lastClickedIndex');
+    if (lastClickedIndex !== null) {
+      unlockedCount = Math.max(unlockedCount, parseInt(lastClickedIndex) + 2);
+      localStorage.setItem('unlockedCount', unlockedCount);
+      localStorage.removeItem('lastClickedIndex');
+    }
+
+    // Function to set GIF background
+    function setGifForPill(pill, index) {
+      const gifIndex = index % gifUrls.length;
+      pill.style.background = `url('${gifUrls[gifIndex]}') center/cover no-repeat`;
+    }
+
+    // Refresh all pills according to unlockedCount
+    function refreshPills() {
+      allPills.forEach((pill, idx) => {
+        if (idx < unlockedCount) {
+          // Unlocked: gradient class + unique GIF + unique link + name label
+          pill.classList.remove('locked');
+          pill.classList.add('gradient');
+          setGifForPill(pill, idx);
+          
+          // Get the correct link and name for this index
+          const linkHref = pageLinks[idx % pageLinks.length];
+          const pillName = pillNames[idx % pillNames.length] || "GAME";
+          
+          // Create structure: anchor + name span (matching RECOMMEND text style)
+          pill.innerHTML = `
+            <a href="${linkHref}" style="display: block; width: 100%; height: 100%;"></a>
+            <span class="pill-name">${pillName}</span>
+          `;
+        } else {
+          // Locked
+          pill.classList.remove('gradient');
+          pill.classList.add('locked');
+          pill.style.background = ''; // let CSS handle locked gradient
+          if (!pill.querySelector('.lock-placeholder')) {
+            pill.innerHTML = '<div class="lock-placeholder">🔒</div>';
+          }
+        }
+      });
+    }
+
+    // Initial render
+    refreshPills();
+
+    // Save last clicked index when clicking gradient pill (for unlocking logic)
+    document.addEventListener("click", function(e) {
+      const gradientPill = e.target.closest(".pill.gradient");
+      if (gradientPill) {
+        const allPills = document.querySelectorAll(".pill");
+        const currentIndex = Array.from(allPills).indexOf(gradientPill);
+        localStorage.setItem('lastClickedIndex', currentIndex);
+        // navigation happens via anchor inside, so we don't interfere
+      }
+    });
+
+    // Ensure that after any dynamic changes (like new unlocks) we refresh pills
+    window.refreshPills = refreshPills; // optional
+  })();
+</script>
+
+<!-- 
+  UPDATED: Removed the transparent rounded shape (background, padding, border-radius, border)
+  - Text now appears directly on the GIF without any background shape
+  - Font weight: 800 (extra bold)
+  - Letter spacing: 2px
+  - Text transform: uppercase
+  - Font size: 28px
+  - Same font family: "Inter"
+-->
+</body>
+</html>
+
+
+
+

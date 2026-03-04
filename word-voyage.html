@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Voyage · typing practice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a2a4a;
+      font-family: 'Nunito', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* pixel city background */
+    .bg {
+      position: fixed; inset: 0;
+      background: linear-gradient(180deg, #1a3a6b 0%, #2a5a9b 50%, #1a2a4a 100%);
+      z-index: 0;
+    }
+    .bg::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: 
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 40px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 40px);
+      pointer-events: none;
+    }
+
+    /* ----- back button: white circle, top left ----- */
+    .back-link {
+      position: fixed;
+      top: 24px;
+      left: 28px;
+      width: 54px;
+      height: 54px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      transition: transform 0.15s, background-color 0.15s;
+      z-index: 20;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      transform: scale(1.06);
+      background-color: #f0f5ff;
+    }
+    .back-link:active {
+      transform: scale(0.96);
+    }
+    /* simple arrow (left chevron) */
+    .back-arrow {
+      width: 22px;
+      height: 22px;
+      border-left: 4px solid #1a2a4a;
+      border-bottom: 4px solid #1a2a4a;
+      transform: rotate(45deg) translate(2px, -2px); /* points left */
+      margin-right: 4px; /* fine-tune centering */
+    }
+
+    .card {
+      position: relative; z-index: 1;
+      background: rgba(100, 140, 200, 0.35);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 24px;
+      padding: 48px 56px 44px;
+      width: 820px;
+      max-width: 95vw;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      font-size: 72px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 4px;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      margin-bottom: 36px;
+      text-transform: uppercase;
+    }
+
+    .prompt-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: rgba(180, 210, 255, 0.75);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 1.5;
+      margin-bottom: 32px;
+      min-height: 88px;
+    }
+
+    .typed-display {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 1.5;
+      min-height: 88px;
+      margin-bottom: 32px;
+      word-break: break-all;
+    }
+
+    .char-correct { color: #7fff7f; }
+    .char-wrong   { color: #ff5555; text-decoration: underline; }
+    .char-pending { color: rgba(180, 210, 255, 0.75); }
+
+    .input-box {
+      width: 100%;
+      padding: 18px 24px;
+      font-size: 20px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      outline: none;
+      margin-bottom: 28px;
+      transition: border-color 0.2s;
+      caret-color: #fff;
+    }
+    .input-box::placeholder { color: rgba(255,255,255,0.45); font-style: italic; }
+    .input-box:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.22); }
+
+    .buttons { display: flex; gap: 16px; justify-content: center; }
+
+    button {
+      padding: 14px 48px;
+      font-size: 18px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    button:active { transform: scale(0.96); }
+
+    .btn-done {
+      background: rgba(60, 80, 120, 0.9);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .btn-done:hover { background: rgba(80,110,160,0.9); }
+
+    .btn-restart {
+      background: rgba(80, 100, 140, 0.7);
+      color: rgba(255,255,255,0.85);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .btn-restart:hover { background: rgba(100,130,170,0.8); }
+
+    .result {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #7fff7f;
+      min-height: 32px;
+      transition: opacity 0.3s;
+    }
+    .result.error { color: #ff7777; }
+
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)}
+    }
+    .shake { animation: shake 0.4s ease; }
+  </style>
+</head>
+<body>
+<div class="bg"></div>
+
+<!-- white circle back button – links to your homepage file -->
+<a href="Word%20voyage%20homepage.html" class="back-link" title="Back to homepage">
+  <div class="back-arrow"></div>
+</a>
+
+<div class="card">
+  <h1>Word Voyage</h1>
+
+  <div class="prompt-text" id="promptText">Once upon a time, a curious fox explored the forest.</div>
+  <div class="typed-display" id="typedDisplay"></div>
+
+  <input class="input-box" id="inputBox" type="text" placeholder="Type here..." autocomplete="off" spellcheck="false" />
+
+  <div class="buttons">
+    <button class="btn-done" onclick="checkDone()">Done</button>
+    <button class="btn-restart" onclick="restart()">Restart</button>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+  const sentences = [
+    "Once upon a time, a curious fox explored the forest.",
+    "The quick brown fox jumps over the lazy dog.",
+    "A journey of a thousand miles begins with a single step.",
+    "Stars shine brightest in the darkest of nights.",
+    "Every great story starts with a single word.",
+  ];
+
+  let current = sentences[0];
+  let sentenceIndex = 0;
+
+  const inputBox = document.getElementById('inputBox');
+  const typedDisplay = document.getElementById('typedDisplay');
+  const promptText = document.getElementById('promptText');
+  const resultEl = document.getElementById('result');
+
+  function renderTyped(val) {
+    const target = current.toUpperCase();
+    const typed = val.toUpperCase();
+    let html = '';
+    for (let i = 0; i < target.length; i++) {
+      if (i < typed.length) {
+        if (typed[i] === target[i]) {
+          html += `<span class="char-correct">${target[i] === ' ' ? '&nbsp;' : target[i]}</span>`;
+        } else {
+          html += `<span class="char-wrong">${target[i] === ' ' ? '&nbsp;' : target[i]}</span>`;
+        }
+      } else {
+        html += `<span class="char-pending">${target[i] === ' ' ? '&nbsp;' : target[i]}</span>`;
+      }
+    }
+    typedDisplay.innerHTML = html;
+  }
+
+  inputBox.addEventListener('input', () => {
+    renderTyped(inputBox.value);
+    resultEl.textContent = '';
+    resultEl.className = 'result';
+  });
+
+  function checkDone() {
+    const val = inputBox.value.trim();
+    if (val.toLowerCase() === current.toLowerCase()) {
+      resultEl.textContent = '✓ Perfect! Well done!';
+      resultEl.className = 'result';
+      sentenceIndex = (sentenceIndex + 1) % sentences.length;
+      setTimeout(() => {
+        current = sentences[sentenceIndex];
+        promptText.textContent = current;
+        inputBox.value = '';
+        typedDisplay.innerHTML = '';
+        resultEl.textContent = '';
+      }, 1200);
+    } else {
+      resultEl.textContent = '✗ Not quite — keep trying!';
+      resultEl.className = 'result error';
+      inputBox.classList.add('shake');
+      setTimeout(() => inputBox.classList.remove('shake'), 400);
+    }
+  }
+
+  inputBox.addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkDone();
+  });
+
+  function restart() {
+    inputBox.value = '';
+    typedDisplay.innerHTML = '';
+    resultEl.textContent = '';
+    resultEl.className = 'result';
+    inputBox.focus();
+  }
+
+  inputBox.focus();
+</script>
+
+<!-- ensure the back link works even if the file path is not accessible; it's the user's local file -->
+</body>
+</html>
+

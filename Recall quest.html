@@ -1,0 +1,339 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recall Quest — Forest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --glass: rgba(255,255,255,0.85);
+      --accent: #3f8f4a;
+      --tile-bg: rgba(0,0,0,0.6);
+      --tile-letter: #fff;
+      --muted: rgba(255,255,255,0.7);
+    }
+    html,body{height:100%; margin:0;}
+    body{
+      font-family: Montserrat, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: url('rcall quest bg.png') center/cover no-repeat fixed;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:30px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      position: relative; /* for absolute back button */
+    }
+
+    /* --- white circular back button (exactly as requested) --- */
+    .circle-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 56px;
+      height: 56px;
+      background-color: #ffffff;        /* solid white */
+      border: none;
+      border-radius: 50%;               /* perfect circle */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 32px;
+      font-weight: 700;
+      color: #2c5e2e;                   /* dark green accent for the arrow */
+      text-decoration: none;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      z-index: 1000;
+      font-family: 'Special Elite', monospace; /* keeps quirky vibe */
+      line-height: 1;
+    }
+    .circle-back:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+    }
+    .circle-back:active {
+      transform: translateY(2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    }
+    /* the arrow is just a simple '<' but bigger, looks like a back symbol */
+    /* (it will be placed inside by the <a> directly) */
+
+    .game-wrap{
+      width:100%;
+      max-width:1100px;
+      text-align:center;
+    }
+
+    .clue{
+      background: var(--glass);
+      padding:36px 24px;
+      border-radius:12px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.16);
+      margin:0 24px 26px 24px;
+      font-family: 'Special Elite', monospace;
+      font-size:44px;
+      color:#333;
+      line-height:1.05;
+    }
+
+    .answer-box{
+      margin:14px auto 28px auto;
+      width:85%;
+      max-width:980px;
+      height:70px;
+      border-radius:10px;
+      border:4px solid rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.06);
+      display:flex;
+      align-items:center;
+      justify-content:left;
+      padding:12px 18px;
+      backdrop-filter: blur(6px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .answer-text{
+      font-family: 'Special Elite', monospace;
+      font-size:36px;
+      color:var(--muted);
+      letter-spacing:6px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .tiles{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:12px 0 26px;}
+
+    .tile{
+      width:74px;height:74px;background:var(--tile-bg);display:flex;align-items:center;justify-content:center;color:var(--tile-letter);font-weight:700;font-size:34px;border-radius:6px;cursor:pointer;user-select:none;box-shadow:0 6px 0 rgba(0,0,0,0.28);transition: transform .08s ease, opacity .12s ease;font-family: 'Special Elite', monospace;
+    }
+
+    .tile:active{transform: translateY(2px);} .tile.disabled{opacity:0.25;cursor:default;transform:none;box-shadow:none;}
+
+    .controls{display:flex;gap:18px;justify-content:center;align-items:center;margin-top:6px;}
+
+    .btn{padding:18px 46px;border-radius:10px;border:4px solid rgba(255,255,255,0.7);background: rgba(255,255,255,0.12);font-family:'Special Elite', monospace;font-size:28px;color:#fff;cursor:pointer;min-width:120px;box-shadow:0 8px 16px rgba(0,0,0,0.22);}
+    .btn-green{background: linear-gradient(180deg,var(--accent), #2f6d39);border-color: rgba(255,255,255,0.25);font-size:30px;letter-spacing:2px;}
+    .btn-ghost{background: rgba(255,255,255,0.06);}
+
+    .small-square{width:74px;height:74px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:4px solid rgba(255,255,255,0.65);background:rgba(255,255,255,0.06);cursor:pointer;font-family:'Special Elite';font-size:28px;color:#fff;}
+
+    .message{margin-top:18px;font-family:'Special Elite';color:#fff;font-size:20px;opacity:0.95;}
+
+    .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);visibility:hidden;opacity:0;transition:opacity .18s ease, visibility .18s;}
+    .overlay.show{visibility:visible;opacity:1;}
+    .modal{padding:28px 34px;border-radius:12px;background:var(--glass);box-shadow:0 20px 40px rgba(0,0,0,0.45);text-align:center;max-width:520px;}
+    .modal h2{font-family:'Special Elite';font-size:36px;margin-bottom:6px;color:#222;}
+    .modal p{color:#333;margin-bottom:16px;}
+
+    @media(max-width:640px){
+      .clue{font-size:28px;padding:20px;}
+      .tile{width:56px;height:56px;font-size:24px;}
+      .answer-box{height:56px;}
+      .answer-text{font-size:28px;letter-spacing:4px;}
+      .btn{padding:12px 20px;font-size:20px;}
+      .circle-back{width:48px;height:48px;font-size:28px;top:12px;left:12px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- white circular back button linking to the given file path -->
+  <a class="circle-back" href="Recall%20quest%20Home%20page.html" title="Back to home page">←</a>
+
+  <div class="game-wrap">
+    <div class="clue" id="clue"></div>
+    <div class="answer-box"><div class="answer-text" id="answer">&nbsp;</div></div>
+    <div class="tiles" id="tiles"></div>
+    <div class="controls">
+      <div class="small-square btn-ghost" id="skip">Skip</div>
+      <button class="btn btn-green" id="submit">SUBMIT</button>
+      <div class="small-square" id="back">✕</div>
+    </div>
+    <div class="message" id="message">Tap letters to form the answer.</div>
+  </div>
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h2 id="modal-title">Good job!</h2>
+      <p id="modal-body">You got it right.</p>
+      <button class="btn btn-green" id="next">Next</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { clue: "least tall in a group of three or more", answer: "SHORTEST" },
+      { clue: "opposite of cold", answer: "HOT" },
+      { clue: "a color of the sky", answer: "BLUE" },
+      { clue: "man's best friend", answer: "DOG" },
+      { clue: "opposite of down", answer: "UP" },
+      { clue: "something you read", answer: "BOOK" },
+      { clue: "the star at the center of our solar system", answer: "SUN" },
+      { clue: "liquid we drink", answer: "WATER" },
+      { clue: "a fruit that keeps the doctor away", answer: "APPLE" },
+      { clue: "frozen water", answer: "ICE" },
+      { clue: "used to write on paper", answer: "PEN" },
+      { clue: "a flying mammal", answer: "BAT" },
+      { clue: "first meal of the day", answer: "BREAKFAST" },
+      { clue: "you wear these on your feet", answer: "SHOES" },
+      { clue: "animal known for saying 'meow'", answer: "CAT" },
+      { clue: "month with Valentine's Day", answer: "FEBRUARY" },
+      { clue: "a place where students learn", answer: "SCHOOL" },
+      { clue: "something you sleep on", answer: "BED" },
+      { clue: "it falls from the sky as water", answer: "RAIN" },
+      { clue: "you look through this to see far away", answer: "TELESCOPE" }
+    ];
+
+    let current = 0;
+    let selected = [];
+    let letters = [];
+    let correct = '';
+
+    const clueEl = document.getElementById('clue');
+    const tilesEl = document.getElementById('tiles');
+    const answerEl = document.getElementById('answer');
+    const submitBtn = document.getElementById('submit');
+    const backBtn = document.getElementById('back');
+    const skipBtn = document.getElementById('skip');
+    const overlay = document.getElementById('overlay');
+    const message = document.getElementById('message');
+    const nextBtn = document.getElementById('next');
+
+    function randomLetters(answer) {
+      const lettersArr = answer.split('');
+      const extras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      while (lettersArr.length < 10) {
+        lettersArr.push(extras[Math.floor(Math.random() * extras.length)]);
+      }
+      return lettersArr.sort(() => Math.random() - 0.5);
+    }
+
+    function loadQuestion() {
+      const q = questions[current];
+      clueEl.innerHTML = q.clue;
+      correct = q.answer.toUpperCase();
+      letters = randomLetters(correct);
+      selected = [];
+      renderTiles();
+      updateAnswer();
+      message.textContent = 'Tap letters to form the answer.';
+    }
+
+    function renderTiles(){
+      tilesEl.innerHTML='';
+      letters.forEach((l,i)=>{
+        const d=document.createElement('div');
+        d.className='tile';
+        d.textContent=l;
+        d.dataset.idx=i;
+        d.addEventListener('click',()=>onTileClick(i));
+        tilesEl.appendChild(d);
+      });
+    }
+
+    function onTileClick(idx){
+      const t=tilesEl.children[idx];
+      if(!t||t.classList.contains('disabled'))return;
+      t.classList.add('disabled');
+      selected.push({letter:letters[idx],idx});
+      updateAnswer();
+    }
+
+    function updateAnswer(){
+      answerEl.textContent=selected.map(s=>s.letter).join('')||'\u00A0';
+    }
+
+    backBtn.onclick=()=>{
+      if(!selected.length)return;
+      const last=selected.pop();
+      tilesEl.children[last.idx].classList.remove('disabled');
+      updateAnswer();
+    };
+
+    submitBtn.onclick=()=>{
+      const attempt=selected.map(s=>s.letter).join('').toUpperCase();
+      if(!attempt){flashMessage('Pick some letters first.');return;}
+      if(attempt===correct){showSuccess();}
+      else{flashMessage('Incorrect — try again');shake();markConflicts();}
+    };
+
+    function shake(){
+      document.querySelector('.answer-box').animate(
+        [{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}],
+        {duration:350}
+      );
+    }
+
+    function markConflicts(){
+      [...tilesEl.children].forEach(t=>{
+        if(!correct.includes(t.textContent)){
+          t.animate([{opacity:1},{opacity:0.3},{opacity:1}],{duration:500});
+        }
+      });
+    }
+
+    function flashMessage(txt){
+      message.textContent=txt;
+      setTimeout(()=>message.textContent='Tap letters to form the answer.',1400);
+    }
+
+    function showSuccess(){
+      overlay.classList.add('show');
+      document.getElementById('modal-body').textContent=`Answer: ${correct}`;
+    }
+
+    nextBtn.onclick=()=>{
+      overlay.classList.remove('show');
+      current++;
+      if(current>=questions.length){
+        current=0;
+        alert("You’ve completed all 20 questions! Restarting...");
+      }
+      loadQuestion();
+    };
+
+    skipBtn.onclick=()=>revealAnswer();
+
+    function revealAnswer(){
+      selected=[];
+      const used=new Set();
+      for(const ch of correct){
+        const idx=letters.findIndex((l,i)=>l===ch&&!used.has(i));
+        if(idx>=0){
+          used.add(idx);
+          selected.push({letter:letters[idx],idx});
+        }
+      }
+      [...tilesEl.children].forEach(t=>t.classList.remove('disabled'));
+      for(const s of selected){
+        if(s.idx>=0)tilesEl.children[s.idx].classList.add('disabled');
+      }
+      updateAnswer();
+      setTimeout(showSuccess,300);
+    }
+
+    // Keyboard accessibility (unchanged)
+    window.onkeydown=e=>{
+      const k=e.key.toUpperCase();
+      if(k==='ENTER')submitBtn.click();
+      else if(k==='BACKSPACE'||k==='DELETE')backBtn.click();
+      else{
+        for(let i=0;i<letters.length;i++){
+          const t=tilesEl.children[i];
+          if(t && !t.classList.contains('disabled') && letters[i]===k){
+            t.click();
+            break;
+          }
+        }
+      }
+    };
+
+    loadQuestion();
+  </script>
+</body>
+</html>
+
+
+

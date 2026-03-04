@@ -1,0 +1,281 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Easy Spelling Quiz · back left</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to bottom right, #dff4ff, #f0faff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    position: relative;
+  }
+
+  /* WHITE CIRCLE BACK BUTTON – now on the LEFT side, outside the quiz box */
+  .back-circle {
+    position: fixed;          /* independent of the quiz-box, stays at edge */
+    top: 24px;
+    left: 24px;               /* moved to left */
+    width: 56px;
+    height: 56px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s;
+    z-index: 1000;            /* on top of everything */
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(1px);
+  }
+
+  .back-circle:hover {
+    transform: scale(1.07);
+    background: #f9f9f9;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+  }
+
+  .back-circle:active {
+    transform: scale(0.98);
+  }
+
+  /* clear left arrow (still points left, consistent) */
+  .back-circle span {
+    font-size: 36px;
+    line-height: 1;
+    font-weight: 400;
+    color: #2c3e50;
+    margin-top: -4px;
+    display: block;
+    margin-right: 2px; /* tiny adjustment for perfect center */
+  }
+
+  /* QUIZ BOX – same style, just responsive */
+  .quiz-box {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 900px;
+    max-width: 95%;
+    padding: 45px 40px;
+    margin: 20px 10px;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  h1 { color: #3cb043; margin: 0 0 6px; font-size: 2.5em; }
+  p { color: #333; font-size: 15px; margin: 0 0 25px; }
+  h3 { color: #555; margin: 10px 0; font-weight: normal; }
+  h2 { color: #222; font-size: 20px; margin: 20px 0; }
+
+  .options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 25px;
+  }
+
+  button {
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: bold;
+    color: #222;
+    cursor: pointer;
+    transition: transform 0.15s, filter 0.1s;
+  }
+  button:hover { transform: scale(1.05); }
+  .yellow { background: #ffd966; }
+  .blue { background: #b1e5f0; }
+  .green { background: #b7f0b1; }
+  .orange { background: #e182bb; }
+
+  #result {
+    font-weight: bold;
+    color: white;
+    background: #90ee90;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 10px;
+    visibility: hidden;
+  }
+  #result.wrong { background: #ff6b6b; }
+
+  .restart-btn {
+    background: #b7f0b1;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-top: 20px;
+    transition: background 0.2s;
+  }
+  .restart-btn:hover { background: #9edf96; }
+
+  /* small screen adjustment: keep left circle from overlapping too much */
+  @media (max-width: 600px) {
+    .back-circle {
+      top: 12px;
+      left: 12px;
+      width: 48px;
+      height: 48px;
+    }
+    .quiz-box { padding: 30px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- WHITE CIRCLE BACK BUTTON – now on the LEFT, outside quiz box -->
+<div class="back-circle" id="backBtn" title="Go back to MINDSPARKKK">
+  <span>←</span>  <!-- left arrow -->
+</div>
+
+<div class="quiz-box" id="quizContainer">
+  <h1>Easy Spelling Quiz</h1>
+  <p>Choose the correctly spelled word</p>
+  <h3 id="qnum">Question 1 of 50</h3>
+  <h2 id="question-text">Loading...</h2>
+  <div class="options" id="options"></div>
+  <div id="result">Correct!</div>
+</div>
+
+<script>
+(function() {
+  const quizData = [
+    { q: "Which word is spelled correctly?", o: ["Aple","Apple","Appel","Appl"], c: 1 },
+    { q: "Choose the correct spelling.", o: ["Bananna","Bannana","Banana","Bannanna"], c: 2 },
+    { q: "Pick the correct word.", o: ["Frend","Freind","Friend","Frind"], c: 2 },
+    { q: "Which is spelled right?", o: ["Skool","School","Scool","Schol"], c: 1 },
+    { q: "Choose correct spelling.", o: ["Tommorow","Tomorow","Tomorrow","Tomorraw"], c: 2 },
+    { q: "Which spelling is correct?", o: ["Beutiful","Beautiful","Beautifull","Beauteeful"], c: 1 },
+    { q: "Pick the correct one.", o: ["Familly","Famely","Family","Familee"], c: 2 },
+    { q: "Select the correct spelling.", o: ["Coffe","Coffee","Cofee","Coffee"], c: 1 },
+    { q: "Which is spelled right?", o: ["Hapy","Happy","Happpy","Happi"], c: 1 },
+    { q: "Choose the correct spelling.", o: ["Beter","Better","Bettar","Beterr"], c: 1 },
+    { q: "Pick the right spelling.", o: ["Littel","Litle","Little","Litlle"], c: 2 },
+    { q: "Which word is correct?", o: ["Rainy","Rainey","Rainney","Rayny"], c: 0 },
+    { q: "Select the correct spelling.", o: ["Suny","Sunny","Sunnie","Sonny"], c: 1 },
+    { q: "Which is correct?", o: ["Mother","Mothar","Moter","Motherr"], c: 0 },
+    { q: "Pick the right spelling.", o: ["Father","Fathar","Fatherr","Fater"], c: 0 },
+    { q: "Choose correct spelling.", o: ["Sister","Sistor","Sistter","Sistur"], c: 0 },
+    { q: "Which word is correct?", o: ["Brother","Brothor","Broter","Brothr"], c: 0 },
+    { q: "Select correct spelling.", o: ["Window","Windo","Wendow","Windoe"], c: 0 },
+    { q: "Pick the correct spelling.", o: ["Chair","Chear","Chaire","Chir"], c: 0 },
+    { q: "Which spelling is correct?", o: ["Table","Tabel","Tabell","Tabble"], c: 0 },
+    { q: "Choose the correct spelling.", o: ["Color","Colur","Culor","Coolor"], c: 0 },
+    { q: "Pick correct spelling.", o: ["Water","Watter","Watr","Waterr"], c: 0 },
+    { q: "Select correctly spelled word.", o: ["River","Rivver","Rever","Riever"], c: 0 },
+    { q: "Which is correct?", o: ["Flower","Flouer","Flowar","Flawer"], c: 0 },
+    { q: "Choose correct spelling.", o: ["Butterfly","Butterflie","Buterfly","Butterfli"], c: 0 },
+    { q: "Pick the right one.", o: ["Happy","Hapy","Happpy","Hapey"], c: 0 },
+    { q: "Which is correct?", o: ["Baby","Babby","Beby","Babbey"], c: 0 },
+    { q: "Select the correct spelling.", o: ["Candy","Candi","Candee","Kandy"], c: 0 },
+    { q: "Pick correct word.", o: ["Funny","Funy","Funnie","Phunny"], c: 0 },
+    { q: "Which word is correct?", o: ["Jump","Jamp","Jomp","Jemp"], c: 0 },
+    { q: "Choose correct spelling.", o: ["Dance","Dans","Danc","Danns"], c: 0 },
+    { q: "Pick the correct one.", o: ["Smile","Smail","Smille","Smyel"], c: 0 },
+    { q: "Select correct spelling.", o: ["Play","Pley","Ply","Plaay"], c: 0 },
+    { q: "Which spelling is right?", o: ["Clean","Cleen","Clene","Clin"], c: 0 },
+    { q: "Choose the correct word.", o: ["Dream","Dreem","Drim","Dreim"], c: 0 },
+    { q: "Pick correct spelling.", o: ["Sing","Seng","Syng","Singg"], c: 0 },
+    { q: "Which is correct?", o: ["Dance","Dans","Danns","Danc"], c: 0 },
+    { q: "Select the correct spelling.", o: ["Story","Storry","Storie","Storiee"], c: 0 },
+    { q: "Choose correct spelling.", o: ["Book","Buk","Boock","Bouk"], c: 0 },
+    { q: "Pick correct spelling.", o: ["Paper","Papper","Peper","Papor"], c: 0 },
+    { q: "Which word is correct?", o: ["Teacher","Techer","Teachar","Teatcher"], c: 0 },
+    { q: "Choose correct spelling.", o: ["Student","Stodent","Studant","Stundent"], c: 0 },
+    { q: "Pick correct one.", o: ["School","Skool","Schol","Schule"], c: 0 },
+    { q: "Which is spelled right?", o: ["Notebook","Notebok","Noteebook","Notebok"], c: 0 },
+    { q: "Choose the correct spelling.", o: ["Lunch","Lanch","Lunche","Lunc"], c: 0 },
+    { q: "Pick correct spelling.", o: ["Morning","Mourning","Morining","Mornig"], c: 0 },
+    { q: "Which word is correct?", o: ["Night","Nite","Niht","Nighte"], c: 0 },
+    { q: "Choose correct spelling.", o: ["Dinner","Diner","Dinnar","Dinnner"], c: 0 },
+    { q: "Pick correct word.", o: ["Fruit","Frute","Fruet","Fruitt"], c: 0 },
+    { q: "Which spelling is correct?", o: ["Animal","Anemal","Anymal","Animel"], c: 0 },
+    { q: "Select the right word.", o: ["Garden","Gardan","Gardin","Gerden"], c: 0 }
+  ];
+
+  let current = 0;
+  const total = quizData.length;
+  const qtext = document.getElementById("question-text");
+  const opts = document.getElementById("options");
+  const res = document.getElementById("result");
+  const qnum = document.getElementById("qnum");
+  const colors = ["yellow","blue","green","orange"];
+
+  function loadQ() {
+    const q = quizData[current];
+    qnum.textContent = `Question ${current+1} of ${total}`;
+    qtext.textContent = q.q;
+    opts.innerHTML = "";
+    q.o.forEach((t, i) => {
+      const b = document.createElement("button");
+      b.className = colors[i % 4];
+      b.textContent = t;
+      b.onclick = () => check(i === q.c);
+      opts.appendChild(b);
+    });
+    res.style.visibility = "hidden";
+  }
+
+  function check(ok) {
+    res.style.visibility = "visible";
+    if (ok) {
+      res.textContent = "Correct!";
+      res.classList.remove("wrong");
+      setTimeout(() => {
+        current++;
+        if (current < total) { loadQ(); }
+        else { endQuiz(); }
+      }, 800);
+    } else {
+      res.textContent = "Try again!";
+      res.classList.add("wrong");
+    }
+  }
+
+  function endQuiz() {
+    const container = document.getElementById("quizContainer");
+    container.innerHTML = `
+      <h1>Easy Spelling Quiz</h1>
+      <p>You finished all 50 questions 🎉</p>
+      <h2>Great job!</h2>
+      <button class="restart-btn" onclick="location.reload()">Restart</button>
+    `;
+  }
+
+  // initial load
+  loadQ();
+
+  // ---------- BACK BUTTON (LEFT SIDE) ----------
+  const backButton = document.getElementById('backBtn');
+  backButton.addEventListener('click', function() {
+    // Navigates to the specified file path (left as provided)
+    window.location.href = 'MINDSPARKKK.html';
+  });
+})();
+</script>
+
+<!-- back button now sits at top left, white circle, outside the quiz area -->
+</body>
+</html>
+

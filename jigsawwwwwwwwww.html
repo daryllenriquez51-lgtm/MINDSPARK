@@ -1,0 +1,576 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Auto Slice Puzzle · Back button</title>
+<style>
+body {
+  margin: 0;
+  background-image: url('MINDSPARK%20(4).jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  position: relative;
+}
+
+/* white circle back button – fixed to left top, outside container flow */
+.back-circle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 54px;
+  height: 54px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2000;
+  transition: transform 0.1s ease, background 0.2s;
+  border: 2px solid #f0c45a;
+}
+.back-circle:hover {
+  transform: scale(1.05);
+  background: #fef9e7;
+}
+.back-circle:active {
+  transform: scale(0.98);
+}
+.back-arrow {
+  font-size: 32px;
+  font-weight: bold;
+  color: #b57c1c;
+  line-height: 1;
+  margin-top: -4px; /* fine tune */
+}
+
+.container {
+  display: flex;
+  padding: 20px;
+  justify-content: space-between;
+}
+
+#board {
+  width: 90vh;
+  height: 90vh;
+  border: 10px solid #d4a14f;
+  position: relative;
+  margin-right: -20px;
+}
+
+#background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+.slot {
+  position: absolute;
+  border: 1px dashed rgba(255,255,255,.5);
+}
+
+.piece {
+  position: absolute;
+  cursor: grab;
+  border-radius: 0px;
+  bottom: 85px;
+}
+
+.right {
+  width: 400px;
+  text-align: center;
+  position: relative;
+  left: -20px;
+}
+
+.score-circle {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #ffec9e, #f7b500);
+  border-radius: 50%;
+  margin: auto;
+  margin-left: -120px;
+  position: relative;
+}
+
+.score-circle h1 {
+  line-height: 300px;
+  font-size: 80px;
+  color: white;
+  margin: 0;
+  text-shadow: 2px 2px #c48b00;
+}
+
+.level-display {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  color: white;
+  font-weight: bold;
+  text-shadow: 1px 1px #c48b00;
+}
+
+.crown {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: gold;
+  padding: 6px 18px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.35);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .18s ease, visibility .18s;
+  z-index: 3000;
+}
+.overlay.show {
+  visibility: visible;
+  opacity: 1;
+}
+.modal {
+  padding: 28px 34px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+  text-align: center;
+  max-width: 520px;
+}
+.modal h2 {
+  font-family:'Arial';
+  font-size: 36px;
+  margin-bottom: 6px;
+  color:#222;
+}
+.modal p {
+  color:#333;
+  margin-bottom:16px;
+}
+.btn {
+  background: #f7b500;
+  border: none;
+  padding: 12px 34px;
+  border-radius: 40px;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #b57c00;
+  transition: 0.1s ease;
+}
+.btn:active {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+#tray {
+  margin-top: 20px;
+  margin-left:-330px;
+  width: 220px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  background: linear-gradient(#ffe39c, #f6b74c);
+  padding: 160px 250px;
+  border-radius: 28px;
+  overflow-x: auto;
+}
+</style>
+</head>
+<body>
+
+<!-- white circle back button – left top, links to Puzzle Homepage.html -->
+<div class="back-circle" id="backBtn" title="Back to homepage">
+  <span class="back-arrow">←</span>
+</div>
+
+<div class="container">
+<div id="board">
+  <div id="background"></div>
+  </div>
+
+  <div class="right">
+    <div class="score-circle">
+      <div class="crown">👑</div>
+      <div class="level-display" id="level">Level 1</div>
+      <h1 id="score">0</h1>
+    </div>
+    <div id="tray"></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modal-title">Good job!</h2>
+    <p id="modal-body">You completed the level!</p>
+    <button class="btn" id="next">Next</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  // ---------- BACK BUTTON FUNCTIONALITY (white circle) ----------
+  const backBtn = document.getElementById('backBtn');
+  if (backBtn) {
+    backBtn.addEventListener('click', function() {
+      // Save progress before leaving? (optional – we auto-save on every move anyway)
+      // Then redirect to the given file URL
+      window.location.href = 'Puzzle%20Homepage.html';
+    });
+  }
+
+  // ---------- PUZZLE GLOBAL VARIABLES ----------
+  let rows = 3;
+  let cols = 3;
+  let level = 1;
+  const traySize = 3;  // not strictly used
+
+  const BASE_POINTS = 8;
+  function getPointsPerPiece() { return BASE_POINTS * level; }
+
+  let placedPieces = [];
+  let maxLevelReached = 1;
+  let totalScore = 0;
+  let score = 0;
+  
+  const board = document.getElementById("board");
+  const tray = document.getElementById("tray");
+  const scoreEl = document.getElementById("score");
+  const levelEl = document.getElementById("level");
+  const overlay = document.getElementById('overlay');
+
+  let allPieces = [];
+  let pieceIndex = 1; // legacy
+  let currentImg = new Image();
+  let currentImgSrc = "";
+
+  // Level images (unchanged)
+  const levelImages = [
+    "https://images.unsplash.com/photo-1509042239860-f550ce710b93",  // Level 1 - Coffee
+    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1",  // Level 2 - Nature
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",  // Level 3 - Beach
+    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e",  // Level 4 - Mountain
+    "https://images.unsplash.com/photo-1519681393784-d120267933ba",  // Level 5 - Snow
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",  // Level 6 - Portrait
+    "https://images.unsplash.com/photo-1518837695005-2083093ee35b",  // Level 7 - Ocean
+    "https://images.unsplash.com/photo-1493246507139-91e8fad9978e",  // Level 8 - Lake
+    "https://images.unsplash.com/photo-1469474968028-56623f02e42e",  // Level 9 - Forest
+    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4"   // Level 10 - Sunset
+  ];
+
+  // ---------- SAVE / LOAD (jasmineprogress) ----------
+  function saveGameState() {
+    const gameState = {
+      level: level,
+      rows: rows,
+      cols: cols,
+      score: score,
+      placedPieces: placedPieces,
+      maxLevelReached: maxLevelReached,
+      totalScore: totalScore
+    };
+    localStorage.setItem('jasmineprogress', JSON.stringify(gameState));
+    localStorage.setItem('jigsawPuzzleState', JSON.stringify(gameState));
+  }
+
+  function loadGameState() {
+    let savedState = localStorage.getItem('jasmineprogress');
+    if (!savedState) savedState = localStorage.getItem('jigsawPuzzleState');
+    if (savedState) {
+      try {
+        const gameState = JSON.parse(savedState);
+        level = gameState.level || 1;
+        rows = gameState.rows || 3;
+        cols = gameState.cols || 3;
+        score = gameState.score || 0;
+        placedPieces = gameState.placedPieces || [];
+        maxLevelReached = gameState.maxLevelReached || level;
+        totalScore = gameState.totalScore || score;
+        
+        levelEl.textContent = `Level ${level}`;
+        scoreEl.textContent = score;
+        return true;
+      } catch (e) { console.error("load error", e); }
+    }
+    return false;
+  }
+
+  function clearGameState() {
+    localStorage.removeItem('jasmineprogress');
+    localStorage.removeItem('jigsawPuzzleState');
+  }
+
+  // image helper
+  function getImageForLevel(lvl) {
+    const imageIndex = (lvl - 1) % levelImages.length;
+    return levelImages[imageIndex];
+  }
+
+  function loadLevelImage() {
+    return new Promise((resolve, reject) => {
+      currentImgSrc = getImageForLevel(level);
+      currentImg = new Image();
+      currentImg.crossOrigin = "anonymous";
+      currentImg.src = currentImgSrc;
+      
+      currentImg.onload = () => {
+        const background = document.getElementById("background");
+        if (background) background.style.backgroundImage = `url(${currentImgSrc})`;
+        resolve();
+      };
+      currentImg.onerror = () => reject(new Error("Failed to load image"));
+    });
+  }
+
+  // helpers: clear board & tray
+  function clearBoard() {
+    while (board.firstChild) board.removeChild(board.firstChild);
+  }
+  function clearTray() {
+    while (tray.firstChild) tray.removeChild(tray.firstChild);
+  }
+
+  // shuffle
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  // create slots & attach drop listeners
+  function createSlots(pieceW, pieceH) {
+    for (let i = 0; i < rows * cols; i++) {
+      const slot = document.createElement("div");
+      slot.className = "slot";
+      slot.dataset.index = i;
+      slot.style.width = pieceW + "px";
+      slot.style.height = pieceH + "px";
+      slot.style.left = (i % cols) * pieceW + "px";
+      slot.style.top = Math.floor(i / cols) * pieceH + "px";
+
+      slot.ondragover = e => e.preventDefault();
+      slot.ondrop = e => {
+        e.preventDefault();
+        const id = e.dataTransfer.getData("id");
+        const piece = document.getElementById(id);
+        if (!piece) return;
+
+        if (piece.dataset.index === slot.dataset.index) {
+          // remove from tray first (if it's in tray)
+          if (tray.contains(piece)) tray.removeChild(piece);
+
+          piece.style.left = slot.style.left;
+          piece.style.top = slot.style.top;
+          piece.style.position = "absolute";
+          piece.style.transform = "none";
+          board.appendChild(piece);
+          piece.draggable = false;
+
+          // click to remove from board (toggle back)
+          piece.onclick = () => {
+            if (board.contains(piece)) {
+              board.removeChild(piece);
+              tray.appendChild(piece);
+              piece.draggable = true;
+              score -= 8;
+              scoreEl.textContent = score;
+              // update placedPieces
+              const idx = parseInt(piece.dataset.index);
+              placedPieces = placedPieces.filter(p => p !== idx);
+              saveGameState();
+            }
+          };
+
+          score += 8;
+          scoreEl.textContent = score;
+
+          const pieceIdx = parseInt(piece.dataset.index);
+          if (!placedPieces.includes(pieceIdx)) placedPieces.push(pieceIdx);
+          saveGameState();
+
+          // Level complete condition (score == total pieces * 8)
+          if (score === rows * cols * 8) {
+            overlay.classList.add('show');
+            setTimeout(() => {
+              overlay.classList.remove('show');
+              // advance level
+              clearGameState(); // fresh start for next level
+              level++;
+              levelEl.textContent = `Level ${level}`;
+              score = 0;
+              scoreEl.textContent = score;
+              placedPieces = [];
+              rows++;
+              cols++;
+              clearBoard();
+              clearTray();
+
+              // recreate background div inside board
+              const bgDiv = document.createElement("div");
+              bgDiv.id = "background";
+              bgDiv.style.position = "absolute";
+              bgDiv.style.top = "0";
+              bgDiv.style.left = "0";
+              bgDiv.style.width = "100%";
+              bgDiv.style.height = "100%";
+              bgDiv.style.backgroundSize = "cover";
+              bgDiv.style.backgroundRepeat = "no-repeat";
+              bgDiv.style.backgroundPosition = "center";
+              bgDiv.style.opacity = "0.3";
+              bgDiv.style.zIndex = "-1";
+              board.appendChild(bgDiv);
+
+              // load new image and rebuild
+              loadLevelImage().then(() => {
+                const pieceW = board.clientWidth / cols;
+                const pieceH = board.clientHeight / rows;
+                createSlots(pieceW, pieceH);
+                sliceImage(pieceW, pieceH);
+              }).catch(console.error);
+            }, 2000);
+          }
+        }
+      };
+      board.appendChild(slot);
+    }
+  }
+
+  // slice image and create piece elements
+  function sliceImage(pieceW, pieceH) {
+    allPieces = [];
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const canvas = document.createElement("canvas");
+        canvas.width = pieceW;
+        canvas.height = pieceH;
+        const ctx = canvas.getContext("2d");
+
+        ctx.drawImage(
+          currentImg,
+          x * currentImg.width / cols,
+          y * currentImg.height / rows,
+          currentImg.width / cols,
+          currentImg.height / rows,
+          0,
+          0,
+          pieceW,
+          pieceH
+        );
+
+        const piece = document.createElement("img");
+        piece.src = canvas.toDataURL();
+        piece.className = "piece";
+        piece.id = `piece-${y * cols + x}-${Date.now()}-${Math.random()}`; // more unique
+        piece.dataset.index = y * cols + x;
+        piece.draggable = true;
+
+        piece.ondragstart = e => {
+          e.dataTransfer.setData("id", piece.id);
+        };
+
+        allPieces.push(piece);
+      }
+    }
+    shuffle(allPieces);
+    allPieces.forEach(piece => tray.appendChild(piece));
+  }
+
+  // restore placed pieces after load
+  function restorePlacedPieces(pieceW, pieceH) {
+    sliceImage(pieceW, pieceH);  // creates pieces in tray
+    // wait a tick for DOM to update
+    setTimeout(() => {
+      const pieces = Array.from(tray.querySelectorAll('.piece'));
+      pieces.forEach(piece => {
+        const index = parseInt(piece.dataset.index);
+        if (placedPieces.includes(index)) {
+          const slot = board.querySelector(`.slot[data-index="${index}"]`);
+          if (slot) {
+            tray.removeChild(piece);
+            piece.style.left = slot.style.left;
+            piece.style.top = slot.style.top;
+            piece.style.position = "absolute";
+            piece.style.transform = "none";
+            board.appendChild(piece);
+            piece.draggable = false;
+
+            piece.onclick = () => {
+              board.removeChild(piece);
+              tray.appendChild(piece);
+              piece.draggable = true;
+              score -= 8;
+              scoreEl.textContent = score;
+              placedPieces = placedPieces.filter(p => p !== index);
+              saveGameState();
+            };
+          }
+        }
+      });
+    }, 50);
+  }
+
+  // main init
+  function initGame() {
+    const hasProgress = loadGameState();
+    loadLevelImage().then(() => {
+      const pieceW = board.clientWidth / cols;
+      const pieceH = board.clientHeight / rows;
+      createSlots(pieceW, pieceH);
+      if (hasProgress && placedPieces.length > 0) {
+        restorePlacedPieces(pieceW, pieceH);
+      } else {
+        sliceImage(pieceW, pieceH);
+      }
+    }).catch(err => {
+      console.warn("Image load failed, using fallback color. but we proceed.");
+      // fallback background
+      const bg = document.getElementById("background");
+      if (bg) bg.style.background = "#ccc";
+      const pieceW = board.clientWidth / cols;
+      const pieceH = board.clientHeight / rows;
+      createSlots(pieceW, pieceH);
+      sliceImage(pieceW, pieceH);
+    });
+  }
+
+  // next button inside modal (though currently auto-advances, but we keep functionality)
+  document.getElementById('next')?.addEventListener('click', () => {
+    overlay.classList.remove('show');
+  });
+
+  // start puzzle
+  initGame();
+
+  // if board size changes dynamically on window resize? we ignore for simplicity, but keep existing.
+  // ensure back button works even if clicked during drag etc.
+})();
+</script>
+
+</body>
+</html>
+
+

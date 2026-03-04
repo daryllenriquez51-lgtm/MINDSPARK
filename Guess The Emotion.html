@@ -1,0 +1,584 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Game · GIF glow · back outside</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background-color: #1a2f3f; /* fallback */
+        }
+
+        /* GIF background – covers everything, fixed, seamless */
+        #bg-gif {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -2;
+            pointer-events: none;
+            background: transparent;
+        }
+
+        /* Very light overlay to keep text readable, but lets GIF shine */
+        .gif-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* ---------- BACK BUTTON (outside, on background, top left) ---------- */
+        .back-btn-outside {
+            position: fixed;        /* relative to viewport, stays on top left background */
+            top: 25px;
+            left: 25px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);  /* crisp white, slightly glassy */
+            backdrop-filter: blur(6px);
+            border: 2px solid rgba(255, 255, 255, 0.98);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 35px rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1a2f3f;          /* dark arrow for contrast */
+            cursor: pointer;
+            transition: 0.25s ease;
+            z-index: 100;            /* above everything */
+            line-height: 1;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            padding: 0;
+        }
+
+        .back-btn-outside:hover {
+            transform: scale(1.13) rotate(-2deg);
+            background: rgb(255, 255, 255);
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.7), 0 0 55px #ffffff;
+            color: #0a1821;
+        }
+
+        /* MAIN CONTAINER – completely transparent background, only blur + glow */
+        .game-container {
+            width: 90%;
+            max-width: 600px;
+            border-radius: 60px;
+            padding: 2rem 2rem 2.2rem;
+            
+            background: transparent;
+            
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                0 25px 55px rgba(0, 0, 0, 0.6),
+                0 0 30px rgba(255, 210, 140, 0.8),
+                0 0 50px rgba(160, 210, 255, 0.7),
+                0 0 80px rgba(250, 250, 180, 0.6);
+            
+            transition: box-shadow 0.25s ease;
+            position: relative;       /* keeps it above the overlay, but back button is fixed */
+            z-index: 10;
+        }
+
+        .game-container:hover {
+            box-shadow: 
+                0 30px 70px rgba(0, 0, 0, 0.7),
+                0 0 45px rgba(255, 200, 120, 1),
+                0 0 70px rgba(130, 200, 250, 1),
+                0 0 110px rgba(255, 250, 170, 1);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            text-shadow: 4px 4px 10px #00000090, 0 0 25px #fffed0;
+            margin-bottom: 1.5rem;
+            font-size: 2.1em;
+            background: rgba(10, 20, 30, 0.2);
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-section {
+            background: rgba(15, 25, 35, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 50px;
+            padding: 1rem 1.8rem;
+            margin-bottom: 1.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.25em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 6px black;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .score {
+            color: #ffeeb0;
+        }
+
+        .question-number {
+            color: #cce5ff;
+        }
+
+        .face-container {
+            background: rgba(10, 20, 30, 0.2);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-radius: 70px;
+            padding: 1.8rem 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: inset 0 0 60px rgba(255, 255, 255, 0.25), 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .face {
+            font-size: 9rem;
+            line-height: 1;
+            margin-bottom: 0.4rem;
+            animation: bounce 2.4s infinite ease-in-out;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 180, 0.9));
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .emotion-prompt {
+            font-size: 1.4rem;
+            color: white;
+            text-shadow: 2px 2px 7px black;
+            margin-top: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.4rem 1.4rem;
+            border-radius: 60px;
+            display: inline-block;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-btn {
+            background: rgba(230, 240, 255, 0.18);
+            backdrop-filter: blur(14px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
+            padding: 1rem 0.5rem;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+            color: white;
+            text-shadow: 2px 2px 5px #000000b0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #fffce6;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.5), 0 0 35px #ffffcf;
+        }
+
+        .option-btn:disabled {
+            opacity: 0.85;
+            cursor: not-allowed;
+        }
+
+        .option-btn.correct {
+            background: rgba(46, 125, 50, 0.7);
+            border-color: #c8e6c9;
+            text-shadow: 2px 2px 5px #1b5e20;
+            box-shadow: 0 0 40px #2e7d32;
+        }
+
+        .option-btn.incorrect {
+            background: rgba(183, 28, 28, 0.7);
+            border-color: #ffcdd2;
+            text-shadow: 2px 2px 5px #b71c1c;
+            box-shadow: 0 0 40px #c62828;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            min-height: 75px;
+            background: rgba(10, 25, 35, 0.3);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            text-shadow: 2px 2px 5px black;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback.success {
+            background: rgba(27, 94, 32, 0.45);
+            border-color: #a5d6a7;
+        }
+
+        .feedback.info {
+            background: rgba(21, 71, 117, 0.45);
+            border-color: #bbdefb;
+        }
+
+        .voice-btn {
+            background: rgba(255, 145, 0, 0.45);
+            backdrop-filter: blur(14px);
+            border: 2px solid rgba(255, 255, 255, 0.65);
+            color: white;
+            border-radius: 50%;
+            width: 75px;
+            height: 75px;
+            font-size: 2.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.8rem;
+            transition: 0.3s;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6), 0 0 30px #ffb74d;
+            text-shadow: 3px 3px 6px black;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.18) rotate(4deg);
+            background: rgba(255, 130, 0, 0.7);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.7), 0 0 50px #ffa726;
+            border-color: white;
+        }
+
+        .game-over {
+            text-align: center;
+        }
+
+        .game-over h2 {
+            color: white;
+            text-shadow: 4px 4px 12px black;
+            margin-bottom: 1.3rem;
+            font-size: 2.3rem;
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            display: inline-block;
+            padding: 0.8rem 2.2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .final-score {
+            font-size: 2.3rem;
+            color: #fff2bf;
+            margin-bottom: 2rem;
+            font-weight: bold;
+            text-shadow: 3px 3px 8px #000000c0;
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(10px);
+            padding: 0.8rem 2.2rem;
+            border-radius: 70px;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .play-again-btn {
+            background: rgba(102, 126, 234, 0.4);
+            backdrop-filter: blur(18px);
+            border: 2px solid rgba(255,255,255,0.5);
+            color: white;
+            border-radius: 70px;
+            padding: 1rem 3.2rem;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-shadow: 2px 2px 6px black;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 40px #b39ddb;
+        }
+
+        .play-again-btn:hover {
+            transform: scale(1.06);
+            background: rgba(118, 75, 162, 0.6);
+            border-color: white;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.7), 0 0 60px #9575cd;
+        }
+
+        #gameArea, #gameOverArea {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- GIF BACKGROUND – replace with your working GIF path -->
+    <img src="emotion%20gif.gif" id="bg-gif" alt="animated background">
+    
+    <!-- subtle overlay -->
+    <div class="gif-overlay"></div>
+
+    <!-- BACK BUTTON: now outside container, fixed to viewport (top-left on background) -->
+    <button class="back-btn-outside" id="backBtnOutside" aria-label="Go back">←</button>
+
+    <div class="game-container">
+        <h1>🎭 emotion · GIF glow</h1>
+        
+        <div id="gameArea">
+            <div class="score-section">
+                <span class="question-number" id="questionCounter">Question 1/10</span>
+                <span class="score">Score: <span id="scoreDisplay">0</span></span>
+            </div>
+
+            <button class="voice-btn" id="voiceBtn" aria-label="Listen to description">🔊</button>
+
+            <div class="face-container">
+                <div class="face" id="faceDisplay">😊</div>
+                <div class="emotion-prompt" id="emotionPrompt">How is this person feeling?</div>
+            </div>
+
+            <div class="options-container" id="optionsContainer"></div>
+
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div id="gameOverArea" style="display: none;">
+            <div class="game-over">
+                <h2>✨ complete ✨</h2>
+                <div class="final-score" id="finalScore"></div>
+                <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---------- Emotion data ----------
+        const emotions = [
+            { face: '😊', name: 'Happy', clue: 'This person has a big smile and might be laughing. Their eyes are bright and cheerful.' },
+            { face: '😢', name: 'Sad', clue: 'A tear is rolling down this person\'s cheek. Their mouth is turned down.' },
+            { face: '😠', name: 'Angry', clue: 'Their eyebrows are lowered and their mouth is tight. They might be frowning intensely.' },
+            { face: '😨', name: 'Scared', clue: 'Their eyes are wide open and their mouth is open in shock. They look frightened.' },
+            { face: '😲', name: 'Surprised', clue: 'Their eyes and mouth are wide open. Something unexpected just happened.' },
+            { face: '🤔', name: 'Confused', clue: 'They have a hand on their chin and are thinking hard. They are not sure about something.' },
+            { face: '😴', name: 'Tired', clue: 'Their eyes are closed and there might be a ZZZ. They look like they need to sleep.' },
+            { face: '😂', name: 'Excited', clue: 'Tears of joy! They are laughing so hard and feel full of energy.' },
+            { face: '😌', name: 'Calm', clue: 'Their eyes are gently closed and they have a peaceful, relaxed smile.' },
+            { face: '😟', name: 'Worried', clue: 'Their eyebrows are furrowed and their mouth is a little tense. Something is on their mind.' }
+        ];
+
+        // Game state
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+        const totalQuestions = 10;
+
+        // DOM elements
+        const gameArea = document.getElementById('gameArea');
+        const gameOverArea = document.getElementById('gameOverArea');
+        const faceDisplay = document.getElementById('faceDisplay');
+        const emotionPrompt = document.getElementById('emotionPrompt');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedbackDiv = document.getElementById('feedback');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const questionCounter = document.getElementById('questionCounter');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const finalScoreSpan = document.getElementById('finalScore');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        
+        // OUTSIDE BACK BUTTON (fixed on background)
+        const backBtnOutside = document.getElementById('backBtnOutside');
+
+        // ----- BACK BUTTON FUNCTIONALITY -----
+        backBtnOutside.addEventListener('click', function() {
+            // Navigate to the specified local file (Recommend.html)
+            window.location.href = "Recommend.html";
+        });
+
+        // Utility: shuffle
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        function updateQuestionCounter() {
+            questionCounter.textContent = `Question ${currentQuestionIndex + 1}/${totalQuestions}`;
+        }
+
+        // generate 1 correct + 3 random wrong
+        function generateOptions(correctEmotion) {
+            const wrong = emotions.map(e => e.name).filter(n => n !== correctEmotion);
+            const shuffledWrong = shuffleArray([...wrong]);
+            const selectedWrong = shuffledWrong.slice(0, 3);
+            return shuffleArray([correctEmotion, ...selectedWrong]);
+        }
+
+        // speak descriptive clue
+        function speakInstruction(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                const voices = window.speechSynthesis.getVoices();
+                const preferred = voices.find(v => v.name.includes('Google UK') || v.name.includes('Samantha'));
+                if (preferred) utterance.voice = preferred;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function handleVoiceClick() {
+            if (!currentQuestions.length) return;
+            const currentEmotion = currentQuestions[currentQuestionIndex];
+            speakInstruction(currentEmotion.clue);
+        }
+
+        // display current question
+        function showQuestion() {
+            const current = currentQuestions[currentQuestionIndex];
+            faceDisplay.textContent = current.face;
+            emotionPrompt.textContent = "How is this person feeling?";
+
+            const optionNames = generateOptions(current.name);
+            optionsContainer.innerHTML = '';
+            optionNames.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(opt, current.name);
+                optionsContainer.appendChild(btn);
+            });
+
+            feedbackDiv.textContent = '';
+            feedbackDiv.className = 'feedback';
+            answered = false;
+        }
+
+        // check & auto advance after 1.5s
+        function checkAnswer(selected, correct) {
+            if (answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const isCorrect = (selected === correct);
+
+            if (isCorrect) {
+                score += 10;
+                updateScore();
+                feedbackDiv.textContent = '✅ Great job! That\'s correct!';
+                feedbackDiv.className = 'feedback success';
+                buttons.forEach(btn => {
+                    if (btn.textContent === correct) btn.classList.add('correct');
+                    btn.disabled = true;
+                });
+                speakInstruction('Excellent! That\'s right!');
+            } else {
+                feedbackDiv.textContent = '❌ Not quite. The correct answer is highlighted.';
+                feedbackDiv.className = 'feedback info';
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.textContent === correct) btn.classList.add('correct');
+                    else if (btn.textContent === selected) btn.classList.add('incorrect');
+                });
+                speakInstruction('Good try! Better luck on the next one.');
+            }
+
+            setTimeout(() => {
+                if (currentQuestionIndex < totalQuestions - 1) {
+                    currentQuestionIndex++;
+                    updateQuestionCounter();
+                    showQuestion();
+                } else {
+                    gameArea.style.display = 'none';
+                    gameOverArea.style.display = 'block';
+                    finalScoreSpan.textContent = `Your score: ${score} out of ${totalQuestions * 10}`;
+                    
+                    if (score === totalQuestions * 10) speakInstruction('Perfect score! You\'re an emotion expert!');
+                    else if (score >= totalQuestions * 7) speakInstruction('Great job! You did really well!');
+                    else speakInstruction('Good try! Keep practicing your emotion recognition skills!');
+                }
+            }, 1500);
+        }
+
+        // restart
+        function initGame() {
+            currentQuestions = shuffleArray([...emotions]).slice(0, totalQuestions);
+            currentQuestionIndex = 0;
+            score = 0;
+            answered = false;
+            updateScore();
+            updateQuestionCounter();
+            showQuestion();
+            gameArea.style.display = 'block';
+            gameOverArea.style.display = 'none';
+        }
+
+        // listeners
+        voiceBtn.addEventListener('click', handleVoiceClick);
+        playAgainBtn.addEventListener('click', initGame);
+
+        // preload voices
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+        }
+
+        initGame();
+
+        // Note: The background image uses the same file path. If it's not an animated GIF,
+        // replace src with a valid .gif file. The back button now sits outside the container,
+        // fixed to the top‑left corner of the background.
+    </script>
+</body>
+</html>
+
+
