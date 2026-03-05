@@ -172,9 +172,38 @@
     padding: 6px 16px;
     border-radius: 40px;
   }
+
+  /* Back button */
+  .back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #333;
+    font-size: 28px;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 100;
+    cursor: pointer;
+  }
+
+  .back-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  }
 </style>
 </head>
 <body>
+  <!-- Back button -->
+  <a href="4%20PIC%201%20Word%20homepage.html" class="back-btn" id="backBtn">←</a>
+
   <div class="wrap">
     <div class="card">
       <div class="grid4" id="imageGrid"></div>
@@ -334,12 +363,39 @@ function showWin(){
 nextBtn.onclick=()=>{
   overlay.classList.remove("show");
   level++;
+  updateScore(); // Update current score when level changes
   if(level>=levels.length){
     alert("🎉 You finished all 20 levels!");
     level=0;
   }
   loadLevel();
 }
+
+/* ===== HIGH SCORE SYSTEM ===== */
+const STORAGE_KEY = '4pic1word_highscore';
+
+// Track current score (level + 1 as score)
+let currentScore = 1;
+
+// Update current score when level changes
+function updateScore() {
+  currentScore = level + 1;
+}
+
+// Handle back button click - save high score before leaving
+document.getElementById('backBtn').addEventListener('click', function() {
+  // Get saved high score
+  const savedHighScore = localStorage.getItem(STORAGE_KEY);
+  const highScore = savedHighScore ? parseInt(savedHighScore) : 0;
+  
+  // Only save if current score is higher than saved high score
+  if (currentScore > highScore) {
+    localStorage.setItem(STORAGE_KEY, currentScore.toString());
+    console.log('New high score saved:', currentScore);
+  }
+  
+  // Allow the link to navigate
+});
 
 loadLevel();
 </script>

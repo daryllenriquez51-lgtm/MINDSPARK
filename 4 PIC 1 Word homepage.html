@@ -269,9 +269,9 @@
 
       <div class="benefits">
         <strong>BENEFITS:</strong>
-        <p>💡 Boost your memory and concentration.</p>
-        <p>⏳ Promotes maintaining patience and persistence.</p>
-        <p>📘 Enhance problem-solving abilities.</p>
+        <p>🧠 Improves vocabulary and word recognition.</p>
+        <p>🔍 Strengthens observation skills by analyzing pictures.</p>
+        <p>💡 Encourages critical thinking to find the correct word.</p>
       </div>
     </div>
 
@@ -280,7 +280,7 @@
     <button class="play-btn" id="playBtn">PLAY</button>
   </div>
 
-  <script>
+<script>
     let score = 0;
     let difficulty = 0;
 
@@ -288,14 +288,19 @@
     const difficultyDisplay = document.getElementById("difficulty");
     const playBtn = document.getElementById("playBtn");
 
-    // Load score from localStorage on page load
+    // Always start at 0 for first-time users
+    // Score only displays when user reaches a new high score (saved by game)
     function loadScore() {
-      const savedScore = localStorage.getItem("4pic1word_score");
+      const savedScore = localStorage.getItem("4pic1word_highscore");
       if (savedScore) {
-        score = parseInt(savedScore);
-        scoreDisplay.textContent = score;
-        difficulty = Math.floor(score / 3);
-        difficultyDisplay.textContent = difficulty;
+        const highScore = parseInt(savedScore);
+        if (highScore > 0) {
+          score = highScore;
+          scoreDisplay.textContent = score;
+          difficulty = Math.floor(score / 3);
+          difficultyDisplay.textContent = difficulty;
+        }
+        // If saved score is 0 or null, display 0 (first time user)
       }
     }
 
