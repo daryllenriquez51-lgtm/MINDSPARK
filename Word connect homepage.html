@@ -286,9 +286,9 @@
 
       <div class="benefits">
         <strong>BENEFITS:</strong>
-        <p>💡 Boost your memory and concentration.</p>
-        <p>⏳ Promotes maintaining patience and persistence.</p>
-        <p>📘 Enhance problem-solving abilities.</p>
+        <p>🔤 Improves spelling and word formation skills.</p>
+        <p>🧩 Helps recognize word patterns.</p>
+        <p>📚 Expands vocabulary through word discovery.</p>
       </div>
     </div>
 
@@ -298,7 +298,12 @@
   </div>
 
   <script>
-    let score = 0;
+    // ---------- HIGH SCORE SYSTEM (localStorage) ----------
+    const STORAGE_KEY = 'wordConnect_highScore';
+    
+    // Load saved high score on page load
+    let savedHighScore = localStorage.getItem(STORAGE_KEY);
+    let highScore = savedHighScore ? parseInt(savedHighScore) : 0;
     let difficulty = 0;
 
     const scoreDisplay = document.getElementById("score");
@@ -306,17 +311,17 @@
     const playBtn = document.getElementById("playBtn");
     const backBtn = document.getElementById("backButton");
 
-    // Play button redirect (as before)
+    // Display loaded high score (0 if first time)
+    scoreDisplay.textContent = highScore;
+    difficultyDisplay.textContent = difficulty;
+
+    // Play button redirect - go to game
     playBtn.addEventListener("click", () => {
-      setTimeout(() => {
-        window.location.href = "word connect.html";
-      }, 800);
+      window.location.href = "word connect.html";
     });
 
     // Back button functionality - navigates to MINDSPARKKK.html
     backBtn.addEventListener("click", (e) => {
-      // The href attribute will handle the navigation
-      // No need to prevent default
       console.log("Navigating to MINDSPARKKK.html");
     });
   </script>
