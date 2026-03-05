@@ -236,7 +236,32 @@ body {
   const backBtn = document.getElementById('backBtn');
   if (backBtn) {
     backBtn.addEventListener('click', function() {
-      // Save progress before leaving? (optional – we auto-save on every move anyway)
+      // Save high score and difficulty before leaving
+      try {
+        // Get current high score
+        const currentHighScore = parseInt(localStorage.getItem('jigsawHighScore')) || 0;
+        
+        // Get current score and level from game
+        const currentScore = parseInt(scoreEl.textContent) || 0;
+        const currentLevel = level || 1;
+        
+        // Update high score only if current score is higher
+        if (currentScore > currentHighScore) {
+          localStorage.setItem('jigsawHighScore', currentScore);
+        }
+        
+        // Save difficulty (highest level reached)
+        const savedDifficulty = parseInt(localStorage.getItem('jigsawDifficulty')) || 0;
+        if (currentLevel > savedDifficulty) {
+          localStorage.setItem('jigsawDifficulty', currentLevel);
+        } else if (savedDifficulty === 0 && currentLevel > 1) {
+          // First time completing at least level 1
+          localStorage.setItem('jigsawDifficulty', currentLevel);
+        }
+      } catch (e) {
+        console.log('Error saving progress', e);
+      }
+      
       // Then redirect to the given file URL
       window.location.href = 'Puzzle%20Homepage.html';
     });

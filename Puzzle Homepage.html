@@ -281,9 +281,9 @@
 
       <div class="benefits">
         <strong>BENEFITS:</strong>
-        <p>💡 Boost your memory and concentration.</p>
-        <p>⏳ Promotes maintaining patience and persistence.</p>
-        <p>📘 Enhance problem-solving abilities.</p>
+        <p>🧩 Improves problem-solving skills.</p>
+        <p>🎯 Strengthens focus and concentration.</p>
+        <p>🔍 Helps recognize patterns.</p>
       </div>
     </div>
 
@@ -295,6 +295,7 @@
   <script>
     let score = 0;
     let difficulty = 0;
+    let highScore = 0;
 
     const scoreDisplay = document.getElementById("score");
     const difficultyDisplay = document.getElementById("difficulty");
@@ -303,19 +304,28 @@
     // Load puzzle progress from jigsaw game when page loads
     function loadJigsawProgress() {
       try {
-        const savedState = localStorage.getItem('jigsawPuzzleProgress');
-        if (savedState) {
-          const puzzleState = JSON.parse(savedState);
-          // Set highScore as cumulative total achieved in puzzle
-          score = puzzleState.score || 0;
-          // Calculate difficulty based on grid size (rows * cols gives total pieces)
-          difficulty = (puzzleState.rows || 3) * (puzzleState.cols || 3);
-          // Update displays
-          scoreDisplay.textContent = score;
+        // Check if there's a saved high score
+        const savedHighScore = localStorage.getItem('jigsawHighScore');
+        if (savedHighScore) {
+          highScore = parseInt(savedHighScore) || 0;
+          scoreDisplay.textContent = highScore;
+        } else {
+          // First time user - display 0
+          scoreDisplay.textContent = 0;
+        }
+
+        // Check if there's saved difficulty (highest level reached)
+        const savedDifficulty = localStorage.getItem('jigsawDifficulty');
+        if (savedDifficulty) {
+          difficulty = parseInt(savedDifficulty) || 0;
           difficultyDisplay.textContent = difficulty;
+        } else {
+          difficultyDisplay.textContent = 0;
         }
       } catch (e) {
         console.log('No saved jigsaw progress');
+        scoreDisplay.textContent = 0;
+        difficultyDisplay.textContent = 0;
       }
     }
 
