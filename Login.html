@@ -353,20 +353,54 @@
 
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const username = loginForm.querySelector('input[type="text"]').value;
-      localStorage.setItem('username', username);
-      localStorage.setItem('loginType', 'login');
-      document.body.classList.add('fade-out');
-      setTimeout(() => {
-        window.location.href = 'MINDSPARKKK.html';
-      }, 500);
+      const username = loginForm.querySelector('input[type="text"]').value.trim();
+      const password = loginForm.querySelector('input[type="password"]').value;
+      
+      // Get registered users from localStorage
+      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      // Find user with matching username and password
+      const user = registeredUsers.find(u => u.username === username && u.password === password);
+      
+      if (user) {
+        // Login successful - store session
+        localStorage.setItem('username', username);
+        localStorage.setItem('loginType', 'login');
+        document.body.classList.add('fade-out');
+        setTimeout(() => {
+          window.location.href = 'MINDSPARKKK.html';
+        }, 500);
+      } else {
+        // Login failed - show error message
+        alert('Invalid username or password. Please register an account first or check your credentials.');
+      }
     });
 
     registerForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const username = registerForm.querySelector('input[type="text"]').value;
+      const username = registerForm.querySelector('input[type="text"]').value.trim();
+      const email = registerForm.querySelector('input[type="email"]').value.trim();
+      const password = registerForm.querySelector('input[type="password"]').value;
+      
+      // Get existing registered users
+      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      // Check if username already exists
+      const existingUser = registeredUsers.find(u => u.username === username);
+      
+      if (existingUser) {
+        alert('Username already exists! Please choose a different username or login.');
+        return;
+      }
+      
+      // Add new user to registered users array
+      registeredUsers.push({ username, email, password });
+      localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+      
+      // Store session and redirect
       localStorage.setItem('username', username);
       localStorage.setItem('loginType', 'register');
+      alert('Registration successful! Welcome to MINDSPARK!');
       document.body.classList.add('fade-out');
       setTimeout(() => {
         window.location.href = 'MINDSPARKKK.html';
