@@ -286,8 +286,8 @@ body{
 </head>
 <body>
 
-<!-- BACK BUTTON – white circle, hard link to file (will work on your PC) -->
-<a href="Matching%20Type%20Homepage.html" class="back-button" title="Go to homepage">
+<!-- BACK BUTTON – saves high score before going back -->
+<a href="Matching%20Type%20Homepage.html" class="back-button" title="Go to homepage" id="backBtn">
   <span class="back-arrow">←</span>
 </a>
 
@@ -397,6 +397,27 @@ function resetTurn(){
   [first, second] = [null, null];
   lock = false;
 }
+
+/* ===== HIGH SCORE SYSTEM ===== */
+const STORAGE_KEY = 'matchingType_highScore';
+
+// Handle back button click - save high score before leaving
+document.getElementById('backBtn').addEventListener('click', function(e) {
+  // Get current score from the game
+  const currentScore = score;
+  
+  // Get saved high score
+  const savedHighScore = localStorage.getItem(STORAGE_KEY);
+  const highScore = savedHighScore ? parseInt(savedHighScore) : 0;
+  
+  // Only save if current score is higher than saved high score
+  if (currentScore > highScore) {
+    localStorage.setItem(STORAGE_KEY, currentScore.toString());
+    console.log('New high score saved:', currentScore);
+  }
+  
+  // Allow the link to navigate (no preventDefault needed)
+});
 </script>
 
 <!-- tiny extra safety: if user clicks on the link, it will try to open the local file. 

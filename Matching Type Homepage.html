@@ -302,9 +302,9 @@
 
       <div class="benefits">
         <strong>BENEFITS:</strong>
-        <p>💡 Boost your memory and concentration.</p>
-        <p>⏳ Promotes maintaining patience and persistence.</p>
-        <p>📘 Enhance problem-solving abilities.</p>
+        <p>🧠 Improves memory and recall.</p>
+        <p>👀 Builds visual recognition skills.</p>
+        <p>🧩 Encourages attention to detail.</p>
       </div>
     </div>
 
@@ -335,26 +335,26 @@
         }, 400);
       });
 
-      // ---------- PLAY / SCORE SIMULATION ----------
-      let score = 0;
+      // ---------- HIGH SCORE SYSTEM (localStorage) ----------
+      const STORAGE_KEY = 'matchingType_highScore';
+      
+      // Load saved high score on page load
+      let savedHighScore = localStorage.getItem(STORAGE_KEY);
+      let highScore = savedHighScore ? parseInt(savedHighScore) : 0;
       let difficulty = 0;
 
       const scoreDisplay = document.getElementById("score");
       const difficultyDisplay = document.getElementById("difficulty");
       const playBtn = document.getElementById("playBtn");
 
+      // Display loaded high score (0 if first time)
+      scoreDisplay.textContent = highScore;
+      difficultyDisplay.textContent = difficulty;
+
       playBtn.addEventListener("click", () => {
-        let points = Math.floor(Math.random() * 15) + 5;   // 5–19
-        score += points;
-        difficulty = Math.floor(score / 3);
-
-        scoreDisplay.textContent = score;
-        difficultyDisplay.textContent = difficulty;
-
         // redirect to actual game page (Matching type.html)
-        setTimeout(() => {
-          window.location.href = "Matching type.html";
-        }, 800);
+        // Score will be saved when user presses back button in the game
+        window.location.href = "Matching type.html";
       });
 
       // Hide any images that fail to load (avoid broken icons)
